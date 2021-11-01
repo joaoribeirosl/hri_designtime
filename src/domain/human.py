@@ -26,6 +26,20 @@ class Interaction_Pattern(Enum):
         else:
             return Interaction_Pattern.RESCUER
 
+    def to_int(self):
+        if self == Interaction_Pattern.ASSISTANT:
+            return 3
+        elif self == Interaction_Pattern.COMPETITOR:
+            return 12
+        elif self == Interaction_Pattern.FOLLOWER:
+            return 0
+        elif self == Interaction_Pattern.LEADER:
+            return 1
+        elif self == Interaction_Pattern.RECIPIENT:
+            return 2
+        elif self == Interaction_Pattern.RESCUER:
+            return 10
+
 
 class Fatigue_Profile(Enum):
     YOUNG_HEALTHY = "y/h"

@@ -31,7 +31,7 @@ class Template_Mgr:
         self.LOGGER = Logger('Template_Mgr')
 
     def replace_tplt(self, scen_name: str):
-        with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:
+        with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
             self.LOGGER.debug('Replacing SHA templates...')
             main_content = main_tplt.read()
             for tplt in self.TPLT_DICT:
@@ -39,7 +39,7 @@ class Template_Mgr:
                     self.LOGGER.debug('Replacing {} template...'.format(tplt))
                     tplt_content = tplt_file.read()
                     main_content = main_content.replace(self.TPLT_DICT[tplt], tplt_content)
-            dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
-            dest_model.write(main_content)
-            dest_model.close()
-            self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+        dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+        dest_model.write(main_content)
+        dest_model.close()
+        self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))

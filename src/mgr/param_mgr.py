@@ -5,6 +5,7 @@ from src.domain.hri_const import Constants as const
 from src.domain.human import Human
 from src.domain.robot import Robot
 from src.logging.logger import Logger
+from src.domain.layout import Layout
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -23,7 +24,41 @@ class Param_Mgr:
                        const.INTERSECT.value]
     INST_KEYWORDS = [const.ROB_INST.value, const.ORCH_INST.value, const.HUM_INST.value, const.ALL_INST.value]
 
-    def __init__(self, hums: List[Human], robs: List[Robot]):
+    def __init__(self, hums: List[Human], robs: List[Robot], layout: Layout):
         self.LOGGER = Logger('Param_Mgr')
         self.hums = hums
+        self.N_H = len(hums)
         self.robs = robs
+        self.layout = layout
+        self.N_A = len(layout.areas)
+        self.N_I = len(layout.inter_pts)
+        self.N_P = self.N_I - 1
+
+    def replace_hum_keys(self, scen_name):
+        with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:
+            self.LOGGER.debug('Replacing Human-related parameters...')
+            main_content = main_tplt.read()
+            for key in self.HUM_KEYWORDS:
+                value = None
+                if key == const.N_H.value:
+                    value = self.N_H
+                elif key == const.N_H_bool.value:
+                    value = "{" + str(["false, "] * (self.N_H - 1)) + "false};\n"
+                elif key == const.N_H_double.value:
+                    value = "{" + str(["0.0, "] * (self.N_H - 1)) + "0.0};\n"
+                elif key == const.N_H_int.value:
+                    value = "{" + str(["0, "] * (self.N_H - 1)) + "0};\n"
+                elif key == const.PATTERNS.value:
+                    value = "{" + str([str(h.ptrn.to_int()) + "," for h in self.hums[:self.N_H - 2]]) + \
+                            str(self.hums[-1].ptrn.to_int()) + "};\n"
+                elif key == const.DEST_X.value:
+                    value = "{" + str([str(h.dest.x) + "," for h in self.hums[:self.N_H - 2]]) + \
+                            str(self.hums[-1].dest.x) + "};\n"
+                elif key == const.DEST_X.value:
+                    value = "{" + str([str(h.dest.y) + "," for h in self.hums[:self.N_H - 2]]) + \
+                            str(self.hums[-1].dest.y) + "};\n"
+                main_content = main_content.replace(key, value)
+            dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+            dest_model.write(main_content)
+            dest_model.close()
+            self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))

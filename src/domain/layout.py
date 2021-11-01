@@ -13,5 +13,6 @@ class Area:
 
 
 class Layout:
-    def __init__(self, areas: List[Area]):
+    def __init__(self, areas: List[Area], inter_pts: List[Point]):
         self.areas = areas
+        self.inter_pts = inter_pts
