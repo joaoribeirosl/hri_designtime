@@ -150,9 +150,9 @@ int task_completion = 0;
 /**
 *** FLOOR PLAN
 **/
-const int N_A = **N_A**;
-const int N_P = **N_P**;
-const int N_I = **N_I**;
+const int N_A = **N_A**
+const int N_P = **N_P**
+const int N_I = **N_I**
 
 typedef double point[2];
 typedef point area[4];

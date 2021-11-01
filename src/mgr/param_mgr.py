@@ -63,5 +63,43 @@ class Param_Mgr:
             dest_model.close()
             self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
 
+    def replace_layout_keys(self, scen_name):
+        with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
+            self.LOGGER.debug('Replacing Layout-related parameters...')
+            main_content = main_tplt.read()
+            for key in self.LAYOUT_KEYWORDS:
+                value = None
+                if key == const.N_AREAS.value:
+                    value = str(self.N_A) + ';\n'
+                elif key == const.N_POINTS.value:
+                    value = str(self.N_P) + ';\n'
+                elif key == const.N_INTERSECT.value:
+                    value = str(self.N_I) + ';\n'
+                elif key == const.LAYOUT.value:
+                    value = '{'
+                    for (i, a) in enumerate(self.layout.areas):
+                        value += '{'
+                        for (j, p) in enumerate(a.corners):
+                            value += '{' + str(p.x) + ', ' + str(p.y) + '}'
+                            if j <= 2:
+                                value += ','
+                        value += '}'
+                        if i <= self.N_A - 2:
+                            value += ','
+                    value += '};\n'
+                elif key == const.INTERSECT.value:
+                    value = '{'
+                    for (i, pt) in enumerate(self.layout.inter_pts):
+                        value += '{' + str(pt.x) + ', ' + str(pt.y) + '}'
+                        if i <= self.N_I - 2:
+                            value += ','
+                    value += '};\n'
+                main_content = main_content.replace(key, str(value))
+        dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+        dest_model.write(main_content)
+        dest_model.close()
+        self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
     def replace_params(self, scen_name):
         self.replace_hum_keys(scen_name)
+        self.replace_layout_keys(scen_name)
