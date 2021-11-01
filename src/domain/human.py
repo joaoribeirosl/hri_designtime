@@ -1,4 +1,5 @@
 from enum import Enum
+
 from src.domain.layout import Point
 
 
@@ -83,8 +84,9 @@ class FreeWill_Profile(Enum):
 
 
 class Human:
-    def __init__(self, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile, p_fw: FreeWill_Profile,
-                 start: Point, dest: Point, dext: int):
+    def __init__(self, name: str, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile,
+                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int):
+        self.name = name
         self.h_id = h_id
         self.v = v
         self.ptrn = ptrn
@@ -96,24 +98,25 @@ class Human:
 
     def get_constructor(self):
         if self.ptrn == Interaction_Pattern.ASSISTANT:
-            return "Human_Assistant({}, {}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                                self.p_fw.to_int(), self.dext)
+            return "{} = Human_Assistant({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
+                                                                        self.p_fw.to_int(), self.dext)
         elif self.ptrn == Interaction_Pattern.COMPETITOR:
-            return "Human_Competitor({}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                             self.p_fw.to_int())
+            return "{} = Human_Competitor({}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
+                                                                     self.p_fw.to_int())
         elif self.ptrn == Interaction_Pattern.FOLLOWER:
             # FIXME: fix start_from (last param)
-            return "Human_Follower({}, {}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                               self.p_fw.to_int(), -1)
+            return "{} = Human_Follower({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
+                                                                       self.p_fw.to_int(), -1)
         elif self.ptrn == Interaction_Pattern.LEADER:
             # FIXME: fix start_from and path (last two params)
-            return "Human_Leader({}, {}, {}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                                 self.p_fw.to_int(), -1, 1)
+            return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                         self.p_f.to_int(), self.p_fw.to_int(), -1, 1)
         elif self.ptrn == Interaction_Pattern.RECIPIENT:
             # FIXME: fix path (last param)
-            return "Human_Recipient({}, {}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                                self.p_fw.to_int(), 1)
+            return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
+                                                                        self.p_fw.to_int(), 1)
         else:
             # FIXME: fix path (last param
-            return "Human_Rescuer({}, {}, {}, {}, {}, {})".format(self.h_id, self.v, self.p_f.to_int(),
-                                                                  self.p_fw.to_int(), self.dext, 1)
+            return "{} = Human_Rescuer({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                          self.p_f.to_int(), self.p_fw.to_int(),
+                                                                          self.dext, 1)
