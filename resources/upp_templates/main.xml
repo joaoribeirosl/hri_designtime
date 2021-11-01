@@ -97,7 +97,7 @@ double internalRobX[NUM_ROBOTS], internalRobY[NUM_ROBOTS];
 **/
 
 // -&gt; HOW MANY HUMANS TO SERVE IN THE MISSION
-const int H = **N_H**;
+const int H = **N_H**
 
 bool served[H] = **N_H_false**
 bool objectTaken[H] = **N_H_false**
@@ -230,7 +230,7 @@ const point rechargeStation = {220.0, 320.00};
 //
 
 system 
-**INST**
+**ALL_INST**
 ;
 </system>
 <queries>
