@@ -14,6 +14,7 @@ class Constants(Enum):
     HRes_TPLT = "HRes"
     ORCH_TPLT = "ORCH"
     OPCHK_TPLT = "OPCHK"
+    ROS_TPLT = "ROS"
     # Keywords to replace templates within main file
     ROB_KEY = "**ROBOT**"
     BTR_KEY = "**BATTERY**"
@@ -25,4 +26,5 @@ class Constants(Enum):
     HRes_KEY = "**HUMAN_RESCUER**"
     ORCH_KEY = "**ORCHESTRATOR**"
     OPCHK_KEY = "**OPCHK**"
+    ROS_KEY = "**ROS**"
 

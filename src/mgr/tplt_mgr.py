@@ -1,4 +1,5 @@
 import configparser
+
 from src.domain.hri_const import Constants as const
 from src.logging.logger import Logger
 
@@ -14,10 +15,10 @@ class Template_Mgr:
     MAIN = const.MAIN_TPLT.value
     TEMPLATES = [const.ROB_TPLT.value, const.BTR_TPLT.value, const.HA_TPLT.value, const.HC_TPLT.value,
                  const.HF_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value,
-                 const.HRes_TPLT.value, const.ORCH_TPLT.value, const.OPCHK_TPLT.value]
+                 const.HRes_TPLT.value, const.ORCH_TPLT.value, const.OPCHK_TPLT.value, const.ROS_TPLT.value]
     KEYWORDS = [const.ROB_KEY.value, const.BTR_KEY.value, const.HA_KEY.value, const.HC_KEY.value,
                 const.HF_KEY.value, const.HL_KEY.value, const.HRec_KEY.value,
-                const.HRes_KEY.value, const.ORCH_KEY.value, const.OPCHK_KEY.value]
+                const.HRes_KEY.value, const.ORCH_KEY.value, const.OPCHK_KEY.value, const.ROS_KEY.value]
 
     def fill_dict(self):
         res = {}

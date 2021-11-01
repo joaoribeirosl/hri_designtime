@@ -97,18 +97,18 @@ double internalRobX[NUM_ROBOTS], internalRobY[NUM_ROBOTS];
 **/
 
 // -&gt; HOW MANY HUMANS TO SERVE IN THE MISSION
-const int H = 2;
+const int H = **N_H**;
 
-bool served[H] = {false, false};//, false, false, false, false};
-bool objectTaken[H] = {false, false};//, false, false, false, false};
-double humanFatigue[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
-double humanPositionX[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
-double humanPositionY[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
-double humTheta[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
+bool served[H] = **N_H_false**
+bool objectTaken[H] = **N_H_false**
+double humanFatigue[H] = **N_H_0.0**
+double humanPositionX[H] = **N_H_0.0**
+double humanPositionY[H] = **N_H_0.0**
+double humTheta[H] = **N_H_0.0**
 
-double internalFatigue[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
-double internalHumX[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
-double internalHumY[H] = {0.0, 0.0};//, 0.0, 0.0, 0.0, 0.0};
+double internalFatigue[H] = **N_H_0.0**
+double internalHumX[H] = **N_H_0.0**
+double internalHumY[H] = **N_H_0.0**
 
 const int ND = -1;
 const double NDD = -1.0;
@@ -122,25 +122,25 @@ int SAME_H_IDs[H][H] = {{1, ND}, {2, ND}};
 // -&gt; DEFINE PATTERN SEQUENCE (make sure it is consistent with humans ids)
 // 0: human follower, 1: human leader, 2: human recipient, 3: human assistant, 
 // 10: human_rescuer, (11: human_interdependence_mission,) 12: human competitor
-int patterns[H] = {0, 2};//, 12, ND, ND, ND, ND};
-int patterns_alt1[H] = {0, 0};//, 12, 10, 2, 0, 3}; //robot wins competition
-int patterns_alt2[H] = {0, 0};//, 12, 1, 1, 0, 3}; //robot loses competition
+int patterns[H] = **PTRNS**
+int patterns_alt1[H] = **N_H_0**
+int patterns_alt2[H] = **N_H_0**
 //
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,
 // and you can decide what it corresponds to for your specific pattern
-double destX[H] = {4900.0, 4800.0};//, 4300.0, -1.0, -1.0, 2000.0, 2000.0};
-double destY[H] = {300.0, 500.0};//, 500.0, -1.0, -1.0, 300.0, 300.0};
+double destX[H] = **DEST_X**
+double destY[H] = **DEST_Y**
 
-const double destX_alt1[H] = {4300.0, 4300.0};//, 2000.0, 2000.0, 2000.0, 2000.0}; //robot wins competition
-const double destY_alt1[H] = {300.0, 500.0};//, 300.0, 300.0, 300.0, 300.0};
-const double destX_alt2[H] = {4300.0, 4300.0};//, 4300.0, 2000.0, 2000.0, 2000.0}; //robot loses competition
-const double destY_alt2[H] = {300.0, 500.0};//, 200.0, 300.0, 300.0, 300.0};
+const double destX_alt1[H] = **N_H_0.0**
+const double destY_alt1[H] = **N_H_0.0**
+const double destX_alt2[H] = **N_H_0.0**
+const double destY_alt2[H] = **N_H_0.0**
 
 // -&gt; DEFINE BOUND FOR QUERIES 
 // (you can refine it by examining simulations)
-const int TAU = 200;
+const int TAU = **TAU**;
 //
 
 const int task_size = 150;
@@ -150,26 +150,17 @@ int task_completion = 0;
 /**
 *** FLOOR PLAN
 **/
-const int N_A = 5;
-const int N_P = 4;
-const int N_I = 5;
+const int N_A = **N_A**;
+const int N_P = **N_P**;
+const int N_I = **N_I**;
 
 typedef double point[2];
 typedef point area[4];
 typedef area layout[N_A];
 typedef point trajectory[N_P];
 
-const layout FLOOR = {{{200.0,  200.0}, {200.0,  400.0}, {4400.0, 400.0}, {4400.0, 200.0}}, //entrance
-                      {{4200.0, 0.0},   {4200.0, 600.0}, {4400.0, 600.0}, {4400.0, 0.0}}, //long hall left
-                      {{4200.0, 500.0}, {4200.0, 600.0}, {5000.0, 600.0}, {5000.0, 500.0}}, //short hall north
-                      {{4200.0, 0.0},   {4200.0, 100.0}, {5000.0, 100.0}, {5000.0, 0.0}}, //short hall south
-                      {{4800.0, 0.0},   {4800.0, 600.0}, {5000.0, 600.0}, {5000.0, 0.0}}}; //long hall right
-                      //{{4200.0, 200.0}, {4200.0, 500.0}, {4800.0, 500.0}, {4800.0, 200.0}}}; //waiting room
-const point INTERSECTIONS[N_I] = {{4300.0, 300.0},
-                                  {4300.0, 550.0},
-                                  {4900.0, 550.0},
-                                  {4900.0, 50.0},
-                                  {4300.0, 50.0}};
+const layout FLOOR = **LAYOUT**
+const point INTERSECTIONS[N_I] = **INTERSECTIONS**
 
 // I apologize for the four doubles, 
 // but it seems to be bugging when arrays are passed as arguments.
@@ -219,163 +210,14 @@ const point rechargeStation = {220.0, 320.00};
 **BATTERY**
 **ORCHESTRATOR**
 **OPCHK**
-	<template>
-		<name>ROS_SensPub</name>
-		<parameter>int id, double l_avg, double l_dev</parameter>
-		<declaration>clock L;
-
-double latency = 0.0;
-int buff_pos = 0;
-double buffer[MAX_BUFF_SIZE]; 
-double buffer2[MAX_BUFF_SIZE]; 
-int buffer3[MAX_BUFF_SIZE];
-int cached_id;
-
-void update_lat() {
-    latency = random_normal(l_avg, l_dev);
-}
-
-void add_to_buffer() {
-    cached_id = currH;
-    if(id==0){
-        buffer[buff_pos] = internal_charge[0];
-        buffer3[buff_pos] = 0;
-        buff_pos++;
-        buffer[buff_pos] = internal_charge[1];
-        buffer3[buff_pos] = 1;
-    }
-    else if(id==3) {
-        buffer[buff_pos] = internalHumX[currH-1];
-        buffer2[buff_pos] = internalHumY[currH-1];
-        buffer3[buff_pos] = -1;
-    }
-    else if(id==4){
-        buffer[buff_pos] = internalFatigue[currH-1];
-        buffer3[buff_pos] = -1;
-    }
-    else {
-        //update robot position (currR or coR)
-        buffer[buff_pos] = internalRobX[id-1];
-        buffer2[buff_pos] = internalRobY[id-1];
-    }
-
-    buff_pos += 1;
-}
-
-void shift_buffer(){
-    int i;
-
-    // Shift buffer
-    for(i=0; i&lt;MAX_BUFF_SIZE-1 &amp;&amp; buffer[i+1] &gt; 0.0; i++) {
-        buffer[i] = buffer[i+1];
-        buffer2[i] = buffer2[i+1];
-        buffer3[i] = buffer3[i+1];
-    }
-
-    buffer[i+1] = -1.0;
-    buffer2[i+1] = -1.0;
-    buffer3[i+1] = -1;
-    
-    buff_pos = buff_pos-1;
-    if(buff_pos &lt; 0)
-        buff_pos = 0;
-}
-
-void publish() {
-    int i;
-
-    // Publish
-    if(id==0){
-        batteryCharge[buffer3[0]] = buffer[0];
-        shift_buffer();
-        batteryCharge[buffer3[0]] = buffer[0];
-    }
-    else if(id==3) {
-        if(cached_id==currH) {
-            for(i=0; i&lt;H &amp;&amp; SAME_H_IDs[currH-1][i]!=-1; i++) {
-                humanPositionX[SAME_H_IDs[currH-1][i]-1] = buffer[0];
-                humanPositionY[SAME_H_IDs[currH-1][i]-1] = buffer2[0];
-            }
-        }
-    }
-    else if(id==4 &amp;&amp; cached_id==currH) {
-        humanFatigue[currH-1] = buffer[0];
-    }
-    else if(id==1 || id ==2) {
-        //update robot position (currR or coR)
-        robPositionX[id-1] = buffer[0];
-        robPositionY[id-1] = buffer2[0];
-        /*shift_buffer();
-        robPositionX[buffer3[0]] = buffer[0];
-        robPositionY[buffer3[0]] = buffer2[0];*/
-    }
-    
-    shift_buffer();
-}
-
-</declaration>
-		<location id="id152" x="-34" y="-8">
-			<name x="-42" y="8">idle</name>
-			<label kind="invariant" x="-42" y="25">L'==0</label>
-		</location>
-		<location id="id153" x="-34" y="-195">
-			<name x="-17" y="-204">sending</name>
-			<label kind="invariant" x="-17" y="-187">L &lt;= latency</label>
-		</location>
-		<init ref="id152"/>
-		<transition>
-			<source ref="id153"/>
-			<target ref="id153"/>
-			<label kind="synchronisation" x="-8" y="-289">publish_m[id]?</label>
-			<label kind="assignment" x="17" y="-272">add_to_buffer()</label>
-			<nail x="-34" y="-280"/>
-			<nail x="34" y="-246"/>
-		</transition>
-		<transition>
-			<source ref="id153"/>
-			<target ref="id153"/>
-			<label kind="guard" x="-153" y="-314">L&gt;=latency 
-&amp;&amp; buff_pos&gt;1</label>
-			<label kind="assignment" x="-178" y="-280">publish(), 
-update_lat(),
-L=0</label>
-			<nail x="-34" y="-280"/>
-			<nail x="-102" y="-238"/>
-		</transition>
-		<transition>
-			<source ref="id153"/>
-			<target ref="id152"/>
-			<label kind="guard" x="-204" y="-144">L&gt;=latency 
-&amp;&amp; buff_pos&lt;=1</label>
-			<label kind="assignment" x="-153" y="-93">publish()</label>
-			<nail x="-93" y="-102"/>
-		</transition>
-		<transition>
-			<source ref="id152"/>
-			<target ref="id153"/>
-			<label kind="synchronisation" x="34" y="-127">publish_m[id]?</label>
-			<label kind="assignment" x="34" y="-110">add_to_buffer(),
-L=0, update_lat()</label>
-			<nail x="34" y="-102"/>
-		</transition>
-	</template>
+**ROS**
 	<system>
 // Robot Instances
-r1 = Robot(1, 100, 50, 250.0, 300.0);
-r_pub = ROS_SensPub(1, 0.5, 0.01);
-r2 = Robot(2, 100, 50, 400.0, 350.0);
-r_pub_2 = ROS_SensPub(2, 0.5, 0.01);
-
-b = Battery(1, 99);
-b_2 = Battery(2, 99);
-c_pub = ROS_SensPub(0, 0.5, 0.01);
+**ROB_INST**
 //
 
 // Controller Instances (one for each robot)
-o = Orchestrator(1);
-opchk = OpChk(1, 1, 0);
-o_2 = Orchestrator(2);
-opchk_2 = OpChk(2, 1, 0);
+**ORCH_INST**
 //
 
 /**
@@ -384,39 +226,11 @@ opchk_2 = OpChk(2, 1, 0);
 
 // Human Instances
 // -&gt; DEFINE HUMAN PATTERNS
-
-//h1_a = Human_Recipient(1, 100, 1, 3, 1);
-h1_a = Human_Follower(1, 80, 2, 1, -1);
-h2 = Human_Competitor(2, 100, 1, 3);
-h1_b = Human_Recipient(2, 100, 1, 3, 1);
-//h1_b = Human_Follower(5, 80, 2, 3, 1);
-h3_c = Human_Assistant(6, 100, 1, 3, 1);
-
-// Path 1 (Robot wins competition against H2)
-h3_a_alt1 = Human_Rescuer(3, 100, 1, 3, 50, 1);
-h3_b_alt1 = Human_Recipient(4, 100, 1, 3, 1);
-
-// Path 2 (Robot loses competition against H2)
-h3_a_alt2 = Human_Leader(3, 100, 1, 3, -1, 2);
-h3_b_alt2 = Human_Leader(4, 100, 1, 3, 3, 2);
-
-h_pub_pos = ROS_SensPub(3, 0.5, 0.01);
-h_pub_ftg = ROS_SensPub(4, 0.5, 0.01);
+**HUM_INST**
 //
 
 system 
-r1, r_pub,
-r2, b_2, r_pub_2,
-b, c_pub,
-o, opchk,
-o_2, opchk_2,
-h_pub_pos,
-h_pub_ftg,
-h1_a, h1_b//,
-//h2,
-//h3_a_alt1, h3_b_alt1, 
-//h3_a_alt2, h3_b_alt2, 
-//h3_c
+**INST**
 ;
 </system>
 <queries>
