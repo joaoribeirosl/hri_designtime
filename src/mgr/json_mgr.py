@@ -1,12 +1,11 @@
 import configparser
-from typing import List
-from src.logging.logger import Logger
 import json
-from src.domain.hri_const import Constants as const
+from typing import List
+
 from src.domain.human import Human, Interaction_Pattern, Fatigue_Profile, FreeWill_Profile
+from src.domain.layout import Layout, Point, Area
 from src.domain.robot import Robot
 from src.logging.logger import Logger
-from src.domain.layout import Layout, Point
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -30,14 +29,29 @@ class Json_Mgr:
             data = json.load(json_file)
             # parse humans
             humans_data = data['humans']
+            self.LOGGER.info("Loading human-related data...")
             for h in humans_data:
                 self.hums.append(Human(h['name'], h['h_id'], h['v'], Interaction_Pattern.parse_ptrn(h['ptrn']),
                                        Fatigue_Profile.parse_ftg_profile(h['p_f']),
                                        FreeWill_Profile.parse_fw_profile(h['p_fw']),
                                        Point(h['start'][0], h['start'][1]), Point(h['dest'][0], h['dest'][1]),
                                        h['dext']))
+            self.LOGGER.info("Successfully loaded.")
             # parse robots
             robots_data = data['robots']
+            self.LOGGER.info("Loading robot-related data...")
             for r in robots_data:
                 self.robots.append(
                     Robot(r['name'], r['r_id'], r['v'], r['a'], Point(r['start'][0], r['start'][1]), r['chg']))
+            self.LOGGER.info("Successfully loaded.")
+            # parse layout
+            areas_data = data['areas']
+            inters_pts_data = data['intersect']
+            self.LOGGER.info("Loading layout-related data...")
+            for a in areas_data:
+                self.layout.areas.append(
+                    Area(Point(a['p1'][0], a['p1'][1]), Point(a['p2'][0], a['p2'][1]), Point(a['p3'][0], a['p3'][1]),
+                         Point(a['p4'][0], a['p4'][1])))
+            for pt in inters_pts_data:
+                self.layout.inter_pts.append(Point(pt['p'][0], pt['p'][1]))
+            self.LOGGER.info("Successfully loaded.")

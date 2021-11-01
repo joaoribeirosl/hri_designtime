@@ -41,24 +41,27 @@ class Param_Mgr:
             for key in self.HUM_KEYWORDS:
                 value = None
                 if key == const.N_H.value:
-                    value = self.N_H
+                    value = str(self.N_H) + ";\n"
                 elif key == const.N_H_bool.value:
-                    value = "{" + str(["false, "] * (self.N_H - 1)) + "false};\n"
+                    value = "{" + "false, " * (self.N_H - 1) + "false};\n"
                 elif key == const.N_H_double.value:
-                    value = "{" + str(["0.0, "] * (self.N_H - 1)) + "0.0};\n"
+                    value = "{" + "0.0, " * (self.N_H - 1) + "0.0};\n"
                 elif key == const.N_H_int.value:
-                    value = "{" + str(["0, "] * (self.N_H - 1)) + "0};\n"
+                    value = "{" + "0, " * (self.N_H - 1) + "0};\n"
                 elif key == const.PATTERNS.value:
-                    value = "{" + str([str(h.ptrn.to_int()) + "," for h in self.hums[:self.N_H - 2]]) + \
+                    value = "{" + ''.join([str(h.ptrn.to_int()) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].ptrn.to_int()) + "};\n"
                 elif key == const.DEST_X.value:
-                    value = "{" + str([str(h.dest.x) + "," for h in self.hums[:self.N_H - 2]]) + \
+                    value = "{" + ''.join([str(h.dest.x) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].dest.x) + "};\n"
-                elif key == const.DEST_X.value:
-                    value = "{" + str([str(h.dest.y) + "," for h in self.hums[:self.N_H - 2]]) + \
+                elif key == const.DEST_Y.value:
+                    value = "{" + ''.join([str(h.dest.y) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].dest.y) + "};\n"
-                main_content = main_content.replace(key, value)
+                main_content = main_content.replace(key, str(value))
             dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
             dest_model.write(main_content)
             dest_model.close()
             self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
+    def replace_params(self, scen_name):
+        self.replace_hum_keys(scen_name)
