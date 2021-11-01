@@ -18,7 +18,7 @@ SCENARIO_NAME = config['PARAMS SETTINGS']['SCENARIO_NAME']
 json_mgr = Json_Mgr()
 json_mgr.load_json()
 
-# TODO: Replaces PARAM keywords within main template file with scenario parameters
+# Replaces PARAM keywords within main template file with scenario parameters
 param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout)
 param_mgr.replace_params(SCENARIO_NAME)
 

@@ -3,9 +3,9 @@ from typing import List
 
 from src.domain.hri_const import Constants as const
 from src.domain.human import Human
+from src.domain.layout import Layout
 from src.domain.robot import Robot
 from src.logging.logger import Logger
-from src.domain.layout import Layout
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -124,6 +124,19 @@ class Param_Mgr:
                         value += ins
                         if i <= len(self.inst) - 2:
                             value += ",\n"
+                main_content = main_content.replace(key, str(value))
+        dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+        dest_model.write(main_content)
+        dest_model.close()
+        self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
+    def replace_query_keys(self, scen_name):
+        with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
+            self.LOGGER.debug('Replacing Instances-related parameters...')
+            main_content = main_tplt.read()
+            for key in self.QUERY_KEYWORDS:
+                value = None
+                # TODO
                 main_content = main_content.replace(key, str(value))
         dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
         dest_model.write(main_content)

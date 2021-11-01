@@ -140,7 +140,7 @@ const double destY_alt2[H] = **N_H_0.0**
 
 // -&gt; DEFINE BOUND FOR QUERIES 
 // (you can refine it by examining simulations)
-const int TAU = **TAU**;
+// const int TAU = **TAU**;
 //
 
 const int task_size = 150;

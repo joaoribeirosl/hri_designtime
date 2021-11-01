@@ -1,7 +1,7 @@
 {
   "experiments": [
     {
-      "type": "pfail",
+      "type": "pscs",
       "tb": 180
     },
     {
