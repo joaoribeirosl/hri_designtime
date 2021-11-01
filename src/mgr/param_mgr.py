@@ -23,6 +23,7 @@ class Param_Mgr:
     LAYOUT_KEYWORDS = [const.N_AREAS.value, const.N_POINTS.value, const.N_INTERSECT.value, const.LAYOUT.value,
                        const.INTERSECT.value]
     INST_KEYWORDS = [const.ROB_INST.value, const.ORCH_INST.value, const.HUM_INST.value, const.ALL_INST.value]
+    QUERY_KEYWORDS = [const.TAU.value]
 
     def __init__(self, hums: List[Human], robs: List[Robot], layout: Layout):
         self.LOGGER = Logger('Param_Mgr')
@@ -33,6 +34,9 @@ class Param_Mgr:
         self.N_A = len(layout.areas)
         self.N_I = len(layout.inter_pts)
         self.N_P = self.N_I - 1
+        self.inst = [h.name for h in hums] + [r.name for r in robs] + ['b_{}'.format(r.name) for r in robs] + \
+                    ['r_pub_{}'.format(r.r_id) for r in robs] + ['o_{}'.format(r.r_id) for r in robs] + \
+                    ['opchk_{}'.format(r.r_id) for r in robs] + ['h_pub_pos', 'h_pub_ftg']
 
     def replace_hum_keys(self, scen_name):
         with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:
@@ -100,6 +104,33 @@ class Param_Mgr:
         dest_model.close()
         self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
 
+    def replace_inst_keys(self, scen_name):
+        with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
+            self.LOGGER.debug('Replacing Instances-related parameters...')
+            main_content = main_tplt.read()
+            for key in self.INST_KEYWORDS:
+                value = None
+                if key == const.ROB_INST.value:
+                    value = ''.join([r.get_constructor() for r in self.robs])
+                    value += 'c_pub = ROS_SensPub(0, 0.5, 0.01);\n'
+                elif key == const.HUM_INST.value:
+                    value = ''.join([h.get_constructor() for h in self.hums])
+                    value += 'h_pub_pos = ROS_SensPub(3, 0.5, 0.01);\nh_pub_ftg = ROS_SensPub(4, 0.5, 0.01);\n'
+                elif key == const.ORCH_INST.value:
+                    value = ''.join([r.get_orch_constructor() for r in self.robs])
+                elif key == const.ALL_INST.value:
+                    value = ''
+                    for (i, ins) in enumerate(self.inst):
+                        value += ins
+                        if i <= len(self.inst) - 2:
+                            value += ",\n"
+                main_content = main_content.replace(key, str(value))
+        dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+        dest_model.write(main_content)
+        dest_model.close()
+        self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
     def replace_params(self, scen_name):
         self.replace_hum_keys(scen_name)
         self.replace_layout_keys(scen_name)
+        self.replace_inst_keys(scen_name)

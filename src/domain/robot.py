@@ -11,8 +11,10 @@ class Robot:
         self.chg = chg
 
     def get_constructor(self):
-        return "{} = Robot({}, {}, {}, {:.2f}, {:.2f});\n{} = Battery({}, {});\n".format(self.name, self.r_id, self.v,
-                                                                                         self.a, self.start.x,
-                                                                                         self.start.y,
-                                                                                         "b_{}".format(self.name),
-                                                                                         self.r_id, self.chg)
+        return "{} = Robot({}, {}, {}, {:.2f}, {:.2f});\n{} = Battery({}, {});\nr_pub_{} = ROS_SensPub({}, 0.5, 0.01);\n" \
+            .format(self.name, self.r_id, self.v, self.a, self.start.x,
+                    self.start.y, "b_{}".format(self.name), self.r_id, self.chg, self.r_id, self.r_id)
+
+    def get_orch_constructor(self):
+        return "o_{} = Orchestrator({});\nopchk_{} = OpChk({}, 1, 0);\n".format(self.r_id, self.r_id, self.r_id,
+                                                                                self.r_id)
