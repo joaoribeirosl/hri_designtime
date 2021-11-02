@@ -1,12 +1,24 @@
 {
-  "experiments": [
+  "queries": [
     {
       "type": "pscs",
-      "tb": 180
+      "tau": 180,
+      "n": 20
     },
     {
-      "type": "pfail",
-      "tb": 220
+      "type": "sim",
+      "tau": 180,
+      "n": -1
+    },
+    {
+      "type": "eftg",
+      "tau": 180,
+      "n": 10
+    },
+    {
+      "type": "echg",
+      "tau": 180,
+      "n": 10
     }
   ],
   "humans": [

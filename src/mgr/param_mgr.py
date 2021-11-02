@@ -36,7 +36,7 @@ class Param_Mgr:
         self.N_P = self.N_I - 1
         self.inst = [h.name for h in hums] + [r.name for r in robs] + ['b_{}'.format(r.name) for r in robs] + \
                     ['r_pub_{}'.format(r.r_id) for r in robs] + ['o_{}'.format(r.r_id) for r in robs] + \
-                    ['opchk_{}'.format(r.r_id) for r in robs] + ['h_pub_pos', 'h_pub_ftg']
+                    ['opchk_{}'.format(r.r_id) for r in robs] + ['c_pub', 'h_pub_pos', 'h_pub_ftg']
 
     def replace_hum_keys(self, scen_name):
         with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:

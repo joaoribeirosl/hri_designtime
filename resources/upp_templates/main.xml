@@ -85,7 +85,7 @@ int currH = 1;
 int hExe = 0;
 
 // Sensor Outputs
-double batteryCharge[NUM_ROBOTS];
+double batteryCharge[NUM_ROBOTS] = {100.0, 100.0};
 double internal_charge[NUM_ROBOTS] = {-1.0, -1.0};
 
 double robPositionX[NUM_ROBOTS];

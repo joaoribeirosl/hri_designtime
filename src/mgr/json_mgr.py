@@ -6,6 +6,7 @@ from src.domain.human import Human, Interaction_Pattern, Fatigue_Profile, FreeWi
 from src.domain.layout import Layout, Point, Area
 from src.domain.robot import Robot
 from src.logging.logger import Logger
+from src.domain.query import Query, Query_Type
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -23,6 +24,7 @@ class Json_Mgr:
         self.hums: List[Human] = []
         self.robots: List[Robot] = []
         self.layout: Layout = Layout([], [])
+        self.queries: List[Query] = []
 
     def load_json(self):
         with open(self.JSON_PATH + self.PARAMS_FILE + self.JSON_EXT, 'r') as json_file:
@@ -54,4 +56,10 @@ class Json_Mgr:
                          Point(a['p4'][0], a['p4'][1])))
             for pt in inters_pts_data:
                 self.layout.inter_pts.append(Point(pt['p'][0], pt['p'][1]))
+            self.LOGGER.info("Successfully loaded.")
+            # parse queries
+            queries_data = data['queries']
+            self.LOGGER.info("Loading query-related data...")
+            for q in queries_data:
+                self.queries.append(Query(Query_Type.parse_query(q['type']), q['tau'], q['n'], self.hums, self.robots))
             self.LOGGER.info("Successfully loaded.")
