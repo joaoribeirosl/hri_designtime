@@ -38,14 +38,14 @@ class Query:
     def get_query(self):
         if self.t == Query_Type.P_SCS:
             if self.n != ND:
-                return "P[<={};{}](<> scs)\n".format(self.tau, self.n)
+                return "Pr[<={};{}](<> scs)\n".format(self.tau, self.n)
             else:
-                return "P[<={}](<> scs)\n".format(self.tau)
+                return "Pr[<={}](<> scs)\n".format(self.tau)
         elif self.t == Query_Type.P_FAIL:
             if self.n != ND:
-                return "P[<={};{}](<> fail)\n".format(self.tau, self.n)
+                return "Pr[<={};{}](<> fail)\n".format(self.tau, self.n)
             else:
-                return "P[<={}](<> fail)\n".format(self.tau)
+                return "Pr[<={}](<> fail)\n".format(self.tau)
         elif self.t == Query_Type.E_FTG:
             if self.n != ND:
                 q = ''
@@ -71,8 +71,8 @@ class Query:
         else:
             served = ''.join(['served[{}], '.format(i) for (i, h) in enumerate(self.hums)])
             if self.n != ND:
-                return "sim[<={};{}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
-                       "robotPositionX[currR-1]/100, robotPositionY[currR-1]/100}}\n".format(self.tau, self.n, served)
+                return "simulate[<={};{}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
+                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100}}\n".format(self.tau, self.n, served)
             else:
-                return "sim[<={}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
-                       "robotPositionX[currR-1]/100, robotPositionY[currR-1]/100}}\n".format(self.tau, served)
+                return "simulate[<={}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
+                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100}}\n".format(self.tau, served)

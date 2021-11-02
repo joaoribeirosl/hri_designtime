@@ -5,6 +5,7 @@ from src.mgr.json_mgr import Json_Mgr
 from src.mgr.param_mgr import Param_Mgr
 from src.mgr.tplt_mgr import Template_Mgr
 from src.mgr.query_mgr import Query_Mgr
+from src.mgr.upp_mgr import Upp_Mgr
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -31,4 +32,6 @@ tplt_mgr.replace_tplt(SCENARIO_NAME)
 query_mg = Query_Mgr(json_mgr.queries)
 query_mg.gen_q_file(SCENARIO_NAME)
 
-# TODO: Run Uppaal Experiment
+# Run Uppaal Experiment
+upp_mgr = Upp_Mgr()
+upp_mgr.run_exp(SCENARIO_NAME)
