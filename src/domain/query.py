@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List
+
 from src.domain.human import Human
 from src.domain.robot import Robot
 

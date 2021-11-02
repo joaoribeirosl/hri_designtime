@@ -1,4 +1,5 @@
 import configparser
+import sys
 from typing import List
 
 from src.domain.hri_const import Constants as const
@@ -8,7 +9,7 @@ from src.domain.robot import Robot
 from src.logging.logger import Logger
 
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+config.read(sys.argv[1])
 config.sections()
 
 

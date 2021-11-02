@@ -1,11 +1,12 @@
 import configparser
-
-from src.logging.logger import Logger
-from src.domain.query import Query
+import sys
 from typing import List
 
+from src.domain.query import Query
+from src.logging.logger import Logger
+
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+config.read(sys.argv[1])
 config.sections()
 
 

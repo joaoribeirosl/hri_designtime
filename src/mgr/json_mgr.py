@@ -1,15 +1,16 @@
 import configparser
 import json
+import sys
 from typing import List
 
 from src.domain.human import Human, Interaction_Pattern, Fatigue_Profile, FreeWill_Profile
 from src.domain.layout import Layout, Point, Area
+from src.domain.query import Query, Query_Type
 from src.domain.robot import Robot
 from src.logging.logger import Logger
-from src.domain.query import Query, Query_Type
 
 config = configparser.ConfigParser()
-config.read('./resources/config/config.ini')
+config.read(sys.argv[1])
 config.sections()
 
 
