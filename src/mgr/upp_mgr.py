@@ -3,6 +3,7 @@ import os
 import sys
 
 from src.logging.logger import Logger
+from datetime import datetime
 
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
@@ -21,10 +22,18 @@ class Upp_Mgr:
     def __init__(self):
         self.LOGGER = Logger('Uppaal_Mgr')
 
+    def get_ts(self):
+        ts = datetime.now()
+        ts_split = str(ts).split('.')[0]
+        ts_str = ts_split.replace('-', '_')
+        ts_str = ts_str.replace(' ', '_')
+        return ts_str
+
     def run_exp(self, scen_name):
         self.LOGGER.info('Starting verification...')
+        res_name = scen_name + '_' + self.get_ts()
         os.system('{} {} {} {} {}'.format(self.SCRIPT_PATH, self.UPPAAL_PATH,
                                           self.UPPAAL_XML_PATH + scen_name + self.MODEL_EXT,
                                           self.UPPAAL_XML_PATH + scen_name + self.QUERY_EXT,
-                                          self.UPPAAL_OUT_PATH.format(scen_name)))
+                                          self.UPPAAL_OUT_PATH.format(res_name)))
         self.LOGGER.info('Verification complete.')

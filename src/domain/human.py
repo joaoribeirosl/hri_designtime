@@ -77,6 +77,7 @@ class Fatigue_Profile(Enum):
 class FreeWill_Profile(Enum):
     NORMAL = "n"
     HIGH = "h"
+    LOW = "l"
     DISABLED = "d"
 
     def to_int(self):
@@ -84,8 +85,10 @@ class FreeWill_Profile(Enum):
             return 1
         elif self == FreeWill_Profile.HIGH:
             return 2
-        else:
+        elif self == FreeWill_Profile.LOW:
             return 3
+        else:
+            return -1
 
     @staticmethod
     def parse_fw_profile(s: str):
@@ -93,6 +96,8 @@ class FreeWill_Profile(Enum):
             return FreeWill_Profile.NORMAL
         elif s == "h":
             return FreeWill_Profile.HIGH
+        elif s == "l":
+            return FreeWill_Profile.LOW
         else:
             return FreeWill_Profile.DISABLED
 

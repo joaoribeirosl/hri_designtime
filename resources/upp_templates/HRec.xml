@@ -263,14 +263,12 @@ void initHuman() {
         lambda = 0.005; mi = 0.005; //default values
     }
 
-    if(p_fw==1) {
-       freeWillTh = GROWN_UP;
-    } else if(p_fw == 2) {
-       freeWillTh = CHILD_LIKE;
-    } else if(p_fw == 3) {
-       freeWillTh = WHATEVER;
-    }
-}</declaration>
+    if(p_fw==1) freeWillTh = FW_NORMAL;
+    else if(p_fw == 2) freeWillTh = FW_HIGH;
+    else if(p_fw == 3) freeWillTh = FW_LOW;
+    else freeWillTh = FW_DISABLED;
+}
+</declaration>
 		<location id="id60" x="-492" y="-399" color="#0000ff">
 			<name x="-526" y="-425">idle</name>
 			<label kind="invariant" x="-612" y="-518">Fp' == 0 

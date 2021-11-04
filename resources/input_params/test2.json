@@ -2,22 +2,22 @@
   "queries": [
     {
       "type": "pscs",
-      "tau": 180,
+      "tau": 90,
       "n": 20
     },
     {
       "type": "sim",
-      "tau": 180,
+      "tau": 90,
       "n": -1
     },
     {
       "type": "eftg",
-      "tau": 180,
+      "tau": 90,
       "n": 10
     },
     {
       "type": "echg",
-      "tau": 180,
+      "tau": 90,
       "n": 10
     }
   ],
@@ -28,7 +28,7 @@
       "v": 80,
       "ptrn": "FOLLOWER",
       "p_f": "y/s",
-      "p_fw": "n",
+      "p_fw": "l",
       "start": [
         200.0,
         900.0

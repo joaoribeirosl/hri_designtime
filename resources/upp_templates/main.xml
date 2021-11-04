@@ -52,9 +52,10 @@ const double ELDERLY_SICK[2] = {0.005, 0.004}; // approx. 350s
 const double COVID_PATIENT[2] = {0.025, 0.001}; // approx. 280s
 
 // Human Free Will Profiles
-const int GROWN_UP = 99;
-const int CHILD_LIKE = 80;
-const int WHATEVER = 101;
+const int FW_NORMAL = 90;
+const int FW_HIGH = 80;
+const int FW_LOW = 99;
+const int FW_DISABLED = 101;
 
 /**
 *** VARIABLES
