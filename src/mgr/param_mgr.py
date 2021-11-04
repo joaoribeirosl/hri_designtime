@@ -20,7 +20,8 @@ class Param_Mgr:
     MAIN = const.MAIN_TPLT.value
 
     HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
-                    const.PATTERNS.value, const.DEST_X.value, const.DEST_Y.value]
+                    const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,
+                    const.DEST_Y.value, const.SAME_IDs_MAT.value]
     LAYOUT_KEYWORDS = [const.N_AREAS.value, const.N_POINTS.value, const.N_INTERSECT.value, const.LAYOUT.value,
                        const.INTERSECT.value]
     INST_KEYWORDS = [const.ROB_INST.value, const.ORCH_INST.value, const.HUM_INST.value, const.ALL_INST.value]
@@ -56,12 +57,34 @@ class Param_Mgr:
                 elif key == const.PATTERNS.value:
                     value = "{" + ''.join([str(h.ptrn.to_int()) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].ptrn.to_int()) + "};\n"
+                elif key == const.START_X.value:
+                    value = "{" + ''.join([str(h.start.x) + "," for h in self.hums[:self.N_H - 1]]) + \
+                            str(self.hums[-1].start.x) + "};\n"
+                elif key == const.START_Y.value:
+                    value = "{" + ''.join([str(h.start.y) + "," for h in self.hums[:self.N_H - 1]]) + \
+                            str(self.hums[-1].start.y) + "};\n"
                 elif key == const.DEST_X.value:
                     value = "{" + ''.join([str(h.dest.x) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].dest.x) + "};\n"
                 elif key == const.DEST_Y.value:
                     value = "{" + ''.join([str(h.dest.y) + "," for h in self.hums[:self.N_H - 1]]) + \
                             str(self.hums[-1].dest.y) + "};\n"
+                elif key == const.SAME_IDs_MAT.value:
+                    value = '{'
+                    for i in range(len(self.hums)):
+                        value += '{'
+                        for (j, hum) in enumerate(self.hums):
+                            if j == 0:
+                                value += str(hum.h_id)
+                            else:
+                                # FIXME not correct, but not using this feature yet
+                                value += str(hum.same_as)
+                            if j <= len(self.hums) - 2:
+                                value += ','
+                        value += '}'
+                        if i <= len(self.hums) - 2:
+                            value += ','
+                    value += '};'
                 main_content = main_content.replace(key, str(value))
             dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
             dest_model.write(main_content)

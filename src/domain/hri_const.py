@@ -34,8 +34,12 @@ class Constants(Enum):
     N_H_double = "**N_H_0.0**"
     N_H_int = "**N_H_0**"
     PATTERNS = "**PTRNS**"
+    START_X = "**START_X**"
+    START_Y = "**START_Y**"
     DEST_X = "**DEST_X**"
     DEST_Y = "**DEST_Y**"
+    SAME_IDs_MAT = "**SAME_IDs_MAT**"
+    #
     TAU = "**TAU**"
     # Layout-related params
     N_AREAS = "**N_A**"

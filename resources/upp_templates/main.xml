@@ -114,7 +114,7 @@ const int ND = -1;
 const double NDD = -1.0;
 int PATH = 0;
 
-int SAME_H_IDs[H][H] = {{1, ND}, {2, ND}};
+int SAME_H_IDs[H][H] = **SAME_IDs_MAT**
 
 //int SAME_H_IDs[H][H] = {{1, 5, ND, ND, ND, ND}, {2, ND, ND, ND, ND, ND}, {3, 4, 6, ND, ND, ND}, 
 //                    {4, 3, 6, ND, ND, ND}, {5, 1, ND, ND, ND, ND}, {6, 3, 4, ND, ND, ND}};
@@ -126,6 +126,10 @@ int patterns[H] = **PTRNS**
 int patterns_alt1[H] = **N_H_0**
 int patterns_alt2[H] = **N_H_0**
 //
+
+// -&gt; DEFINE STARTING LOCATIONS IN CARTESIAN PLAN
+double startX[H] = **START_X**
+double startY[H] = **START_Y**
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,

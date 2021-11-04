@@ -38,7 +38,7 @@ class Json_Mgr:
                                        Fatigue_Profile.parse_ftg_profile(h['p_f']),
                                        FreeWill_Profile.parse_fw_profile(h['p_fw']),
                                        Point(h['start'][0], h['start'][1]), Point(h['dest'][0], h['dest'][1]),
-                                       h['dext']))
+                                       h['dext'], h['same_as']))
             self.LOGGER.info("Successfully loaded.")
             # parse robots
             robots_data = data['robots']

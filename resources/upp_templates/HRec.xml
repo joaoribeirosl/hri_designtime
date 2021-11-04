@@ -241,8 +241,8 @@ void initHuman() {
     t = 0;
     
     tUpd = 0;
-    humanPositionX[id-1] = 2000.0;
-    humanPositionY[id-1] = 300.0;
+    humanPositionX[id-1] = startX[id-1];
+    humanPositionY[id-1] = startY[id-1];
 
     internalHumX[id-1] = humanPositionX[id-1];
     internalHumY[id-1] = humanPositionY[id-1];

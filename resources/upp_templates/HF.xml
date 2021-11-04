@@ -252,8 +252,8 @@ void initHuman() {
     Fp = 0;
 
     if(start_from==-1) {
-        humanPositionX[id-1] = 220.0;
-        humanPositionY[id-1] = 300.0;
+    	humanPositionX[id-1] = startX[id-1];
+    	humanPositionY[id-1] = startY[id-1];
     } else {
         humanPositionX[id-1] = destX[start_from-1];
         humanPositionY[id-1] = destY[start_from-1];

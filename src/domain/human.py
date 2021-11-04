@@ -99,7 +99,7 @@ class FreeWill_Profile(Enum):
 
 class Human:
     def __init__(self, name: str, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile,
-                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int):
+                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int, same_as: int):
         self.name = name
         self.h_id = h_id
         self.v = v
@@ -109,6 +109,7 @@ class Human:
         self.start = start
         self.dest = dest
         self.dext = dext
+        self.same_as = same_as
 
     def get_constructor(self):
         if self.ptrn == Interaction_Pattern.ASSISTANT:
@@ -118,19 +119,19 @@ class Human:
             return "{} = Human_Competitor({}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
                                                                      self.p_fw.to_int())
         elif self.ptrn == Interaction_Pattern.FOLLOWER:
-            # FIXME: fix start_from (last param)
             return "{} = Human_Follower({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                       self.p_fw.to_int(), -1)
+                                                                       self.p_fw.to_int(), self.same_as)
         elif self.ptrn == Interaction_Pattern.LEADER:
-            # FIXME: fix start_from and path (last two params)
+            # FIXME: fix path (last param)
             return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
-                                                                         self.p_f.to_int(), self.p_fw.to_int(), -1, 1)
+                                                                         self.p_f.to_int(), self.p_fw.to_int(),
+                                                                         self.same_as, 1)
         elif self.ptrn == Interaction_Pattern.RECIPIENT:
             # FIXME: fix path (last param)
             return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
                                                                         self.p_fw.to_int(), 1)
         else:
-            # FIXME: fix path (last param
+            # FIXME: fix path (last param)
             return "{} = Human_Rescuer({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                           self.p_f.to_int(), self.p_fw.to_int(),
                                                                           self.dext, 1)
