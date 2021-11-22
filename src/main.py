@@ -26,7 +26,7 @@ param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout)
 param_mgr.replace_params(SCENARIO_NAME)
 
 # Replaces TPLT keywords within main template file with individual automata templates
-tplt_mgr = Template_Mgr()
+tplt_mgr = Template_Mgr(param_mgr)
 tplt_mgr.replace_tplt(SCENARIO_NAME)
 
 # Generate query file

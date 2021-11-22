@@ -13,6 +13,7 @@ class Area:
 
 
 class Layout:
-    def __init__(self, areas: List[Area], inter_pts: List[Point]):
+    def __init__(self, areas: List[Area], inter_pts: List[Point], max_neigh: int):
         self.areas = areas
         self.inter_pts = inter_pts
+        self.max_neigh = max_neigh

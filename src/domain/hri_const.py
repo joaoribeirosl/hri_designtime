@@ -44,7 +44,11 @@ class Constants(Enum):
     # Layout-related params
     N_AREAS = "**N_A**"
     N_POINTS = "**N_P**"
+    N_P_double = "**N_P_0.0**"
     N_INTERSECT = "**N_I**"
+    N_I_false = "**N_I_false**"
+    MAX_NEIGH = "**max_neigh**"
+    MAX_NEIGH_int = "**max_neigh_-1**"
     LAYOUT = "**LAYOUT**"
     INTERSECT = "**INTERSECTIONS**"
     # Instances-related params

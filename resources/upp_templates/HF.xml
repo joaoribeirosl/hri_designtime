@@ -20,18 +20,18 @@ const int Tpoll = 1;
 bool ONCE_FTG = true;
 bool ONCE_POS = true;
 
-void updateF(double coeff, bool walking) { 
+void updateF(double coeff, bool walking) {
     // if two human instances are the same person,
     // residual conditions must be retrieved
     if (ONCE_FTG &amp;&amp; start_from!=-1 &amp;&amp; currH==id) {
-        F = internalFatigue[start_from-1]; 
+        F = internalFatigue[start_from-1];
         Fp = F;
         internalFatigue[id-1] = F;
         ONCE_FTG = false;
     }
- 
+
     if(walking) {
-        internalFatigue[id-1] = 1-(1-internalFatigue[id-1])*exp(coeff*Tpoll); 
+        internalFatigue[id-1] = 1-(1-internalFatigue[id-1])*exp(coeff*Tpoll);
     } else {
         internalFatigue[id-1] = internalFatigue[id-1]*exp(coeff*Tpoll);
     }
@@ -39,10 +39,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},
-                   {0.0, 0.0},
-                   {0.0, 0.0},
-                   {0.0, 0.0}};
+trajectory traj = **N_P_0.0**
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -140,9 +137,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[4] = {-1, -1, -1, -1}, k = 0;
+    int neigh[**max_neigh**] = **max_neigh_-1**
+    int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false, false, false, false, false};
+    bool visited[N_I] = **N_I_false**
     curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -153,7 +151,7 @@ void plan_traj() {
     }
     i = 0;
     curr_traj = 0;
-    
+
     // builds trajectory by finding a path among adjacent areas
     // (the existence of an intersection point means two areas are adjacent to each other)
     // until the destination area is reached
@@ -172,7 +170,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 3 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; **max_neigh** &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -218,7 +216,7 @@ void updateP() {
         internalHumX[id-1] = humanPositionX[id-1];
         internalHumY[id-1] = humanPositionY[id-1];
         ONCE_POS = false;
-    } 
+    }
 
     if (curr_traj &gt;= N_P || (traj[curr_traj][0]==0.0 &amp;&amp; traj[curr_traj][1]==0.0))
         return;
@@ -229,7 +227,7 @@ void updateP() {
             return;
         change_orientation(internalHumX[id-1], internalHumY[id-1], traj[curr_traj][0], traj[curr_traj][1]);
     }
-    
+
     internalHumX[id-1] = internalHumX[id-1] + v*Tpoll*cos(ort*PI/180);
     internalHumY[id-1] = internalHumY[id-1] + v*Tpoll*sin(ort*PI/180);
 }
@@ -248,7 +246,7 @@ void updateFreeWill(){
 void initHuman() {
     t = 0;
     tUpd = 0;
-    F = 0; 
+    F = 0;
     Fp = 0;
 
     if(start_from==-1) {
@@ -265,10 +263,10 @@ void initHuman() {
     if(p_f==1) {
         lambda = YOUNG_HEALTHY[0]; mi = YOUNG_HEALTHY[1];
     } else if(p_f==2) {
-        lambda = random_normal(YOUNG_SICK[0], YOUNG_SICK_SIGMA[0]); 
+        lambda = random_normal(YOUNG_SICK[0], YOUNG_SICK_SIGMA[0]);
         mi = random_normal(YOUNG_SICK[1], YOUNG_SICK_SIGMA[1]);
     } else if(p_f==3) {
-        lambda = random_normal(ELDERLY_HEALTHY[0], ELDERLY_HEALTHY_SIGMA[0]); 
+        lambda = random_normal(ELDERLY_HEALTHY[0], ELDERLY_HEALTHY_SIGMA[0]);
         mi = random_normal(ELDERLY_HEALTHY[1], ELDERLY_HEALTHY_SIGMA[1]);
     } else if(p_f==4) {
         lambda = ELDERLY_SICK[0]; mi = ELDERLY_SICK[1];
@@ -286,16 +284,16 @@ void initHuman() {
 </declaration>
 		<location id="id35" x="-390" y="-255">
 			<name x="-425" y="-246">idle</name>
-			<label kind="invariant" x="-450" y="-229">freeWill'==0 
-&amp;&amp; Fp'==0 
+			<label kind="invariant" x="-450" y="-229">freeWill'==0
+&amp;&amp; Fp'==0
 &amp;&amp; F' == -Fp*mi*exp(-mi*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
 		<location id="id36" x="221" y="-255">
 			<name x="213" y="-289">busy</name>
-			<label kind="invariant" x="212" y="-374">freeWill'==0 
+			<label kind="invariant" x="212" y="-374">freeWill'==0
 &amp;&amp; Fp'==0
-&amp;&amp; F &lt;= passout_th 
+&amp;&amp; F &lt;= passout_th
 &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
@@ -386,8 +384,8 @@ freeWill = random(freeWillRange)</label>
 			<source ref="id35"/>
 			<target ref="id42"/>
 			<label kind="guard" x="-518" y="-383">tUpd&gt;=Tpoll</label>
-			<label kind="assignment" x="-654" y="-366">updateF(-mi, 0), 
-tUpd=0, 
+			<label kind="assignment" x="-654" y="-366">updateF(-mi, 0),
+tUpd=0,
 freeWill = random(freeWillRange)</label>
 			<nail x="-424" y="-366"/>
 		</transition>
@@ -422,7 +420,7 @@ plan_traj()</label>
 		<transition>
 			<source ref="id47"/>
 			<target ref="id41"/>
-			<label kind="assignment" x="-59" y="-357">t = 0, 
+			<label kind="assignment" x="-59" y="-357">t = 0,
 tUpd=0</label>
 			<label kind="probability" x="-59" y="-374">obey</label>
 		</transition>
@@ -432,7 +430,7 @@ tUpd=0</label>
 			<label kind="guard" x="-297" y="-77">!served[id-1] &amp;&amp;
 freeWill&gt;=freeWillTh</label>
 			<label kind="synchronisation" x="-297" y="-43">free_stop!</label>
-			<label kind="assignment" x="-93" y="-77">t = 0, freeWill = 0, Fp = F, 
+			<label kind="assignment" x="-93" y="-77">t = 0, freeWill = 0, Fp = F,
 tUpd=0,
 updateFreeWill()</label>
 			<nail x="119" y="-85"/>
@@ -448,7 +446,7 @@ updateFreeWill()</label>
 		<transition>
 			<source ref="id46"/>
 			<target ref="id35"/>
-			<label kind="assignment" x="-186" y="-230">t = 0, Fp=F, 
+			<label kind="assignment" x="-186" y="-230">t = 0, Fp=F,
 tUpd=0,
 updateFreeWill()</label>
 			<label kind="probability" x="-229" y="-196">obey</label>

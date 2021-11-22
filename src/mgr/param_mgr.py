@@ -18,10 +18,12 @@ class Param_Mgr:
     DEST_PATH = config['TEMPLATES SETTING']['MODEL_PATH']
     TPLT_EXT = config['TEMPLATES SETTING']['TEMPLATES_EXT']
     MAIN = const.MAIN_TPLT.value
+    TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value]
 
     HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
                     const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,
                     const.DEST_Y.value, const.SAME_IDs_MAT.value]
+    TRAJ_KEYWORDS = [const.N_P_double.value, const.MAX_NEIGH.value, const.MAX_NEIGH_int.value, const.N_I_false.value]
     LAYOUT_KEYWORDS = [const.N_AREAS.value, const.N_POINTS.value, const.N_INTERSECT.value, const.LAYOUT.value,
                        const.INTERSECT.value]
     INST_KEYWORDS = [const.ROB_INST.value, const.ORCH_INST.value, const.HUM_INST.value, const.ALL_INST.value]
@@ -35,6 +37,7 @@ class Param_Mgr:
         self.layout = layout
         self.N_A = len(layout.areas)
         self.N_I = len(layout.inter_pts)
+        self.MAX_NEIGH = layout.max_neigh
         self.N_P = self.N_I - 1
         self.inst = [h.name for h in hums] + [r.name for r in robs] + ['b_{}'.format(r.name) for r in robs] + \
                     ['r_pub_{}'.format(r.r_id) for r in robs] + ['o_{}'.format(r.r_id) for r in robs] + \
@@ -77,7 +80,7 @@ class Param_Mgr:
                             if j == 0:
                                 value += str(hum.h_id)
                             else:
-                                # FIXME not correct, but not using this feature yet
+                                # FIXME (not using this feature yet)
                                 value += str(hum.same_as)
                             if j <= len(self.hums) - 2:
                                 value += ','
@@ -156,7 +159,7 @@ class Param_Mgr:
 
     def replace_query_keys(self, scen_name):
         with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
-            self.LOGGER.debug('Replacing Instances-related parameters...')
+            self.LOGGER.debug('Replacing Query-related parameters...')
             main_content = main_tplt.read()
             for key in self.QUERY_KEYWORDS:
                 value = None
@@ -166,6 +169,42 @@ class Param_Mgr:
         dest_model.write(main_content)
         dest_model.close()
         self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
+    def replace_traj_keys(self, tplt):
+        if tplt in self.TRAJ_TEMPLATES:
+            with open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r') as main_tplt:
+                self.LOGGER.debug('Replacing Trajectory-related parameters...')
+                main_content = main_tplt.read()
+                for key in self.TRAJ_KEYWORDS:
+                    # const.N_P_double, const.MAX_NEIGH, const.MAX_NEIGH_int, const.N_I_false
+                    if key == const.N_P_double.value:
+                        value = '{'
+                        for x in range(self.N_P):
+                            value += '{0.0, 0.0}'
+                            if x < self.N_P - 1:
+                                value += ','
+                        value += '};'
+                    elif key == const.MAX_NEIGH.value:
+                        value = self.MAX_NEIGH
+                    elif key == const.MAX_NEIGH_int.value:
+                        value = '{'
+                        for x in range(self.MAX_NEIGH):
+                            value += '-1'
+                            if x < self.MAX_NEIGH - 1:
+                                value += ','
+                        value += '};'
+                    else:
+                        value = '{'
+                        for x in range(self.N_I):
+                            value += 'false'
+                            if x < self.N_I - 1:
+                                value += ','
+                        value += '};'
+                    main_content = main_content.replace(key, str(value))
+        else:
+            f = open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r')
+            main_content = f.read()
+        return main_content
 
     def replace_params(self, scen_name):
         self.replace_hum_keys(scen_name)

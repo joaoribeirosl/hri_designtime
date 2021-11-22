@@ -3,6 +3,7 @@ import sys
 
 from src.domain.hri_const import Constants as const
 from src.logging.logger import Logger
+from src.mgr.param_mgr import Param_Mgr
 
 config = configparser.ConfigParser()
 config.read(sys.argv[1])
@@ -27,9 +28,10 @@ class Template_Mgr:
             res[tplt] = self.KEYWORDS[i]
         return res
 
-    def __init__(self):
+    def __init__(self, param_mgr: Param_Mgr):
         self.TPLT_DICT = self.fill_dict()
         self.LOGGER = Logger('Template_Mgr')
+        self.param_mgr = param_mgr
 
     def replace_tplt(self, scen_name: str):
         with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
@@ -38,7 +40,7 @@ class Template_Mgr:
             for tplt in self.TPLT_DICT:
                 with open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r') as tplt_file:
                     self.LOGGER.debug('Replacing {} template...'.format(tplt))
-                    tplt_content = tplt_file.read()
+                    tplt_content = self.param_mgr.replace_traj_keys(tplt) # tplt_file.read()
                     main_content = main_content.replace(self.TPLT_DICT[tplt], tplt_content)
         dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
         dest_model.write(main_content)

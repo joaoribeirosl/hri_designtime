@@ -24,7 +24,7 @@ class Json_Mgr:
         self.LOGGER = Logger('Json_Mgr')
         self.hums: List[Human] = []
         self.robots: List[Robot] = []
-        self.layout: Layout = Layout([], [])
+        self.layout: Layout = Layout([], [], 0)
         self.queries: List[Query] = []
 
     def load_json(self):
@@ -57,6 +57,7 @@ class Json_Mgr:
                          Point(a['p4'][0], a['p4'][1])))
             for pt in inters_pts_data:
                 self.layout.inter_pts.append(Point(pt['p'][0], pt['p'][1]))
+            self.layout.max_neigh = data['max_neigh']
             self.LOGGER.info("Successfully loaded.")
             # parse queries
             queries_data = data['queries']
