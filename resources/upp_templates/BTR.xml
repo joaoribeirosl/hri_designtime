@@ -1,144 +1,161 @@
 <template>
-	<name>Battery</name>
-	<parameter>int id, int Cstart</parameter>
-	<declaration>clock C, t, tUpd;
+    <name>Battery</name>
+    <parameter>int id, double Cstart</parameter>
+    <declaration>clock C = 12.6, t, tUpd;
 
-// Discharge tresholds
-const int C_100 = 100;
+        // Discharge tresholds
+        const int C_100 = 100;
 
-// Charge/Discharge Rate R:
-// R = 1/Tcycle * ln(100/0.01)
-const double R = 0.00102;
-const double cheatFactor = 10.0;
+        // Charge/Discharge Rate R:
+        // R = 1/Tcycle * ln(100/0.01)
+        const double R = 0.00102;
+        const double cheatFactor = 10.0;
 
-// BatteryStatus Sharing parameters
-//int chargeCounter = 0;
-const int Tpoll = 2;
-double Cp;
+        // BatteryStatus Sharing parameters
+        //int chargeCounter = 0;
+        const int Tpoll = 1;
+        double Cp;
+        int dt = 0;
 
-void updateCharge(bool charging) {
-    double increment;
+        const double a_0 = 1.23612015*10;
+        const double a_1 = -3.05366882*pow(10, -4);
+        const double a_2 = 2.46157427*pow(10, -8);
+        const double a_3 = -8.33622587*pow(10, -13);
 
-    increment = 100 - internal_charge[id-1];
+        void updateCharge(bool charging) {
+        double increment;
 
-    if(charging) {
-        internal_charge[id-1] = 100 - increment*exp(-R*(Tpoll)); 
-    } else {
-        internal_charge[id-1] = 100 - increment*exp(R*(Tpoll));
-    }
-}
+        increment = 100 - internal_charge[id-1];
 
-void initBattery() {
-    t=0;
+        if(charging) {
+        internal_charge[id-1] = 100 - increment*exp(-R*(Tpoll));
+        } else {
+        internal_charge[id-1] = internal_charge[id-1]+Tpoll*(a_1+a_2*Tpoll+2*a_2*dt+a_3*pow(Tpoll,2)+3*a_3*pow(dt,
+        2)+3*a_3*dt*Tpoll);
+        //internal_charge[id-1] = 100 - increment*exp(R*(Tpoll));
+        }
 
-    if(Cstart==C_100) {
-        Cp = 99.99;    
-    } else {
+        dt+=Tpoll;
+        }
+
+        void initBattery() {
+        t=0;
+
+        if(Cstart==C_100) {
+        Cp = 99.99;
+        } else {
         Cp = Cstart;
-    }
-    C = fint(Cp);
-    batteryCharge[id-1] = Cp;
-    internal_charge[id-1] = Cp;
-    tUpd=0;
-}</declaration>
-		<location id="id104" x="408" y="204">
-			<name x="383" y="170">Init</name>
-			<label kind="exponentialrate" x="383" y="187">1</label>
-			<committed/>
-		</location>
-		<location id="id105" x="1063" y="204">
-			<name x="1080" y="179">empty</name>
-			<label kind="invariant" x="1080" y="196">C'==0</label>
-			<label kind="exponentialrate" x="1080" y="162">1</label>
-		</location>
-		<location id="id106" x="689" y="204">
-			<name x="697" y="179">discharging</name>
-			<label kind="invariant" x="697" y="128">tUpd &lt;= Tpoll
-&amp;&amp; C&gt;=0 &amp;&amp; t'==1
-&amp;&amp; C' == -(100-Cp)*R*exp(R*t)</label>
-		</location>
-		<location id="id107" x="689" y="425">
-			<name x="697" y="434">recharging</name>
-			<label kind="invariant" x="697" y="451">C' == (100-Cp)*R*exp(-R*t)
-&amp;&amp; C &lt; C_100 &amp;&amp; t'==1
-&amp;&amp; tUpd &lt;= Tpoll</label>
-		</location>
-		<location id="id108" x="595" y="119">
-			<committed/>
-		</location>
-		<location id="id109" x="595" y="519">
-			<committed/>
-		</location>
-		<location id="id110" x="876" y="204">
-			<committed/>
-		</location>
-		<init ref="id104"/>
-		<transition>
-			<source ref="id106"/>
-			<target ref="id110"/>
-			<label kind="guard" x="748" y="204">C&lt;=0</label>
-			<label kind="assignment" x="706" y="221">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id109"/>
-			<target ref="id107"/>
-			<label kind="synchronisation" x="544" y="459">publish_m[0]!</label>
-		</transition>
-		<transition>
-			<source ref="id107"/>
-			<target ref="id109"/>
-			<label kind="guard" x="621" y="519">tUpd&gt;=Tpoll</label>
-			<label kind="assignment" x="621" y="536">tUpd=0, 
-updateCharge(1)</label>
-			<nail x="689" y="519"/>
-		</transition>
-		<transition>
-			<source ref="id108"/>
-			<target ref="id106"/>
-			<label kind="synchronisation" x="536" y="153">publish_m[0]!</label>
-		</transition>
-		<transition>
-			<source ref="id106"/>
-			<target ref="id108"/>
-			<label kind="guard" x="621" y="51">tUpd&gt;=Tpoll
-&amp;&amp; C&gt;0</label>
-			<label kind="assignment" x="621" y="85">tUpd=0, 
-updateCharge(0)</label>
-			<nail x="689" y="119"/>
-		</transition>
-		<transition>
-			<source ref="id104"/>
-			<target ref="id106"/>
-			<label kind="assignment" x="510" y="213">initBattery()</label>
-		</transition>
-		<transition>
-			<source ref="id107"/>
-			<target ref="id106"/>
-			<label kind="guard" x="519" y="247">C&lt;C_100 &amp;&amp;
-tUpd&lt;Tpoll &amp;&amp;
-active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="519" y="298">stop_recharging?</label>
-			<label kind="assignment" x="519" y="315">Cp=C, t=0, tUpd = 0,
-active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id106"/>
-			<target ref="id107"/>
-			<label kind="guard" x="723" y="289">C&lt;C_100</label>
-			<label kind="synchronisation" x="723" y="306">start_recharging[id]?</label>
-			<label kind="assignment" x="723" y="323">Cp=C, t=0, tUpd = 0</label>
-			<nail x="714" y="264"/>
-			<nail x="714" y="374"/>
-		</transition>
-		<transition>
-			<source ref="id105"/>
-			<target ref="id105"/>
-			<nail x="1080" y="247"/>
-			<nail x="1105" y="230"/>
-		</transition>
-		<transition>
-			<source ref="id110"/>
-			<target ref="id105"/>
-			<label kind="synchronisation" x="910" y="204">dead_battery!</label>
-		</transition>
+        }
+        C = Cp;
+        batteryCharge[id-1] = Cp;
+        internal_charge[id-1] = Cp;
+        tUpd=0;
+        }
+    </declaration>
+    <location id="id111" x="408" y="204">
+        <name x="383" y="170">Init</name>
+        <committed/>
+    </location>
+    <location id="id112" x="1063" y="204">
+        <name x="1080" y="179">empty</name>
+        <label kind="invariant" x="1080" y="196">C'==0</label>
+        <label kind="exponentialrate" x="1080" y="162">1</label>
+    </location>
+    <location id="id113" x="689" y="204">
+        <name x="697" y="179">discharging</name>
+        <label kind="invariant" x="697" y="128">tUpd &lt;= Tpoll
+            &amp;&amp; t'==1
+            &amp;&amp; C' == a_1 + 2*a_2*t + 3*a_3*t*t
+        </label>
+    </location>
+    <location id="id114" x="689" y="425">
+        <name x="697" y="434">recharging</name>
+        <label kind="invariant" x="697" y="451">C' == (100-Cp)*R*exp(-R*t)
+            &amp;&amp; C &lt; C_100 &amp;&amp; t'==1
+            &amp;&amp; tUpd &lt;= Tpoll
+        </label>
+    </location>
+    <location id="id115" x="595" y="119">
+        <committed/>
+    </location>
+    <location id="id116" x="595" y="519">
+        <committed/>
+    </location>
+    <location id="id117" x="876" y="204">
+        <committed/>
+    </location>
+    <init ref="id111"/>
+    <transition>
+        <source ref="id113"/>
+        <target ref="id117"/>
+        <label kind="guard" x="748" y="204">C&lt;=0</label>
+        <label kind="assignment" x="706" y="221">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id116"/>
+        <target ref="id114"/>
+        <label kind="synchronisation" x="544" y="459">publish_m[0]!</label>
+    </transition>
+    <transition>
+        <source ref="id114"/>
+        <target ref="id116"/>
+        <label kind="guard" x="621" y="519">tUpd&gt;=Tpoll</label>
+        <label kind="assignment" x="621" y="536">tUpd=0,
+            updateCharge(1)
+        </label>
+        <nail x="689" y="519"/>
+    </transition>
+    <transition>
+        <source ref="id115"/>
+        <target ref="id113"/>
+        <label kind="synchronisation" x="536" y="153">publish_m[0]!</label>
+    </transition>
+    <transition>
+        <source ref="id113"/>
+        <target ref="id115"/>
+        <label kind="guard" x="621" y="51">tUpd&gt;=Tpoll
+            &amp;&amp; C&gt;0
+        </label>
+        <label kind="assignment" x="621" y="85">tUpd=0,
+            updateCharge(0)
+        </label>
+        <nail x="689" y="119"/>
+    </transition>
+    <transition>
+        <source ref="id111"/>
+        <target ref="id113"/>
+        <label kind="assignment" x="510" y="213">initBattery()</label>
+    </transition>
+    <transition>
+        <source ref="id114"/>
+        <target ref="id113"/>
+        <label kind="guard" x="519" y="247">C&lt;C_100 &amp;&amp;
+            tUpd&lt;Tpoll &amp;&amp;
+            active_robot[id-1] == true
+        </label>
+        <label kind="synchronisation" x="519" y="298">stop_recharging?</label>
+        <label kind="assignment" x="519" y="315">Cp=C, t=0, tUpd = 0,
+            active_robot[id-1] = false
+        </label>
+    </transition>
+    <transition>
+        <source ref="id113"/>
+        <target ref="id114"/>
+        <label kind="guard" x="723" y="289">C&lt;C_100</label>
+        <label kind="synchronisation" x="723" y="306">start_recharging[id]?</label>
+        <label kind="assignment" x="723" y="323">Cp=C, t=0, tUpd = 0</label>
+        <nail x="714" y="264"/>
+        <nail x="714" y="374"/>
+    </transition>
+    <transition>
+        <source ref="id112"/>
+        <target ref="id112"/>
+        <nail x="1080" y="247"/>
+        <nail x="1105" y="230"/>
+    </transition>
+    <transition>
+        <source ref="id117"/>
+        <target ref="id112"/>
+        <label kind="synchronisation" x="910" y="204">dead_battery!</label>
+    </transition>
 </template>
