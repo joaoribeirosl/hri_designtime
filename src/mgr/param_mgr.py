@@ -18,7 +18,7 @@ class Param_Mgr:
     DEST_PATH = config['TEMPLATES SETTING']['MODEL_PATH']
     TPLT_EXT = config['TEMPLATES SETTING']['TEMPLATES_EXT']
     MAIN = const.MAIN_TPLT.value
-    TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value]
+    TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value, const.HL_TPLT.value]
 
     HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
                     const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,

@@ -39,10 +39,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},
-                   {0.0, 0.0},
-                   {0.0, 0.0},
-                   {0.0, 0.0}};
+trajectory traj = **N_P_0.0**
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -140,9 +137,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[3] = {-1, -1, -1}, k = 0;
+    int neigh[**max_neigh**] = **max_neigh_-1**
+    int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false, false, false, false, false};
+    bool visited[N_I] = **N_I_false**
     curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     // leader plans trajectory to destination
     dest[0] = destX[id-1]; dest[1] = destY[id-1];
@@ -173,7 +171,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 3 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; **max_neigh** &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
