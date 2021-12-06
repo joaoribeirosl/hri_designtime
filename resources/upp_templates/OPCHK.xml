@@ -1,7 +1,7 @@
-<template>
-	<name>OpChk</name>
-	<parameter>int id, int T_int, int T_proc</parameter>
-	<declaration>clock t_act;
+    <template>
+        <name>OpChk</name>
+        <parameter>int id, int T_int, int T_proc</parameter>
+        <declaration>clock t_act;
 
 
 //Human-Robot Distance Parameters
@@ -10,9 +10,9 @@ const double restartDistance = 3.0;
 int recipientStages = 0;
 
 //Recharging Policy Parameters
-const double rechargingTh = 10.0;
-const double stopRechargingTh = 50.0;
-const double failBattery = 1.0;
+const double rechargingTh = 10.9;
+const double stopRechargingTh = 12.4;
+const double failBattery = 11.0;
 
 //Fatigue-Monitoring Parameters
 const double failFatigue = 0.97;
@@ -347,120 +347,129 @@ void check_actions() {
     }
 }
  </declaration>
-		<location id="id146" x="-663" y="-366">
-			<name x="-705" y="-399">op</name>
-			<label kind="invariant" x="-773" y="-374">t_act&lt;=T_int</label>
-		</location>
-		<location id="id147" x="-238" y="-366">
-			<name x="-221" y="-391">chk</name>
-			<label kind="invariant" x="-221" y="-365">t_act&lt;=T_proc</label>
-		</location>
-		<location id="id148" x="-442" y="-527">
-			<name x="-452" y="-561">off</name>
-		</location>
-		<location id="id149" x="-451" y="-222">
-			<committed/>
-		</location>
-		<location id="id150" x="-238" y="-459">
-			<committed/>
-		</location>
-		<location id="id151" x="-136" y="-459">
-			<committed/>
-		</location>
-		<init ref="id148"/>
-		<transition>
-			<source ref="id151"/>
-			<target ref="id148"/>
-			<label kind="synchronisation" x="-195" y="-518">opchk_scs!</label>
-			<nail x="-144" y="-467"/>
-			<nail x="-238" y="-527"/>
-		</transition>
-		<transition>
-			<source ref="id147"/>
-			<target ref="id151"/>
-			<label kind="guard" x="-127" y="-450">!stop[id-1] &amp;&amp; scs
+        <location id="id146" x="-663" y="-366">
+            <name x="-705" y="-399">op</name>
+            <label kind="invariant" x="-773" y="-374">t_act&lt;=T_int</label>
+        </location>
+        <location id="id147" x="-238" y="-366">
+            <name x="-221" y="-391">chk</name>
+            <label kind="invariant" x="-221" y="-365">t_act&lt;=T_proc</label>
+        </location>
+        <location id="id148" x="-442" y="-527">
+            <name x="-452" y="-561">off</name>
+        </location>
+        <location id="id149" x="-451" y="-222">
+            <committed/>
+        </location>
+        <location id="id150" x="-238" y="-459">
+            <committed/>
+        </location>
+        <location id="id151" x="-136" y="-459">
+            <committed/>
+        </location>
+        <init ref="id148"/>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id149"/>
+            <label kind="guard" x="-382" y="-314">!stop[id-1] &amp;&amp; fail
 &amp;&amp; t_act&gt;=T_proc</label>
-			<label kind="assignment" x="-127" y="-416">active_robot[id-1] = true</label>
-			<nail x="-136" y="-365"/>
-		</transition>
-		<transition>
-			<source ref="id147"/>
-			<target ref="id150"/>
-			<label kind="guard" x="-382" y="-459">stop[id-1] &amp;&amp; !scs
+            <label kind="assignment" x="-382" y="-280">active_robot[id-1] = true</label>
+            <nail x="-255" y="-263"/>
+        </transition>
+        <transition>
+            <source ref="id151"/>
+            <target ref="id148"/>
+            <label kind="synchronisation" x="-195" y="-518">opchk_scs!</label>
+            <nail x="-144" y="-467"/>
+            <nail x="-238" y="-527"/>
+        </transition>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id151"/>
+            <label kind="guard" x="-127" y="-450">!stop[id-1] &amp;&amp; scs
 &amp;&amp; t_act&gt;=T_proc</label>
-			<label kind="assignment" x="-382" y="-425">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id149"/>
-			<target ref="id148"/>
-			<label kind="synchronisation" x="-26" y="-552">opchk_fail!</label>
-			<label kind="comments" x="-433" y="-200">active_robot[id-1] is not set true because the synch messagge opchk_fail is not received by anyone</label>
-			<nail x="59" y="-229"/>
-			<nail x="59" y="-527"/>
-		</transition>
-		<transition>
-			<source ref="id147"/>
-			<target ref="id149"/>
-			<label kind="guard" x="-238" y="-323">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-238" y="-306">pass_out?</label>
-			<label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
-			<nail x="-238" y="-348"/>
-			<nail x="-239" y="-256"/>
-		</transition>
-		<transition>
-			<source ref="id146"/>
-			<target ref="id149"/>
-			<label kind="guard" x="-841" y="-340">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-841" y="-323">pass_out?</label>
-			<label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
-			<nail x="-664" y="-265"/>
-		</transition>
-		<transition>
-			<source ref="id150"/>
-			<target ref="id148"/>
-			<label kind="synchronisation" x="-331" y="-501">opchk_stop!</label>
-			<nail x="-238" y="-527"/>
-		</transition>
-		<transition>
-			<source ref="id148"/>
-			<target ref="id146"/>
-			<label kind="guard" x="-748" y="-578">active_robot[id-1] == true &amp;&amp; 
+            <label kind="assignment" x="-127" y="-416">active_robot[id-1] = true</label>
+            <nail x="-136" y="-365"/>
+        </transition>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id150"/>
+            <label kind="guard" x="-382" y="-459">stop[id-1] &amp;&amp; !scs
+&amp;&amp; t_act&gt;=T_proc</label>
+            <label kind="assignment" x="-382" y="-425">active_robot[id-1] = true</label>
+        </transition>
+        <transition>
+            <source ref="id149"/>
+            <target ref="id148"/>
+            <label kind="synchronisation" x="-26" y="-552">opchk_fail!</label>
+            <label kind="comments" x="-433" y="-200">active_robot[id-1] is not set true because the synch messagge opchk_fail is not received by anyone</label>
+            <nail x="59" y="-229"/>
+            <nail x="59" y="-527"/>
+        </transition>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id149"/>
+            <label kind="guard" x="-238" y="-323">active_robot[id-1] == true</label>
+            <label kind="synchronisation" x="-238" y="-306">pass_out?</label>
+            <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
+            <nail x="-238" y="-348"/>
+            <nail x="-239" y="-256"/>
+        </transition>
+        <transition>
+            <source ref="id146"/>
+            <target ref="id149"/>
+            <label kind="guard" x="-841" y="-340">active_robot[id-1] == true</label>
+            <label kind="synchronisation" x="-841" y="-323">pass_out?</label>
+            <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
+            <nail x="-664" y="-265"/>
+        </transition>
+        <transition>
+            <source ref="id150"/>
+            <target ref="id148"/>
+            <label kind="synchronisation" x="-331" y="-501">opchk_stop!</label>
+            <nail x="-238" y="-527"/>
+        </transition>
+        <transition>
+            <source ref="id148"/>
+            <target ref="id146"/>
+            <label kind="guard" x="-748" y="-578">active_robot[id-1] == true &amp;&amp; 
 (currR == id || coR == id)</label>
-			<label kind="synchronisation" x="-697" y="-544">opchk_start?</label>
-			<label kind="assignment" x="-748" y="-527">initialize(), t_act=0, 
+            <label kind="synchronisation" x="-697" y="-544">opchk_start?</label>
+            <label kind="assignment" x="-748" y="-527">initialize(), t_act=0, 
 active_robot[id-1] = false</label>
-			<nail x="-663" y="-527"/>
-		</transition>
-		<transition>
-			<source ref="id147"/>
-			<target ref="id149"/>
-			<label kind="guard" x="-238" y="-280">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-238" y="-263">dead_battery?</label>
-			<label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
-			<nail x="-238" y="-255"/>
-		</transition>
-		<transition>
-			<source ref="id146"/>
-			<target ref="id149"/>
-			<label kind="guard" x="-841" y="-297">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-841" y="-280">dead_battery?</label>
-			<label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
-			<nail x="-663" y="-348"/>
-			<nail x="-663" y="-348"/>
-			<nail x="-663" y="-264"/>
-		</transition>
-		<transition>
-			<source ref="id147"/>
-			<target ref="id146"/>
-			<label kind="guard" x="-518" y="-323">!stop[id-1] &amp;&amp; !scs
-&amp;&amp; t_act&gt;=T_proc</label>
-			<label kind="assignment" x="-476" y="-289">t_act=0</label>
-			<nail x="-450" y="-323"/>
-		</transition>
-		<transition>
-			<source ref="id146"/>
-			<target ref="id147"/>
-			<label kind="guard" x="-501" y="-408">t_act&gt;=T_int</label>
-			<label kind="assignment" x="-501" y="-391">check_actions(), t_act=0</label>
-		</transition>
-</template>
+            <nail x="-663" y="-527"/>
+        </transition>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id149"/>
+            <label kind="guard" x="-238" y="-280">active_robot[id-1] == true</label>
+            <label kind="synchronisation" x="-238" y="-263">dead_battery?</label>
+            <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
+            <nail x="-238" y="-255"/>
+        </transition>
+        <transition>
+            <source ref="id146"/>
+            <target ref="id149"/>
+            <label kind="guard" x="-841" y="-297">active_robot[id-1] == true</label>
+            <label kind="synchronisation" x="-841" y="-280">dead_battery?</label>
+            <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
+            <nail x="-663" y="-348"/>
+            <nail x="-663" y="-348"/>
+            <nail x="-663" y="-264"/>
+        </transition>
+        <transition>
+            <source ref="id147"/>
+            <target ref="id146"/>
+            <label kind="guard" x="-518" y="-323">!stop[id-1] &amp;&amp; !scs
+&amp;&amp; t_act&gt;=T_proc
+&amp;&amp; !fail</label>
+            <label kind="assignment" x="-467" y="-289">t_act=0</label>
+            <nail x="-450" y="-323"/>
+        </transition>
+        <transition>
+            <source ref="id146"/>
+            <target ref="id147"/>
+            <label kind="guard" x="-501" y="-408">t_act&gt;=T_int</label>
+            <label kind="assignment" x="-501" y="-391">check_actions(), t_act=0</label>
+        </transition>
+    </template>
