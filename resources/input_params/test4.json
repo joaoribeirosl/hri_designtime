@@ -2,22 +2,22 @@
   "queries": [
     {
       "type": "pscs",
-      "tau": 60,
+      "tau": 80,
       "n": -1
     },
     {
       "type": "sim",
-      "tau": 60,
+      "tau": 80,
       "n": 1
     },
     {
       "type": "eftg",
-      "tau": 60,
+      "tau": 80,
       "n": -1
     },
     {
       "type": "echg",
-      "tau": 60,
+      "tau": 80,
       "n": -1
     }
   ],
