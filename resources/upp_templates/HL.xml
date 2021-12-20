@@ -232,7 +232,7 @@ void checkSuccess() {
     dist_to_dest = pt_dist(destX[id-1], internalHumX[id-1], destY[id-1], internalHumY[id-1]);
     humanRobotDist = calculateDistance();
     // when humans reach their destination, they can set themselves as "served"
-    if(dist_to_dest &lt;= v*1.5 &amp;&amp; humanRobotDist&lt;=2.0) {
+    if(dist_to_dest &lt;= v*1.75 &amp;&amp; humanRobotDist&lt;=2.0) {
         served[id-1] = true;
     }
 }
@@ -432,6 +432,7 @@ updateF(-lambda, 1)</label>
 			<label kind="guard" x="-348" y="-391">tUpd&gt;=Tpoll</label>
 			<label kind="assignment" x="-348" y="-374">updateF(-mi, 0), 
 tUpd=0, 
+checkSuccess(),
 freeWill = random(freeWillRange)</label>
 		</transition>
 		<transition>
