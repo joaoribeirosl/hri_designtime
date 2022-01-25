@@ -38,9 +38,9 @@ Add the repo path to your Python path (fixes ModuleNotFoundError while trying to
 
 	export PYTHONPATH="${PYTHONPATH}:$REPO_PATH"
 
-Run the main script specifying the path to your configuration file:
+Run the main script specifying the name of the scenario to be analysed (there must be a $SCENARIO_NAME.json within the [`./resources/input_params/`](resources/input_params) folder):
 
-	python3 $REPO_PATH/src/main.py $CONFIG_FILE_PATH
+	python3 $REPO_PATH/src/main.py $SCENARIO_NAME
 	
 ---
 
