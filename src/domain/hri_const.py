@@ -39,6 +39,13 @@ class Constants(Enum):
     DEST_X = "**DEST_X**"
     DEST_Y = "**DEST_Y**"
     SAME_IDs_MAT = "**SAME_IDs_MAT**"
+    # Robot-related params
+    N_R = "**N_R**"
+    N_R_act = "**N_R_act**"
+    N_R_bool = "**N_R_false**"
+    N_R_double = "**N_R_100.0**"
+    N_R_int = "**N_R_1**"
+    N_R_neg = "**N_R_-1**"
     #
     TAU = "**TAU**"
     # Layout-related params

@@ -104,7 +104,7 @@ class FreeWill_Profile(Enum):
 
 class Human:
     def __init__(self, name: str, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile,
-                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int, same_as: int):
+                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int, same_as: int, path: int):
         self.name = name
         self.h_id = h_id
         self.v = v
@@ -115,28 +115,29 @@ class Human:
         self.dest = dest
         self.dext = dext
         self.same_as = same_as
+        self.path = path
 
     def get_constructor(self):
         if self.ptrn == Interaction_Pattern.ASSISTANT:
-            return "{} = Human_Assistant({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                        self.p_fw.to_int(), self.dext)
+            return "{} = Human_Assistant({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                            self.p_f.to_int(),
+                                                                            self.p_fw.to_int(), self.dext, self.path)
         elif self.ptrn == Interaction_Pattern.COMPETITOR:
-            return "{} = Human_Competitor({}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                     self.p_fw.to_int())
+            return "{} = Human_Competitor({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                         self.p_f.to_int(),
+                                                                         self.p_fw.to_int(), self.path)
         elif self.ptrn == Interaction_Pattern.FOLLOWER:
-            return "{} = Human_Follower({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                       self.p_fw.to_int(), self.same_as)
+            return "{} = Human_Follower({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                           self.p_f.to_int(),
+                                                                           self.p_fw.to_int(), self.same_as, self.path)
         elif self.ptrn == Interaction_Pattern.LEADER:
-            # FIXME: fix path (last param)
             return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                          self.p_f.to_int(), self.p_fw.to_int(),
-                                                                         self.same_as, 1)
+                                                                         self.same_as, self.path)
         elif self.ptrn == Interaction_Pattern.RECIPIENT:
-            # FIXME: fix path (last param)
             return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                        self.p_fw.to_int(), 1)
+                                                                        self.p_fw.to_int(), self.path)
         else:
-            # FIXME: fix path (last param)
             return "{} = Human_Rescuer({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                           self.p_f.to_int(), self.p_fw.to_int(),
-                                                                          self.dext, 1)
+                                                                          self.dext, self.path)

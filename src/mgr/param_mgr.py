@@ -1,5 +1,4 @@
 import configparser
-import sys
 from typing import List
 
 from src.domain.hri_const import Constants as const
@@ -18,11 +17,14 @@ class Param_Mgr:
     DEST_PATH = config['TEMPLATES SETTING']['MODEL_PATH']
     TPLT_EXT = config['TEMPLATES SETTING']['TEMPLATES_EXT']
     MAIN = const.MAIN_TPLT.value
-    TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value]
+    TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value,
+                      const.HA_TPLT.value, const.HC_TPLT.value, const.HRes_TPLT.value]
 
     HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
                     const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,
                     const.DEST_Y.value, const.SAME_IDs_MAT.value]
+    ROB_KEYWORDS = [const.N_R.value, const.N_R_bool.value, const.N_R_int.value, const.N_R_neg.value,
+                    const.N_R_double.value, const.N_R_act.value]
     TRAJ_KEYWORDS = [const.N_P_double.value, const.MAX_NEIGH.value, const.MAX_NEIGH_int.value, const.N_I_false.value]
     LAYOUT_KEYWORDS = [const.N_AREAS.value, const.N_POINTS.value, const.N_INTERSECT.value, const.LAYOUT.value,
                        const.INTERSECT.value]
@@ -34,6 +36,7 @@ class Param_Mgr:
         self.hums = hums
         self.N_H = len(hums)
         self.robs = robs
+        self.N_R = len(robs)
         self.layout = layout
         self.N_A = len(layout.areas)
         self.N_I = len(layout.inter_pts)
@@ -50,28 +53,82 @@ class Param_Mgr:
             for key in self.HUM_KEYWORDS:
                 value = None
                 if key == const.N_H.value:
-                    value = str(self.N_H) + ";\n"
+                    exclude = len([h for h in self.hums if h.path == 2])
+                    value = str(self.N_H - exclude) + ";\n"
                 elif key == const.N_H_bool.value:
-                    value = "{" + "false, " * (self.N_H - 1) + "false};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path in [1, -1]:
+                            value += 'false'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.N_H_double.value:
-                    value = "{" + "0.0, " * (self.N_H - 1) + "0.0};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path in [1, -1]:
+                            value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.N_H_int.value:
-                    value = "{" + "0, " * (self.N_H - 1) + "0};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path in [1, -1]:
+                            value += '0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.PATTERNS.value:
-                    value = "{" + ''.join([str(h.ptrn.to_int()) + "," for h in self.hums[:self.N_H - 1]]) + \
-                            str(self.hums[-1].ptrn.to_int()) + "};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path == 1:
+                            value += 'ND'
+                        elif self.hums[x].path == -1:
+                            value += str(self.hums[x].ptrn.to_int())
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.START_X.value:
-                    value = "{" + ''.join([str(h.start.x) + "," for h in self.hums[:self.N_H - 1]]) + \
-                            str(self.hums[-1].start.x) + "};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path == -1:
+                            value += str(self.hums[x].start.x)
+                        elif self.hums[x].path == 1:
+                            value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.START_Y.value:
-                    value = "{" + ''.join([str(h.start.y) + "," for h in self.hums[:self.N_H - 1]]) + \
-                            str(self.hums[-1].start.y) + "};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path == -1:
+                            value += str(self.hums[x].start.y)
+                        elif self.hums[x].path == 1:
+                            value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.DEST_X.value:
-                    value = "{" + ''.join([str(h.dest.x) + "," for h in self.hums[:self.N_H - 1]]) + \
-                            str(self.hums[-1].dest.x) + "};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path == -1:
+                            value += str(self.hums[x].dest.x)
+                        elif self.hums[x].path == 1:
+                            value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.DEST_Y.value:
-                    value = "{" + ''.join([str(h.dest.y) + "," for h in self.hums[:self.N_H - 1]]) + \
-                            str(self.hums[-1].dest.y) + "};\n"
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path == -1:
+                            value += str(self.hums[x].dest.y)
+                        elif self.hums[x].path == 1:
+                            value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
                 elif key == const.SAME_IDs_MAT.value:
                     value = '{'
                     for i in range(len(self.hums)):
@@ -206,7 +263,59 @@ class Param_Mgr:
             main_content = f.read()
         return main_content
 
+    def replace_rob_keys(self, scen_name):
+        with open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'r') as main_tplt:
+            self.LOGGER.debug('Replacing Robot-related parameters...')
+            main_content = main_tplt.read()
+            for key in self.ROB_KEYWORDS:
+                value = None
+                if key == const.N_R.value:
+                    value = str(self.N_R) + ";\n"
+                elif key == const.N_R_bool.value:
+                    value = '{'
+                    for x in range(self.N_R):
+                        value += 'false'
+                        if x < self.N_R - 1:
+                            value += ','
+                    value += '};'
+                elif key == const.N_R_act.value:
+                    value = '{true'
+                    if self.N_R > 1:
+                        value += ','
+                    for x in range(self.N_R - 1):
+                        value += 'false'
+                        if x < self.N_R - 2:
+                            value += ','
+                    value += '};'
+                elif key == const.N_R_neg.value:
+                    value = '{'
+                    for x in range(self.N_R):
+                        value += '-1.0'
+                        if x < self.N_R - 1:
+                            value += ','
+                    value += '};'
+                elif key == const.N_R_int.value:
+                    value = '{'
+                    for x in range(self.N_R):
+                        value += '1'
+                        if x < self.N_R - 1:
+                            value += ','
+                    value += '};'
+                elif key == const.N_R_double.value:
+                    value = '{'
+                    for x in range(self.N_R):
+                        value += '100.0'
+                        if x < self.N_R - 1:
+                            value += ','
+                    value += '};'
+                main_content = main_content.replace(key, str(value))
+            dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
+            dest_model.write(main_content)
+            dest_model.close()
+            self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
+
     def replace_params(self, scen_name):
         self.replace_hum_keys(scen_name)
+        self.replace_rob_keys(scen_name)
         self.replace_layout_keys(scen_name)
         self.replace_inst_keys(scen_name)
