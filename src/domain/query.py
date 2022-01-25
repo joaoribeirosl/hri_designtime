@@ -51,12 +51,14 @@ class Query:
             if self.n != ND:
                 q = ''
                 for (i, h) in enumerate(self.hums):
-                    q += "E[<={};{}](max:humanFatigue[{}])\n".format(self.tau, self.n, i)
+                    if h.path != 2:
+                        q += "E[<={};{}](max:humanFatigue[{}])\n".format(self.tau, self.n, i)
                 return q
             else:
                 q = ''
                 for (i, h) in enumerate(self.hums):
-                    q += "E[<={}](max:humanFatigue[{}])\n".format(self.tau, i)
+                    if h.path != 2:
+                        q += "E[<={}](max:humanFatigue[{}])\n".format(self.tau, i)
                 return q
         elif self.t == Query_Type.E_CHG:
             if self.n != ND:
@@ -70,7 +72,7 @@ class Query:
                     q += "E[<={}](min:batteryCharge[{}])\n".format(self.tau, i)
                 return q
         else:
-            served = ''.join(['served[{}], '.format(i) for (i, h) in enumerate(self.hums)])
+            served = ''.join(['served[{}], '.format(h.h_id-1) for (i, h) in enumerate(self.hums) if h.path != 2])
             if self.n != ND:
                 return "simulate[<={};{}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
                        "robPositionX[currR-1]/100, robPositionY[currR-1]/100}}\n".format(self.tau, self.n, served)

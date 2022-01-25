@@ -169,9 +169,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;**max_neigh**;i++) neigh[i] = -1;
         close = same_area(curr[0], curr[1], dest[0], dest[1]);
         }
     }

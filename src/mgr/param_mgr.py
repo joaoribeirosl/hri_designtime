@@ -41,7 +41,7 @@ class Param_Mgr:
         self.N_A = len(layout.areas)
         self.N_I = len(layout.inter_pts)
         self.MAX_NEIGH = layout.max_neigh
-        self.N_P = self.N_I - 1
+        self.N_P = self.N_I + 1
         self.inst = [h.name for h in hums] + [r.name for r in robs] + ['b_{}'.format(r.name) for r in robs] + \
                     ['r_pub_{}'.format(r.r_id) for r in robs] + ['o_{}'.format(r.r_id) for r in robs] + \
                     ['opchk_{}'.format(r.r_id) for r in robs] + ['c_pub', 'h_pub_pos', 'h_pub_ftg']

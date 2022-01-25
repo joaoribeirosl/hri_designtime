@@ -135,7 +135,7 @@ int patterns_alt2[H] = {0, 12, 1, 1, 0, 3}; //robot loses competition
 
 // -&gt; DEFINE STARTING LOCATIONS IN CARTESIAN PLAN
 double startX[H] = {220.0,4300.0,0.0,0.0,400.0,400.0};
-double startY[H] = {300.0,300.0,0.0,0.0,150.0,150.0};
+double startY[H] = {300.0,350.0,0.0,0.0,150.0,150.0};
 
 const double startX_alt1[H] = {220.0,4300.0,700.0,2000.0,400.0,400.0};
 const double startY_alt1[H] = {300.0,300.0,300.0,300.0,150.0,150.0};
@@ -146,7 +146,7 @@ const double startY_alt2[H] = {300.0,300.0,300.0,200.0,150.0,150.0};
 // the definition of destination can vary depending on the pattern,
 // and you can decide what it corresponds to for your specific pattern
 double destX[H] = {4300.0,4300.0,0.0,0.0,2000.0,2000.0};
-double destY[H] = {300.0,500.0,0.0,0.0,300.0,300.0};
+double destY[H] = {300.0,400.0,0.0,0.0,300.0,300.0};
 
 const double destX_alt1[H] = {4300.0, 4300.0, 2000.0, 2000.0, 2000.0, 2000.0}; //robot wins competition
 const double destY_alt1[H] = {300.0, 500.0, 300.0, 300.0, 300.0, 300.0};
@@ -164,11 +164,11 @@ int task_completion = 0;
 /**
 *** FLOOR PLAN
 **/
-const int N_A = 11;
+const int N_A = 2;
 
-const int N_P = 9;
+const int N_P = 2;
 
-const int N_I = 10;
+const int N_I = 1;
 
 
 typedef double point[2];
@@ -176,9 +176,9 @@ typedef point area[4];
 typedef area layout[N_A];
 typedef point trajectory[N_P];
 
-const layout FLOOR = {{{0.0, 110.0},{0.0, 299.5},{1550.0, 299.5},{1550.0, 110.0}},{{0.0, 110.0},{0.0, 850.0},{185.0, 850.0},{185.0, 110.0}},{{0.0, 672.5},{0.0, 850.0},{1550.0, 850.0},{1550.0, 672.5}},{{1352.0, 110.0},{1352.0, 850.0},{1550.0, 850.0},{1550.0, 110.0}},{{2970.0, 110.0},{2970.0, 299.5},{4512.5, 299.5},{4512.5, 110.0}},{{2970.0, 110.0},{2970.0, 850.0},{3155.0, 850.0},{3155.0, 110.0}},{{2970.0, 672.5},{2970.0, 850.0},{4512.5, 850.0},{4512.5, 672.5}},{{4322.0, 110.0},{4322.0, 850.0},{4512.5, 850.0},{4512.5, 110.0}},{{1945.0, 0.0},{1945.0, 695.0},{2670.0, 695.0},{2670.0, 0.0}},{{1352.0, 110.0},{1352.0, 425.0},{3155.0, 425.0},{3155.0, 110.0}},{{1802.5, 0.0},{1802.5, 110.0},{2800.0, 110.0},{2800.0, 0.0}}};
+const layout FLOOR = {{{200.0, 200.0},{200.0, 400.0},{4400.0, 400.0},{4400.0, 200.0}},{{4200.0, 0.0},{4200.0, 600.0},{4400.0, 600.0},{4400.0, 0.0}}};
 
-const point INTERSECTIONS[N_I] = {{92.5, 163.5},{92.5, 761.2},{1452.0, 761.2},{1452.0, 163.5},{3062.5, 163.5},{4417.0, 163.5},{3062.5, 761.2},{4417.0, 761.2},{2307.5, 347.5},{2307.5, 55.0}};
+const point INTERSECTIONS[N_I] = {{4300.0, 300.0}};
 
 
 // I apologize for the four doubles, 
@@ -335,7 +335,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id - 1] = fmax(0, internalFatigue[id - 1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -434,10 +434,10 @@ point curr, dest;
 
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
     curr[0] = internalHumX[id - 1];
     curr[1] = internalHumY[id - 1];
     dest[0] = dX[currR - 1];
@@ -469,7 +469,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -494,9 +494,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -908,7 +906,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -1006,10 +1004,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
             curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -1039,7 +1037,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -1064,9 +1062,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -1564,7 +1560,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -1662,10 +1658,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
             curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -1695,7 +1691,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -1720,9 +1716,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -2083,7 +2077,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -2181,10 +2175,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
             curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -2214,7 +2208,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -2239,9 +2233,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -2577,7 +2569,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -2675,10 +2667,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
             curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -2708,7 +2700,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -2733,9 +2725,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -3113,7 +3103,7 @@ void updateF(double coeff, bool walking) {
     internalFatigue[id-1] = fmax(0, internalFatigue[id-1]);
 }
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 double ort = 0.0;
 int curr_traj = 0;
 
@@ -3211,10 +3201,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
     int k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
             curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = dX[currR-1]; dest[1] = dY[currR-1];
     // init trajectory
@@ -3244,7 +3234,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -3269,9 +3259,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -3739,7 +3727,7 @@ void checkRobot(){
 	<parameter>int id, int v_max, int a_max, double posX, double posY</parameter>
 	<declaration>clock V, Th, tUpd;
 
-trajectory traj = {{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0},{0.0, 0.0}};
+trajectory traj = {{0.0, 0.0},{0.0, 0.0}};
 
 double ort = 0.0;
 int curr_traj = 0;
@@ -3843,10 +3831,10 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 point curr, dest;
 void plan_traj() {
     int i, j, next_inters = -1;
-    int neigh[5] = {-1,-1,-1,-1,-1};
+    int neigh[1] = {-1};
 	int	k = 0;
     double dist, min_dist;
-    bool visited[N_I] = {false,false,false,false,false,false,false,false,false,false};
+    bool visited[N_I] = {false};
 	bool close;
     curr[0] = internalRobX[id-1]; curr[1] = internalRobY[id-1];
     dest[0] = dX[id-1]; dest[1] = dY[id-1];
@@ -3880,7 +3868,7 @@ void plan_traj() {
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
-        for (j = 1; j &lt; 5 &amp;&amp; neigh[j] != -1; j++)
+        for (j = 1; j &lt; 1 &amp;&amp; neigh[j] != -1; j++)
         {
             dist = pt_dist(INTERSECTIONS[neigh[j]][0], dest[0], INTERSECTIONS[neigh[j]][1], dest[1]);
             if (dist &lt; min_dist)
@@ -3905,9 +3893,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        neigh[0] = -1;
-        neigh[1] = -1;
-        neigh[2] = -1;
+        for(i=0; i&lt;1;i++) neigh[i] = -1;
         close = same_area(curr[0], curr[1], dest[0], dest[1]);
         }
     }
@@ -4319,9 +4305,9 @@ active_robot[id-1] = false</label>
     </transition>
 </template>
 <template>
-	<name>Orchestrator</name>
-	<parameter>int id</parameter>
-	<declaration>clock ROS;
+    <name>Orchestrator</name>
+    <parameter>int id</parameter>
+    <declaration>clock ROS;
 
 double latency = 1.5;
 double eps = 0.0;
@@ -4332,532 +4318,547 @@ void update_eps() {
 
 void complete_leader() {
     if(served[currH-1] &amp;&amp; currH&lt;H &amp;&amp; patterns[currH]==1)
-        currH++;
+    currH++;
 }
 
 void complete_recipient() {
-     served[currH-1] = true;
-     if(currH&lt;H)
+    served[currH-1] = true;
+    if(currH&lt;H)
         currH++;
 }
 
-//This function change the current robot to fulfill the current task. The new coR should reach the recharge station and recharge itself. 
+//This function change the current robot to fulfill the current task. The new coR should reach the recharge station and recharge itself.
 void exchange_robots(){
-    if (currR == 1){
-        currR = 2;
-        coR = 1;
-    }
-    else{
-        currR = 1;
-        coR = 2;
-    }
+    int tmp;
+    tmp = coR;
+    coR = currR;
+    currR = tmp;
+
     currOp[currR-1] = 1;
     currOp[coR-1] = 4;
 }
-</declaration>
-		<location id="id111" x="-1028" y="-1989">
-			<committed/>
-		</location>
-		<location id="id112" x="-2711" y="-2218">
-			<name x="-2779" y="-2235">o_init</name>
-			<committed/>
-		</location>
-		<location id="id113" x="-1700" y="-2218">
-			<name x="-1751" y="-2252">x_move</name>
-			<label kind="invariant" x="-1776" y="-2218">ROS'==0</label>
-		</location>
-		<location id="id114" x="-2142" y="-2388">
-			<name x="-2134" y="-2380">r_rech</name>
-		</location>
-		<location id="id115" x="-2312" y="-2218">
-			<name x="-2337" y="-2252">r_start</name>
-			<label kind="invariant" x="-2322" y="-2201">ROS &lt;= latency + eps</label>
-		</location>
-		<location id="id116" x="-1181" y="-2159">
-			<name x="-1173" y="-2150">o_scs</name>
-			<label kind="invariant" x="-1173" y="-2133">ROS'==0</label>
-			<label kind="exponentialrate" x="-1139" y="-2176">1</label>
-		</location>
-		<location id="id117" x="-1181" y="-2278">
-			<name x="-1173" y="-2269">o_fail_2</name>
-			<label kind="invariant" x="-1173" y="-2252">ROS'==0</label>
-			<label kind="exponentialrate" x="-1139" y="-2295">1</label>
-		</location>
-		<location id="id118" x="-1258" y="-2388">
-			<name x="-1351" y="-2379">to_2nd_task</name>
-			<committed/>
-		</location>
-		<location id="id119" x="-1666" y="-2387">
-			<name x="-1657" y="-2379">starting_2</name>
-			<committed/>
-		</location>
-		<location id="id120" x="-2303" y="-2388">
-			<name x="-2295" y="-2380">stopping_2</name>
-			<committed/>
-		</location>
-		<location id="id121" x="-2108" y="-2218">
-			<name x="-2167" y="-2210">h_start</name>
-			<committed/>
-		</location>
-		<location id="id122" x="-1572" y="-2218">
-			<name x="-1582" y="-2252">x_stop</name>
-			<label kind="invariant" x="-1581" y="-2269">ROS &lt;= latency + eps</label>
-		</location>
-		<location id="id123" x="-1258" y="-2219">
-			<name x="-1241" y="-2235">stopping</name>
-			<label kind="invariant" x="-1241" y="-2218">ROS'==0</label>
-			<label kind="exponentialrate" x="-1258" y="-2227">1</label>
-		</location>
-		<location id="id124" x="-1853" y="-2218">
-			<name x="-1844" y="-2210">starting</name>
-			<committed/>
-		</location>
-		<location id="id125" x="-1377" y="-2142">
-			<name x="-1394" y="-2176">h_stop</name>
-			<committed/>
-		</location>
-		<location id="id126" x="-1666" y="-2456">
-			<name x="-1657" y="-2448">delivering</name>
-			<committed/>
-		</location>
-		<location id="id127" x="-2431" y="-2218">
-			<name x="-2499" y="-2227">idle</name>
-			<label kind="invariant" x="-2507" y="-2244">ROS'==0</label>
-			<label kind="exponentialrate" x="-2439" y="-2227">1</label>
-		</location>
-		<location id="id128" x="-2431" y="-2116">
-			<name x="-2507" y="-2082">o_fail_1</name>
-			<label kind="invariant" x="-2507" y="-2099">ROS'==0</label>
-			<label kind="exponentialrate" x="-2456" y="-2133">1</label>
-		</location>
-		<location id="id129" x="-2218" y="-2218">
-			<committed/>
-		</location>
-		<location id="id130" x="-1802" y="-2218">
-			<committed/>
-		</location>
-		<location id="id131" x="-1470" y="-2218">
-			<committed/>
-		</location>
-		<location id="id132" x="-2431" y="-2388">
-			<committed/>
-		</location>
-		<location id="id133" x="-1870" y="-2388">
-			<committed/>
-		</location>
-		<location id="id134" x="-2609" y="-2218">
-			<committed/>
-		</location>
-		<location id="id135" x="-2669" y="-2167">
-			<committed/>
-		</location>
-		<location id="id136" x="-2550" y="-2167">
-			<committed/>
-		</location>
-		<location id="id137" x="-2354" y="-1989">
-			<name x="-2337" y="-2014">r_synch</name>
-			<label kind="invariant" x="-2516" y="-1997">ROS &lt;= latency + eps</label>
-		</location>
-		<location id="id138" x="-2133" y="-1989">
-			<committed/>
-		</location>
-		<location id="id139" x="-1946" y="-1989">
-			<name x="-1956" y="-2023">r1</name>
-			<label kind="invariant" x="-2023" y="-2014">ROS'==0</label>
-		</location>
-		<location id="id140" x="-1768" y="-1989">
-			<name x="-1778" y="-2023">r2</name>
-			<label kind="invariant" x="-1751" y="-2014">ROS &lt;= latency + eps</label>
-		</location>
-		<location id="id141" x="-1428" y="-1989">
-			<name x="-1496" y="-2031">stopping_coR</name>
-			<label kind="invariant" x="-1521" y="-2014">ROS'==0</label>
-			<label kind="exponentialrate" x="-1428" y="-1997">1</label>
-		</location>
-		<location id="id142" x="-1564" y="-1989">
-			<committed/>
-		</location>
-		<location id="id143" x="-1428" y="-1912">
-			<name x="-1504" y="-1938">o_fail_3</name>
-			<label kind="invariant" x="-1521" y="-1921">ROS'==0</label>
-			<label kind="exponentialrate" x="-1428" y="-1921">1</label>
-		</location>
-		<location id="id144" x="-1207" y="-1989">
-			<committed/>
-		</location>
-		<location id="id145" x="-1504" y="-2142">
-			<committed/>
-		</location>
-		<init ref="id112"/>
-		<transition>
-			<source ref="id145"/>
-			<target ref="id125"/>
-			<label kind="synchronisation" x="-1487" y="-2142">stop_r_action!</label>
-		</transition>
-		<transition>
-			<source ref="id114"/>
-			<target ref="id120"/>
-			<label kind="guard" x="-2269" y="-2422">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-2244" y="-2456">opchk_scs?</label>
-			<label kind="assignment" x="-2269" y="-2405">active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id111"/>
-			<target ref="id127"/>
-			<label kind="synchronisation" x="-1708" y="-2091">opchk_start!</label>
-			<nail x="-1028" y="-2065"/>
-			<nail x="-2303" y="-2074"/>
-		</transition>
-		<transition>
-			<source ref="id144"/>
-			<target ref="id111"/>
-			<label kind="assignment" x="-1189" y="-1989">exchange_robots(),
-active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id141"/>
-			<target ref="id144"/>
-			<label kind="guard" x="-1377" y="-1972">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1334" y="-1989">r_still?</label>
-			<label kind="assignment" x="-1377" y="-1955">active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id143"/>
-			<target ref="id143"/>
-			<nail x="-1436" y="-1904"/>
-			<nail x="-1436" y="-1887"/>
-			<nail x="-1419" y="-1878"/>
-			<nail x="-1402" y="-1895"/>
-		</transition>
-		<transition>
-			<source ref="id141"/>
-			<target ref="id143"/>
-			<label kind="guard" x="-1419" y="-1963">fail</label>
-			<label kind="synchronisation" x="-1419" y="-1946">r_still?</label>
-		</transition>
-		<transition>
-			<source ref="id127"/>
-			<target ref="id137"/>
-			<label kind="guard" x="-2363" y="-2040">synch &amp;&amp; coR == id</label>
-			<label kind="synchronisation" x="-2363" y="-2057">opchk_start!</label>
-		</transition>
-		<transition>
-			<source ref="id134"/>
-			<target ref="id136"/>
-			<label kind="assignment" x="-2652" y="-2150">active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id112"/>
-			<target ref="id135"/>
-			<label kind="assignment" x="-2864" y="-2193">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id136"/>
-			<target ref="id127"/>
-		</transition>
-		<transition>
-			<source ref="id135"/>
-			<target ref="id134"/>
-			<label kind="synchronisation" x="-2677" y="-2261">opchk_start!</label>
-		</transition>
-		<transition>
-			<source ref="id119"/>
-			<target ref="id133"/>
-			<label kind="assignment" x="-1853" y="-2431">currOp[id-1]=3, 
-active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id120"/>
-			<target ref="id132"/>
-			<label kind="assignment" x="-2448" y="-2439">currOp[id-1]=1,
-active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id122"/>
-			<target ref="id131"/>
-			<label kind="guard" x="-1530" y="-2261">!stopHuman &amp;&amp; 
-ROS &gt;= latency + eps</label>
-			<label kind="assignment" x="-1547" y="-2218">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id124"/>
-			<target ref="id130"/>
-			<label kind="assignment" x="-1921" y="-2269">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id115"/>
-			<target ref="id129"/>
-			<label kind="guard" x="-2269" y="-2295">ROS &gt;= latency + eps
-&amp;&amp; !exeRobot</label>
-			<label kind="assignment" x="-2269" y="-2244">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id123"/>
-			<target ref="id112"/>
-			<label kind="guard" x="-2167" y="-2609">currOp[id-1]==6 || currOp[id-1] == 7</label>
-			<label kind="assignment" x="-2091" y="-2592">currOp[id-1]=1</label>
-			<nail x="-1258" y="-2235"/>
-			<nail x="-1258" y="-2575"/>
-			<nail x="-2711" y="-2575"/>
-		</transition>
-		<transition>
-			<source ref="id115"/>
-			<target ref="id121"/>
-			<label kind="guard" x="-2244" y="-2176">ROS &gt;= latency + eps
-&amp;&amp; exeRobot</label>
-			<nail x="-2218" y="-2159"/>
-		</transition>
-		<transition>
-			<source ref="id127"/>
-			<target ref="id116"/>
-			<label kind="synchronisation" x="-2159" y="-2133">opchk_scs?</label>
-			<nail x="-2397" y="-2116"/>
-			<nail x="-1207" y="-2116"/>
-		</transition>
-		<transition>
-			<source ref="id128"/>
-			<target ref="id128"/>
-			<nail x="-2431" y="-2056"/>
-			<nail x="-2405" y="-2056"/>
-		</transition>
-		<transition>
-			<source ref="id127"/>
-			<target ref="id128"/>
-			<label kind="synchronisation" x="-2516" y="-2176">opchk_fail?</label>
-		</transition>
-		<transition>
-			<source ref="id127"/>
-			<target ref="id115"/>
-			<label kind="guard" x="-2499" y="-2278">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-2448" y="-2261">opchk_stop?</label>
-			<label kind="assignment" x="-2422" y="-2218">ROS = 0, 
-update_eps(),
-active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id126"/>
-			<target ref="id112"/>
-			<label kind="synchronisation" x="-2040" y="-2507">stop_h_action!</label>
-			<label kind="assignment" x="-2040" y="-2490">currOp[id-1]=1,
-complete_recipient()</label>
-			<nail x="-2711" y="-2456"/>
-		</transition>
-		<transition>
-			<source ref="id118"/>
-			<target ref="id126"/>
-			<label kind="guard" x="-1632" y="-2490">currOp[id-1]==4 &amp;&amp; patterns[currH-1]==2</label>
-			<label kind="synchronisation" x="-1632" y="-2473">start_h_action!</label>
-			<nail x="-1258" y="-2456"/>
-		</transition>
-		<transition>
-			<source ref="id121"/>
-			<target ref="id124"/>
-			<label kind="guard" x="-2048" y="-2193">!startHuman</label>
-			<nail x="-1989" y="-2192"/>
-		</transition>
-		<transition>
-			<source ref="id125"/>
-			<target ref="id123"/>
-			<label kind="synchronisation" x="-1360" y="-2159">stop_h_action!</label>
-			<nail x="-1258" y="-2142"/>
-		</transition>
-		<transition>
-			<source ref="id122"/>
-			<target ref="id145"/>
-			<label kind="guard" x="-1564" y="-2201">stopHuman &amp;&amp;
-ROS &gt;= latency + eps</label>
-			<label kind="assignment" x="-1564" y="-2167">active_robot[id-1] = true</label>
-			<nail x="-1572" y="-2142"/>
-		</transition>
-		<transition>
-			<source ref="id130"/>
-			<target ref="id113"/>
-			<label kind="synchronisation" x="-1793" y="-2235">opchk_start!</label>
-		</transition>
-		<transition>
-			<source ref="id121"/>
-			<target ref="id124"/>
-			<label kind="guard" x="-2048" y="-2252">startHuman</label>
-			<label kind="synchronisation" x="-2048" y="-2235">start_h_action!</label>
-		</transition>
-		<transition>
-			<source ref="id123"/>
-			<target ref="id118"/>
-			<label kind="guard" x="-1224" y="-2414">stop [id-1]&amp;&amp; (currOp[id-1]==2 || 
-(currOp[id-1]==4 &amp;&amp; 
-patterns[currH-1]==2)) &amp;&amp;
-active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1224" y="-2431">r_still?</label>
-			<label kind="assignment" x="-1224" y="-2346">active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id123"/>
-			<target ref="id116"/>
-			<label kind="guard" x="-1232" y="-2159">scs</label>
-			<label kind="synchronisation" x="-1249" y="-2142">r_still?</label>
-			<nail x="-1232" y="-2159"/>
-		</transition>
-		<transition>
-			<source ref="id123"/>
-			<target ref="id117"/>
-			<label kind="guard" x="-1232" y="-2295">fail</label>
-			<label kind="synchronisation" x="-1232" y="-2278">r_still?</label>
-			<nail x="-1232" y="-2278"/>
-		</transition>
-		<transition>
-			<source ref="id113"/>
-			<target ref="id122"/>
-			<label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1674" y="-2286">opchk_scs?</label>
-			<label kind="assignment" x="-1759" y="-2193">ROS = 0, 
-update_eps(),
-active_robot[id-1] = false</label>
-			<nail x="-1640" y="-2227"/>
-		</transition>
-		<transition>
-			<source ref="id113"/>
-			<target ref="id122"/>
-			<label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1674" y="-2269">opchk_fail?</label>
-			<label kind="assignment" x="-1759" y="-2193">ROS = 0, 
-update_eps(),
-active_robot[id-1] = false</label>
-			<nail x="-1640" y="-2235"/>
-		</transition>
-		<transition>
-			<source ref="id123"/>
-			<target ref="id112"/>
-			<label kind="guard" x="-2065" y="-2354">stop[id-1] &amp;&amp; !(currOp[id-1]==2 || 
-(currOp[id-1]==4 &amp;&amp; 
-patterns[currH-1]==2)) &amp;&amp;
-active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-2244" y="-2363">r_still?</label>
-			<label kind="assignment" x="-2252" y="-2346">currOp[id-1]=1,
-complete_leader(),
-active_robot[id-1] = -1</label>
-			<nail x="-1258" y="-2303"/>
-			<nail x="-2711" y="-2303"/>
-		</transition>
-		<transition>
-			<source ref="id131"/>
-			<target ref="id123"/>
-			<label kind="synchronisation" x="-1394" y="-2235">stop_r_action!</label>
-		</transition>
-		<transition>
-			<source ref="id113"/>
-			<target ref="id122"/>
-			<label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1683" y="-2252">opchk_stop?</label>
-			<label kind="assignment" x="-1759" y="-2193">ROS = 0, 
-update_eps(),
-active_robot[id-1] = false</label>
-			<nail x="-1640" y="-2218"/>
-		</transition>
-		<transition>
-			<source ref="id129"/>
-			<target ref="id121"/>
-			<label kind="synchronisation" x="-2269" y="-2261">start_r_action!</label>
-		</transition>
-		<transition>
-			<source ref="id132"/>
-			<target ref="id112"/>
-			<label kind="synchronisation" x="-2609" y="-2414">stop_recharging!</label>
-			<nail x="-2711" y="-2388"/>
-		</transition>
-		<transition>
-			<source ref="id114"/>
-			<target ref="id120"/>
-			<label kind="guard" x="-2269" y="-2422">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-2244" y="-2439">opchk_stop?</label>
-			<label kind="assignment" x="-2269" y="-2405">active_robot[id-1] = false</label>
-		</transition>
-		<transition>
-			<source ref="id133"/>
-			<target ref="id114"/>
-			<label kind="synchronisation" x="-2006" y="-2414">opchk_start!</label>
-		</transition>
-		<transition>
-			<source ref="id118"/>
-			<target ref="id119"/>
-			<label kind="guard" x="-1632" y="-2422">currOp[id-1]==2</label>
-			<label kind="synchronisation" x="-1632" y="-2405">start_recharging[id]!</label>
-		</transition>
-		<transition>
-			<source ref="id116"/>
-			<target ref="id116"/>
-			<nail x="-1122" y="-2159"/>
-			<nail x="-1122" y="-2184"/>
-		</transition>
-		<transition>
-			<source ref="id117"/>
-			<target ref="id117"/>
-			<nail x="-1122" y="-2303"/>
-			<nail x="-1122" y="-2278"/>
-		</transition>
-		<transition>
-			<source ref="id138"/>
-			<target ref="id139"/>
-			<label kind="synchronisation" x="-2116" y="-1989">start_r_action!</label>
-		</transition>
-		<transition>
-			<source ref="id137"/>
-			<target ref="id138"/>
-			<label kind="guard" x="-2329" y="-1980">ROS &gt;= latency + eps</label>
-			<label kind="assignment" x="-2329" y="-1963">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id139"/>
-			<target ref="id140"/>
-			<label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1912" y="-1963">opchk_scs?</label>
-			<label kind="assignment" x="-1904" y="-2048">ROS = 0, 
-update_eps()</label>
-			<nail x="-1870" y="-1997"/>
-		</transition>
-		<transition>
-			<source ref="id139"/>
-			<target ref="id140"/>
-			<label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1912" y="-1946">opchk_fail?</label>
-			<label kind="assignment" x="-1904" y="-2048">ROS = 0, 
-update_eps()</label>
-			<nail x="-1870" y="-2006"/>
-		</transition>
-		<transition>
-			<source ref="id139"/>
-			<target ref="id140"/>
-			<label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
-			<label kind="synchronisation" x="-1921" y="-1929">opchk_stop?</label>
-			<label kind="assignment" x="-1904" y="-2048">ROS = 0, 
-update_eps()</label>
-			<nail x="-1870" y="-1989"/>
-		</transition>
-		<transition>
-			<source ref="id140"/>
-			<target ref="id142"/>
-			<label kind="guard" x="-1734" y="-1989">ROS &gt;= latency + eps</label>
-			<label kind="assignment" x="-1734" y="-1972">active_robot[id-1] = true</label>
-		</transition>
-		<transition>
-			<source ref="id142"/>
-			<target ref="id141"/>
-			<label kind="synchronisation" x="-1547" y="-1989">stop_r_action!</label>
-		</transition>
+    </declaration>
+    <location id="id110" x="-1028" y="-1989">
+        <committed/>
+    </location>
+    <location id="id111" x="-2711" y="-2218">
+        <name x="-2779" y="-2235">o_init</name>
+        <committed/>
+    </location>
+    <location id="id112" x="-1700" y="-2218">
+        <name x="-1751" y="-2252">x_move</name>
+        <label kind="invariant" x="-1776" y="-2218">ROS'==0</label>
+    </location>
+    <location id="id113" x="-2142" y="-2388">
+        <name x="-2134" y="-2380">r_rech</name>
+    </location>
+    <location id="id114" x="-2312" y="-2218">
+        <name x="-2337" y="-2252">r_start</name>
+        <label kind="invariant" x="-2322" y="-2201">ROS &lt;= latency + eps</label>
+    </location>
+    <location id="id115" x="-1181" y="-2159">
+        <name x="-1173" y="-2150">o_scs</name>
+        <label kind="invariant" x="-1173" y="-2133">ROS'==0</label>
+        <label kind="exponentialrate" x="-1139" y="-2176">1</label>
+    </location>
+    <location id="id116" x="-1181" y="-2278">
+        <name x="-1173" y="-2269">o_fail_2</name>
+        <label kind="invariant" x="-1173" y="-2252">ROS'==0</label>
+        <label kind="exponentialrate" x="-1139" y="-2295">1</label>
+    </location>
+    <location id="id117" x="-1258" y="-2388">
+        <name x="-1351" y="-2379">to_2nd_task</name>
+        <committed/>
+    </location>
+    <location id="id118" x="-1666" y="-2387">
+        <name x="-1657" y="-2379">starting_2</name>
+        <committed/>
+    </location>
+    <location id="id119" x="-2303" y="-2388">
+        <name x="-2295" y="-2380">stopping_2</name>
+        <committed/>
+    </location>
+    <location id="id120" x="-2108" y="-2218">
+        <name x="-2167" y="-2210">h_start</name>
+        <committed/>
+    </location>
+    <location id="id121" x="-1572" y="-2218">
+        <name x="-1582" y="-2252">x_stop</name>
+        <label kind="invariant" x="-1581" y="-2269">ROS &lt;= latency + eps</label>
+    </location>
+    <location id="id122" x="-1258" y="-2219">
+        <name x="-1241" y="-2235">stopping</name>
+        <label kind="invariant" x="-1241" y="-2218">ROS'==0</label>
+        <label kind="exponentialrate" x="-1275" y="-2210">1</label>
+    </location>
+    <location id="id123" x="-1853" y="-2218">
+        <name x="-1844" y="-2210">starting</name>
+        <committed/>
+    </location>
+    <location id="id124" x="-1377" y="-2142">
+        <name x="-1394" y="-2176">h_stop</name>
+        <committed/>
+    </location>
+    <location id="id125" x="-1666" y="-2456">
+        <name x="-1657" y="-2448">delivering</name>
+        <committed/>
+    </location>
+    <location id="id126" x="-2431" y="-2218">
+        <name x="-2473" y="-2227">idle</name>
+        <label kind="invariant" x="-2507" y="-2244">ROS'==0</label>
+        <label kind="exponentialrate" x="-2441" y="-2184">1</label>
+    </location>
+    <location id="id127" x="-2431" y="-2116">
+        <name x="-2507" y="-2082">o_fail_1</name>
+        <label kind="invariant" x="-2507" y="-2099">ROS'==0</label>
+        <label kind="exponentialrate" x="-2456" y="-2133">1</label>
+    </location>
+    <location id="id128" x="-2218" y="-2218">
+        <committed/>
+    </location>
+    <location id="id129" x="-1802" y="-2218">
+        <committed/>
+    </location>
+    <location id="id130" x="-1419" y="-2218">
+        <committed/>
+    </location>
+    <location id="id131" x="-2431" y="-2388">
+        <committed/>
+    </location>
+    <location id="id132" x="-1870" y="-2388">
+        <committed/>
+    </location>
+    <location id="id133" x="-2609" y="-2218">
+        <committed/>
+    </location>
+    <location id="id134" x="-2669" y="-2167">
+        <committed/>
+    </location>
+    <location id="id135" x="-2550" y="-2167">
+        <committed/>
+    </location>
+    <location id="id136" x="-2354" y="-1989">
+        <name x="-2337" y="-2014">r_synch</name>
+        <label kind="invariant" x="-2516" y="-1997">ROS &lt;= latency + eps</label>
+    </location>
+    <location id="id137" x="-2133" y="-1989">
+        <committed/>
+    </location>
+    <location id="id138" x="-1946" y="-1989">
+        <name x="-1956" y="-2023">r1</name>
+        <label kind="invariant" x="-2023" y="-2014">ROS'==0</label>
+    </location>
+    <location id="id139" x="-1768" y="-1989">
+        <name x="-1778" y="-2023">r2</name>
+        <label kind="invariant" x="-1751" y="-2014">ROS &lt;= latency + eps</label>
+    </location>
+    <location id="id140" x="-1428" y="-1989">
+        <name x="-1436" y="-2023">stopping_coR</name>
+        <label kind="invariant" x="-1521" y="-2014">ROS'==0</label>
+        <label kind="exponentialrate" x="-1428" y="-1997">1</label>
+    </location>
+    <location id="id141" x="-1564" y="-1989">
+        <committed/>
+    </location>
+    <location id="id142" x="-1428" y="-1912">
+        <name x="-1504" y="-1938">o_fail_3</name>
+        <label kind="invariant" x="-1521" y="-1921">ROS'==0</label>
+        <label kind="exponentialrate" x="-1428" y="-1921">1</label>
+    </location>
+    <location id="id143" x="-1207" y="-1989">
+        <committed/>
+    </location>
+    <location id="id144" x="-1504" y="-2142">
+        <committed/>
+    </location>
+    <init ref="id111"/>
+    <transition>
+        <source ref="id144"/>
+        <target ref="id124"/>
+        <label kind="synchronisation" x="-1487" y="-2142">stop_r_action!</label>
+    </transition>
+    <transition>
+        <source ref="id113"/>
+        <target ref="id119"/>
+        <label kind="guard" x="-2269" y="-2422">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-2244" y="-2456">opchk_scs?</label>
+        <label kind="assignment" x="-2269" y="-2405">active_robot[id-1] = false</label>
+    </transition>
+    <transition>
+        <source ref="id110"/>
+        <target ref="id126"/>
+        <label kind="synchronisation" x="-1708" y="-2091">opchk_start!</label>
+        <label kind="assignment" x="-1691" y="-2065">ROS=0</label>
+        <nail x="-1028" y="-2065"/>
+        <nail x="-2303" y="-2074"/>
+    </transition>
+    <transition>
+        <source ref="id143"/>
+        <target ref="id110"/>
+        <label kind="assignment" x="-1189" y="-1989">exchange_robots(),
+            active_robot[id-1] = true
+        </label>
+    </transition>
+    <transition>
+        <source ref="id140"/>
+        <target ref="id143"/>
+        <label kind="guard" x="-1377" y="-1972">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1334" y="-1989">r_still?</label>
+        <label kind="assignment" x="-1377" y="-1955">active_robot[id-1] = false</label>
+    </transition>
+    <transition>
+        <source ref="id142"/>
+        <target ref="id142"/>
+        <nail x="-1436" y="-1904"/>
+        <nail x="-1436" y="-1887"/>
+        <nail x="-1419" y="-1878"/>
+        <nail x="-1402" y="-1895"/>
+    </transition>
+    <transition>
+        <source ref="id140"/>
+        <target ref="id142"/>
+        <label kind="guard" x="-1419" y="-1963">fail</label>
+        <label kind="synchronisation" x="-1419" y="-1946">r_still?</label>
+    </transition>
+    <transition>
+        <source ref="id126"/>
+        <target ref="id136"/>
+        <label kind="guard" x="-2363" y="-2040">synch &amp;&amp; coR == id</label>
+        <label kind="synchronisation" x="-2363" y="-2057">opchk_start!</label>
+    </transition>
+    <transition>
+        <source ref="id133"/>
+        <target ref="id135"/>
+        <label kind="assignment" x="-2652" y="-2150">active_robot[id-1] = false</label>
+    </transition>
+    <transition>
+        <source ref="id111"/>
+        <target ref="id134"/>
+        <label kind="assignment" x="-2864" y="-2193">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id135"/>
+        <target ref="id126"/>
+        <label kind="assignment" x="-2532" y="-2192">ROS=0</label>
+    </transition>
+    <transition>
+        <source ref="id134"/>
+        <target ref="id133"/>
+        <label kind="synchronisation" x="-2677" y="-2261">opchk_start!</label>
+    </transition>
+    <transition>
+        <source ref="id118"/>
+        <target ref="id132"/>
+        <label kind="assignment" x="-1853" y="-2431">currOp[id-1]=3,
+            active_robot[id-1] = true
+        </label>
+    </transition>
+    <transition>
+        <source ref="id119"/>
+        <target ref="id131"/>
+        <label kind="assignment" x="-2448" y="-2439">currOp[id-1]=1,
+            active_robot[id-1] = true
+        </label>
+    </transition>
+    <transition>
+        <source ref="id121"/>
+        <target ref="id130"/>
+        <label kind="guard" x="-1530" y="-2261">!stopHuman &amp;&amp;
+            ROS &gt;= latency + eps
+        </label>
+        <label kind="assignment" x="-1547" y="-2218">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id123"/>
+        <target ref="id129"/>
+        <label kind="assignment" x="-1921" y="-2269">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id114"/>
+        <target ref="id128"/>
+        <label kind="guard" x="-2269" y="-2295">ROS &gt;= latency + eps
+            &amp;&amp; !exeRobot
+        </label>
+        <label kind="assignment" x="-2269" y="-2244">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id122"/>
+        <target ref="id111"/>
+        <label kind="guard" x="-2167" y="-2609">currOp[id-1]==6 || currOp[id-1] == 7</label>
+        <label kind="assignment" x="-2091" y="-2592">currOp[id-1]=1</label>
+        <nail x="-1258" y="-2235"/>
+        <nail x="-1258" y="-2575"/>
+        <nail x="-2711" y="-2575"/>
+    </transition>
+    <transition>
+        <source ref="id114"/>
+        <target ref="id120"/>
+        <label kind="guard" x="-2244" y="-2176">ROS &gt;= latency + eps
+            &amp;&amp; exeRobot
+        </label>
+        <nail x="-2218" y="-2159"/>
+    </transition>
+    <transition>
+        <source ref="id126"/>
+        <target ref="id115"/>
+        <label kind="synchronisation" x="-2133" y="-2125">opchk_scs?</label>
+        <nail x="-2371" y="-2108"/>
+        <nail x="-1181" y="-2108"/>
+    </transition>
+    <transition>
+        <source ref="id127"/>
+        <target ref="id127"/>
+        <nail x="-2431" y="-2056"/>
+        <nail x="-2405" y="-2056"/>
+    </transition>
+    <transition>
+        <source ref="id126"/>
+        <target ref="id127"/>
+        <label kind="synchronisation" x="-2516" y="-2176">opchk_fail?</label>
+    </transition>
+    <transition>
+        <source ref="id126"/>
+        <target ref="id114"/>
+        <label kind="guard" x="-2456" y="-2261">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-2414" y="-2244">opchk_stop?</label>
+        <label kind="assignment" x="-2397" y="-2210">ROS = 0,
+            update_eps(),
+            active_robot[id-1] = false
+        </label>
+    </transition>
+    <transition>
+        <source ref="id125"/>
+        <target ref="id111"/>
+        <label kind="synchronisation" x="-2040" y="-2507">stop_h_action!</label>
+        <label kind="assignment" x="-2040" y="-2490">currOp[id-1]=1,
+            complete_recipient()
+        </label>
+        <nail x="-2711" y="-2456"/>
+    </transition>
+    <transition>
+        <source ref="id117"/>
+        <target ref="id125"/>
+        <label kind="guard" x="-1632" y="-2490">currOp[id-1]==4 &amp;&amp; patterns[currH-1]==2</label>
+        <label kind="synchronisation" x="-1632" y="-2473">start_h_action!</label>
+        <nail x="-1258" y="-2456"/>
+    </transition>
+    <transition>
+        <source ref="id120"/>
+        <target ref="id123"/>
+        <label kind="guard" x="-2048" y="-2193">!startHuman</label>
+        <nail x="-1989" y="-2192"/>
+    </transition>
+    <transition>
+        <source ref="id124"/>
+        <target ref="id122"/>
+        <label kind="synchronisation" x="-1360" y="-2159">stop_h_action!</label>
+        <nail x="-1258" y="-2142"/>
+    </transition>
+    <transition>
+        <source ref="id121"/>
+        <target ref="id144"/>
+        <label kind="guard" x="-1564" y="-2201">stopHuman &amp;&amp;
+            ROS &gt;= latency + eps
+        </label>
+        <label kind="assignment" x="-1564" y="-2167">active_robot[id-1] = true</label>
+        <nail x="-1572" y="-2142"/>
+    </transition>
+    <transition>
+        <source ref="id129"/>
+        <target ref="id112"/>
+        <label kind="synchronisation" x="-1793" y="-2235">opchk_start!</label>
+    </transition>
+    <transition>
+        <source ref="id120"/>
+        <target ref="id123"/>
+        <label kind="guard" x="-2048" y="-2252">startHuman</label>
+        <label kind="synchronisation" x="-2048" y="-2235">start_h_action!</label>
+    </transition>
+    <transition>
+        <source ref="id122"/>
+        <target ref="id117"/>
+        <label kind="guard" x="-1224" y="-2414">stop [id-1]&amp;&amp; (currOp[id-1]==2 ||
+            (currOp[id-1]==4 &amp;&amp;
+            patterns[currH-1]==2)) &amp;&amp;
+            active_robot[id-1] == true
+        </label>
+        <label kind="synchronisation" x="-1224" y="-2431">r_still?</label>
+        <label kind="assignment" x="-1224" y="-2346">active_robot[id-1] = false</label>
+    </transition>
+    <transition>
+        <source ref="id122"/>
+        <target ref="id115"/>
+        <label kind="guard" x="-1232" y="-2159">scs</label>
+        <nail x="-1232" y="-2159"/>
+    </transition>
+    <transition>
+        <source ref="id122"/>
+        <target ref="id116"/>
+        <label kind="guard" x="-1232" y="-2295">fail</label>
+        <nail x="-1232" y="-2278"/>
+    </transition>
+    <transition>
+        <source ref="id112"/>
+        <target ref="id121"/>
+        <label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1674" y="-2286">opchk_scs?</label>
+        <label kind="assignment" x="-1759" y="-2193">ROS = 0,
+            update_eps(),
+            active_robot[id-1] = false
+        </label>
+        <nail x="-1640" y="-2227"/>
+    </transition>
+    <transition>
+        <source ref="id112"/>
+        <target ref="id121"/>
+        <label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1674" y="-2269">opchk_fail?</label>
+        <label kind="assignment" x="-1759" y="-2193">ROS = 0,
+            update_eps(),
+            active_robot[id-1] = false
+        </label>
+        <nail x="-1640" y="-2235"/>
+    </transition>
+    <transition>
+        <source ref="id122"/>
+        <target ref="id111"/>
+        <label kind="guard" x="-2065" y="-2354">stop[id-1] &amp;&amp; !(currOp[id-1]==2 ||
+            (currOp[id-1]==4 &amp;&amp;
+            patterns[currH-1]==2)) &amp;&amp;
+            active_robot[id-1] == true
+        </label>
+        <label kind="synchronisation" x="-2244" y="-2363">r_still?</label>
+        <label kind="assignment" x="-2252" y="-2346">currOp[id-1]=1,
+            complete_leader(),
+            active_robot[id-1] = -1
+        </label>
+        <nail x="-1258" y="-2303"/>
+        <nail x="-2711" y="-2303"/>
+    </transition>
+    <transition>
+        <source ref="id130"/>
+        <target ref="id122"/>
+        <label kind="synchronisation" x="-1394" y="-2235">stop_r_action!</label>
+    </transition>
+    <transition>
+        <source ref="id112"/>
+        <target ref="id121"/>
+        <label kind="guard" x="-1708" y="-2303">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1683" y="-2252">opchk_stop?</label>
+        <label kind="assignment" x="-1759" y="-2193">ROS = 0,
+            update_eps(),
+            active_robot[id-1] = false
+        </label>
+        <nail x="-1640" y="-2218"/>
+    </transition>
+    <transition>
+        <source ref="id128"/>
+        <target ref="id120"/>
+        <label kind="synchronisation" x="-2269" y="-2261">start_r_action!</label>
+    </transition>
+    <transition>
+        <source ref="id131"/>
+        <target ref="id111"/>
+        <label kind="synchronisation" x="-2609" y="-2414">stop_recharging!</label>
+        <nail x="-2711" y="-2388"/>
+    </transition>
+    <transition>
+        <source ref="id113"/>
+        <target ref="id119"/>
+        <label kind="guard" x="-2269" y="-2422">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-2244" y="-2439">opchk_stop?</label>
+        <label kind="assignment" x="-2269" y="-2405">active_robot[id-1] = false</label>
+    </transition>
+    <transition>
+        <source ref="id132"/>
+        <target ref="id113"/>
+        <label kind="synchronisation" x="-2006" y="-2414">opchk_start!</label>
+    </transition>
+    <transition>
+        <source ref="id117"/>
+        <target ref="id118"/>
+        <label kind="guard" x="-1632" y="-2422">currOp[id-1]==2</label>
+        <label kind="synchronisation" x="-1632" y="-2405">start_recharging[id]!</label>
+    </transition>
+    <transition>
+        <source ref="id115"/>
+        <target ref="id115"/>
+        <nail x="-1122" y="-2159"/>
+        <nail x="-1122" y="-2184"/>
+    </transition>
+    <transition>
+        <source ref="id116"/>
+        <target ref="id116"/>
+        <nail x="-1122" y="-2303"/>
+        <nail x="-1122" y="-2278"/>
+    </transition>
+    <transition>
+        <source ref="id137"/>
+        <target ref="id138"/>
+        <label kind="synchronisation" x="-2116" y="-1989">start_r_action!</label>
+    </transition>
+    <transition>
+        <source ref="id136"/>
+        <target ref="id137"/>
+        <label kind="guard" x="-2329" y="-1980">ROS &gt;= latency + eps</label>
+        <label kind="assignment" x="-2329" y="-1963">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id138"/>
+        <target ref="id139"/>
+        <label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1912" y="-1963">opchk_scs?</label>
+        <label kind="assignment" x="-1904" y="-2048">ROS = 0,
+            update_eps()
+        </label>
+        <nail x="-1870" y="-1997"/>
+    </transition>
+    <transition>
+        <source ref="id138"/>
+        <target ref="id139"/>
+        <label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1912" y="-1946">opchk_fail?</label>
+        <label kind="assignment" x="-1904" y="-2048">ROS = 0,
+            update_eps()
+        </label>
+        <nail x="-1870" y="-2006"/>
+    </transition>
+    <transition>
+        <source ref="id138"/>
+        <target ref="id139"/>
+        <label kind="guard" x="-1946" y="-1980">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-1921" y="-1929">opchk_stop?</label>
+        <label kind="assignment" x="-1904" y="-2048">ROS = 0,
+            update_eps()
+        </label>
+        <nail x="-1870" y="-1989"/>
+    </transition>
+    <transition>
+        <source ref="id139"/>
+        <target ref="id141"/>
+        <label kind="guard" x="-1734" y="-1989">ROS &gt;= latency + eps</label>
+        <label kind="assignment" x="-1734" y="-1972">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id141"/>
+        <target ref="id140"/>
+        <label kind="synchronisation" x="-1547" y="-1989">stop_r_action!</label>
+    </transition>
 </template>
-    <template>
-        <name>OpChk</name>
-        <parameter>int id, int T_int, int T_proc</parameter>
-        <declaration>clock t_act;
+<template>
+    <name>OpChk</name>
+    <parameter>int id, int T_int, int T_proc</parameter>
+    <declaration>clock t_act;
 
 
 //Human-Robot Distance Parameters
-const double stopDistance = 6.0;
+const double stopDistance = 4.0;
 const double restartDistance = 3.0;
 int recipientStages = 0;
 
 //Recharging Policy Parameters
-const double rechargingTh = 10.9;
-const double stopRechargingTh = 12.4;
+const double rechargingTh = 11.1;
+const double stopRechargingTh = 11.4;
 const double failBattery = 11.0;
 
 //Fatigue-Monitoring Parameters
@@ -4871,11 +4872,11 @@ const double resumeFatigue = 0.3;
 **/
 
 void initialize() {
-     if (currR == id) stop[currR-1] = false;
-     else if (coR == id) stop[coR-1] = false;
-     exeRobot=false;
-     stopHuman= false;
-     startHuman=false;
+    if (currR == id) stop[currR-1] = false;
+    else if (coR == id) stop[coR-1] = false;
+    exeRobot=false;
+    stopHuman= false;
+    startHuman=false;
 }
 
 /**
@@ -4883,32 +4884,35 @@ void initialize() {
 **/
 
 bool getStart(int pattern) {
-    double humanRobotDist = calculateDistance();     
+    double humanRobotDist = calculateDistance();
     double dist_to_dest = pt_dist(robPositionX[currR-1], dX[currR-1], robPositionY[currR-1], dY[currR-1]);
     double dist = 100.0*1.2;
 
     if(pattern==0) //start cond. for follower
-        if (humanRobotDist&gt;=stopDistance) { //if human and robot are too distant
-            return batteryCharge[id-1]&gt;=rechargingTh; //starts if battery is sufficient
-        } else         
-            return batteryCharge[id-1]&gt;=rechargingTh &amp;&amp; //starts if battery is sufficient,
-                    ((!stopHuman &amp;&amp; humanRobotDist&lt;=restartDistance) || //if human and robot are close again,
-                    (stopHuman &amp;&amp; humanFatigue[currH-1]&lt;=resumeFatigue)); //or if human has rested enough
+        //if (humanRobotDist&gt;=stopDistance) { //if human and robot are too distant
+        return batteryCharge[id-1]&gt;=rechargingTh; //starts if battery is sufficient
+    /*
+    } else
+    return batteryCharge[id-1]&gt;=rechargingTh &amp;&amp; //starts if battery is sufficient,
+    ((!stopHuman &amp;&amp; humanRobotDist&lt;=restartDistance) || //if human and robot are close again,
+    (stopHuman &amp;&amp; humanFatigue[currH-1]&lt;=resumeFatigue)); //or if human has rested enough
+    */
     else if(pattern==1) // start cond. for leader
         return hExe; //starts if human has started
     else if(pattern==2) // start cond. for recipient
-        return batteryCharge[id-1]&gt;=rechargingTh; // starts if battery is sufficient  
+        return batteryCharge[id-1]&gt;=rechargingTh; // starts if battery is sufficient
     else if(pattern==3)
-        return batteryCharge[id-1]&gt;rechargingTh &amp;&amp; (pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]) &lt;= 50.0 &amp;&amp; 
-               pt_dist(humanPositionX[currH-1], destX[currH-1], humanPositionY[currH-1], destY[currH-1]) &lt;= 50.0  ||
-               pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]) &gt; 50.0)  ;
+        return batteryCharge[id-1]&gt;rechargingTh &amp;&amp;
+    (pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]) &lt;= dist &amp;&amp;
+    pt_dist(humanPositionX[currH-1], destX[currH-1], humanPositionY[currH-1], destY[currH-1]) &lt;= dist ||
+                                                                                                    pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]) &gt; dist) ;
     else if(pattern == 10)// start cond. for interdependence by contract
         return batteryCharge[id-1]&gt;=rechargingTh;//start if battery is sufficient
     else if(pattern == 12) // start cond. for competition
         return batteryCharge[id-1]&gt;=rechargingTh;
     else
-        return false;      
-} 
+    return false;
+}
 
 double humanRobotDist;
 void setOpParams(int pattern) {
@@ -4919,13 +4923,13 @@ void setOpParams(int pattern) {
         currOp[currR-1] = 4;
         if (humanRobotDist&lt;=stopDistance) { //if human and robot are close,
             dX[currR-1] = destX[currH-1]; // move towards destination
-            dY[currR-1] = destY[currH-1];        
+            dY[currR-1] = destY[currH-1];
         } else { // !! ONLINE RECONFIGURATION FEATURE !!
             dX[currR-1] = humanPositionX[currH-1]; //if human and robot are distant,
-            dY[currR-1] = humanPositionY[currH-1]; //move towards human       
+            dY[currR-1] = humanPositionY[currH-1]; //move towards human
         }
     } else if (pattern==1) { //leader
-        currOp[currR-1] = 5;   
+        currOp[currR-1] = 5;
         dX[currR-1] = humanPositionX[currH-1]; // follow human
         dY[currR-1] = humanPositionY[currH-1];
     } else if (pattern==2) { //recipient
@@ -4938,26 +4942,27 @@ void setOpParams(int pattern) {
         if (dist_to_dest &gt; 50.0) {
             currOp[id-1]=4;
             dX[currR-1] = destX[currH-1];
-            dY[currR-1] = destY[currH-1];    
+            dY[currR-1] = destY[currH-1];
         }
         else {
             currOp[currR-1]=6;
             exeRobot=true;
-           } 
+        }
     } else if(pattern==10) { // interdependence by contract
         currOp[currR-1] = 4;
         //The robot shouldn't move ==&gt; set dest to initial position of robot
-        dX[currR-1] = destX[currH-1]; 
+        dX[currR-1] = destX[currH-1];
         dY[currR-1] = destY[currH-1];
     } else if(pattern==12) { // competition
         currOp[currR-1] = 4;
         dX[currR-1] = destX[currH-1]; // move towards object location
         dY[currR-1] = destY[currH-1];
-    } 
+    }
 }
 
 bool getStop(int pattern) {
-    double humanRobotDist = pt_dist(robPositionX[currR-1], humanPositionX[currH-1], robPositionY[currR-1], humanPositionY[currH-1])/100;
+    double humanRobotDist = pt_dist(robPositionX[currR-1], humanPositionX[currH-1], robPositionY[currR-1],
+                                    humanPositionY[currH-1])/100;
     double dist_to_dest = pt_dist(robPositionX[currR-1], dX[currR-1], robPositionY[currR-1], dY[currR-1]);
     double dist = 100.0*1.1;
 
@@ -4966,18 +4971,19 @@ bool getStop(int pattern) {
             stopHuman = humanFatigue[currH-1]&gt;=stopFatigue; //stop human if too fatigued
             // stop robot if close to destination, human is too tired or too distant
             return dist_to_dest&lt;=dist || stopHuman || humanRobotDist&gt;=stopDistance;
-        } else 
-            return humanRobotDist&lt;=restartDistance || (dX[currR-1] == rechargeStation[0] &amp;&amp; dY[currR-1] == rechargeStation[1] &amp;&amp; dist_to_dest&lt;=dist); // else stop if close to human or recharge station
+        } else
+        return humanRobotDist&lt;=restartDistance || (dX[currR-1] == rechargeStation[0] &amp;&amp; dY[currR-1] ==
+                                                                                                   rechargeStation[1] &amp;&amp; dist_to_dest&lt;=dist); // else stop if close to human or recharge station
     } else if (pattern==1) // stop cond. for leader
         return dist_to_dest&lt;=dist || (!hExe &amp;&amp; dist_to_dest&lt;=dist); // stop if human has stopped
-     else if (pattern==2 || pattern==3){ // stop cond. for recipient
+    else if (pattern==2 || pattern==3){ // stop cond. for recipient
         return dist_to_dest&lt;=dist; // stop if close to destination
     } else if (pattern==10)// interdependence by contract
         return !hExe;
     else if (pattern==12) // competition
-        return dist_to_dest&lt;=90.0; //TODO check
-    else 
-        return false;
+        return dist_to_dest&lt;=dist;
+    else
+    return false;
 }
 
 /**
@@ -4986,13 +4992,13 @@ bool getStop(int pattern) {
 
 void check_r_rech(){
     if(batteryCharge[currR-1]&gt;=stopRechargingTh) //if recharging, stop when recharged
-        stop[currR-1] = true;
+    stop[currR-1] = true;
 }
 
 void check_fail(){
     // mission fails if battery gets to 0, or human passes out
     if(batteryCharge[id-1]&lt;=failBattery ||
-            humanFatigue[currH-1]&gt;=failFatigue) {
+                               humanFatigue[currH-1]&gt;=failFatigue) {
         fail = true;
         currOp[currR-1] = 0;
     }
@@ -5006,7 +5012,7 @@ void check_scs(){
     }
 }
 
-void check_h_move(){    
+void check_h_move(){
     stop[currR-1] = getStop(patterns[currH-1]);
 
     if(!stop[currR-1]) {
@@ -5016,7 +5022,7 @@ void check_h_move(){
 }
 
 void check_r_move(){
-    // stop moving if battery is low  and start task handover
+    // stop moving if battery is low and start task handover
     if(currOp[currR-1]==4 &amp;&amp; batteryCharge[currR-1]&lt;=rechargingTh) {
         stop[currR-1] = true;
         if (patterns[currH-1]==3 || patterns[currH-1]==0) stopHuman=true;
@@ -5034,26 +5040,43 @@ void check_r_move(){
             stop[currR-1] = false;
             stopHuman = false;
             dX[currR-1] = humanPositionX[currH-1];
-            dY[currR-1] = humanPositionY[currH-1];   
+            dY[currR-1] = humanPositionY[currH-1];
             recipientStages++;
-        } 
+        }
     }
 }
 
+int select_coR() {
+    int i, closest= -1;
+    double dist, min_dist = 100000.0;
+    if(R&gt;=2) {
+        for(i=0; i &lt; R; i++) {
+            dist = pt_dist(robPositionX[currR-1], robPositionX[i], robPositionY[currR-1], robPositionY[i]);
+            if(dist &lt; min_dist &amp;&amp; i != (currR-1) &amp;&amp; !busy[i]) {
+                min_dist = dist;
+                closest = i;
+            }
+        }
+        return closest+1;
+    } else return closest;
+}
 
+bool start;
 void check_start(){
-     bool start;
-     int tmp;
-     bool isCoRobotAvailable = true;  //currently trivially set to true, in a more complex scenario there should be a function that fulfill the needed checks such as: coR not employed in another task, coR with enough battery to reach currR
+    int tmp, coR_choice;
+    bool isCoRobotAvailable;
 
-     // if battery charge is low, move to rech. mode
-     if(batteryCharge[currR-1]&lt;=rechargingTh) { 
+    // if battery charge is low, move to rech. mode
+    if(batteryCharge[currR-1]&lt;=rechargingTh) {
         dX[currR-1] = rechargeStation[0];
         dY[currR-1] = rechargeStation[1];
+        coR_choice = select_coR();
+        isCoRobotAvailable = coR_choice &gt; 0;
         if (isCoRobotAvailable){
             currOp[currR-1] = 7;
-            if (currR == 1) coR = 2;
-            else coR = 1;
+            coR = coR_choice;
+            //if (currR == 1) coR = 2;
+            //else coR = 1;
             currOp[coR-1] = 7;
             dX[coR-1] = robPositionX[currR-1];
             dY[coR-1] = robPositionY[currR-1];
@@ -5061,21 +5084,22 @@ void check_start(){
             synch = true;
         }
         else{
-           currOp[currR-1] = 2;
-           stop[currR-1] = true; 
+            currOp[currR-1] = 2;
+            stop[currR-1] = true;
         }
         return;
-     }
+    }
 
-     start = getStart(patterns[currH-1]);
-     if(start) {
+    start = getStart(patterns[currH-1]);
+    if(start) {
         setOpParams(patterns[currH-1]);
-        // human can start if it is a follower, rob is not recharging 
+        // human can start if it is a follower, rob is not recharging
         // and everybody is moving towards the destination (i.e., robot is not going back towards the human)
         // note: the leader does not need this boolean, because it does not "wait" for start_h_action to fire
-        startHuman = (currOp[currR-1]==4 &amp;&amp; patterns[currH-1]!=2 &amp;&amp; patterns[currH-1]!=3 &amp;&amp; dX[currR-1]==destX[currH-1] &amp;&amp; dY[currR-1]==destY[currH-1]) || currOp[currR-1]==6;
+        startHuman = (currOp[currR-1]==4 &amp;&amp; patterns[currH-1]!=2 &amp;&amp; patterns[currH-1]!=3 &amp;&amp;
+        dX[currR-1]==destX[currH-1] &amp;&amp; dY[currR-1]==destY[currH-1]) || currOp[currR-1]==6;
         stop[currR-1] = true;
-     }       
+    }
 }
 
 void check_hr_mission(){
@@ -5092,7 +5116,7 @@ void check_hr_mission(){
     if (!hExe) {
         stop[currR-1]=true;
     }
-    
+
 }
 
 void check_service_provided() {
@@ -5101,21 +5125,21 @@ void check_service_provided() {
     dist_to_dest = pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]);
     humanRobotDist = calculateDistance();
 
-    if(patterns[currH-1]==0 
-             &amp;&amp; dist_to_dest &lt;= eps
-             &amp;&amp; humanRobotDist &lt;= eps/100*2) { // if follower is close to robot and both are close to destination
+    if(patterns[currH-1]==0
+       &amp;&amp; dist_to_dest &lt;= eps
+                                     &amp;&amp; humanRobotDist &lt;= eps/100*2) { // if follower is close to robot and both are close to destination
         served[currH-1] = true;
         stopHuman = true;
-        if(currH&lt;H &amp;&amp; patterns[currH]!=1) 
-            currH++;
-    } 
+        if(currH&lt;H &amp;&amp; patterns[currH]!=1)
+        currH++;
+    }
     else if((patterns[currH-1]==1 || patterns[currH-1]==3 || patterns[currH-1]==12) &amp;&amp; served[currH-1]) // if leader has set themselves as served
         currH++;
-    else if(patterns[currH-1]==10 &amp;&amp; task_size &lt;= task_completion){ 
+    else if(patterns[currH-1]==10 &amp;&amp; task_size &lt;= task_completion){
         served[currH-1] = true;
         stopHuman = true;
-        if(currH&lt;H &amp;&amp; patterns[currH]!=1) 
-            currH++;
+        if(currH&lt;H &amp;&amp; patterns[currH]!=1)
+        currH++;
     }
 }
 
@@ -5124,14 +5148,14 @@ void check_service_provided() {
 void check_r_move_coR(){
     //check if the coR has reached the recharging station
     double dist_to_dest = pt_dist(robPositionX[coR-1], dX[coR-1], robPositionY[coR-1], dY[coR-1]);
-    double dist = 50.0;
+    double dist = 150.0;
     stop[coR-1] = dist_to_dest &lt;= dist;
-    
+
 }
 
 void check_r_rech_coR(){
     if(batteryCharge[coR-1]&gt;=stopRechargingTh) //if recharging, stop when recharged
-        stop[coR-1] = true;
+    stop[coR-1] = true;
 }
 
 void needs_recharging_coR(){
@@ -5144,7 +5168,7 @@ void needs_recharging_coR(){
 
 void check_r_sync(){
     double dist_to_dest = pt_dist(robPositionX[coR-1], dX[coR-1], robPositionY[currR-1], dY[currR-1]);
-    double dist = 50.0;
+    double dist = 150.0;
     if (dist_to_dest &lt;= dist) {
         synch = false;
         stop[coR-1] = true;
@@ -5153,9 +5177,8 @@ void check_r_sync(){
 
 
 void check_actions() {
-    
+
     if (currR == id) {
-        
         check_scs();
         if( scs )
             return;
@@ -5165,13 +5188,13 @@ void check_actions() {
             return;
 
         if( currOp[currR-1]==1 ) // system idle, waiting for an action to start
-           check_start();
+            check_start();
         else if( currOp[currR-1]==2 || currOp[currR-1]==4 ) // robot moving to rech. station (currOp=2), or leading (currOp=4)
-           check_r_move();
+            check_r_move();
         else if( currOp[currR-1]==3 ) // robot recharging
-           check_r_rech();
+            check_r_rech();
         else if( currOp[currR-1]==5 ) // robot following
-           check_h_move();
+            check_h_move();
         else if ( currOp[currR-1]==6 )
             check_hr_mission();
         else if ( currOp[currR-1]==7 )
@@ -5180,145 +5203,140 @@ void check_actions() {
         check_service_provided();
     }
     else if (coR == id){
-        if( currOp[currR-1]==1 ) // system idle, waiting for an eventual synchronization with the current robot 
+        if( currOp[currR-1]==1 ) // system idle, waiting for an eventual synchronization with the current robot
             /*nothing*/;
         else if ( currOp[coR-1]==2 ) // co-robot moving to rech. station
             check_r_move_coR();
         else if ( currOp[coR-1]==3 ) // co-robot recharging
-           check_r_rech_coR();
-        else if ( currOp[coR-1]==4 ) 
+            check_r_rech_coR();
+        else if ( currOp[coR-1]==4 )
             needs_recharging_coR();
         else if ( currOp[coR-1]==7 ) //// co-robot reaching current robot
             check_r_sync();
     }
 }
- </declaration>
-        <location id="id146" x="-663" y="-366">
-            <name x="-705" y="-399">op</name>
-            <label kind="invariant" x="-773" y="-374">t_act&lt;=T_int</label>
-        </location>
-        <location id="id147" x="-238" y="-366">
-            <name x="-221" y="-391">chk</name>
-            <label kind="invariant" x="-221" y="-365">t_act&lt;=T_proc</label>
-        </location>
-        <location id="id148" x="-442" y="-527">
-            <name x="-452" y="-561">off</name>
-        </location>
-        <location id="id149" x="-451" y="-222">
-            <committed/>
-        </location>
-        <location id="id150" x="-238" y="-459">
-            <committed/>
-        </location>
-        <location id="id151" x="-136" y="-459">
-            <committed/>
-        </location>
-        <init ref="id148"/>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id149"/>
-            <label kind="guard" x="-382" y="-314">!stop[id-1] &amp;&amp; fail
-&amp;&amp; t_act&gt;=T_proc</label>
-            <label kind="assignment" x="-382" y="-280">active_robot[id-1] = true</label>
-            <nail x="-255" y="-263"/>
-        </transition>
-        <transition>
-            <source ref="id151"/>
-            <target ref="id148"/>
-            <label kind="synchronisation" x="-195" y="-518">opchk_scs!</label>
-            <nail x="-144" y="-467"/>
-            <nail x="-238" y="-527"/>
-        </transition>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id151"/>
-            <label kind="guard" x="-127" y="-450">!stop[id-1] &amp;&amp; scs
-&amp;&amp; t_act&gt;=T_proc</label>
-            <label kind="assignment" x="-127" y="-416">active_robot[id-1] = true</label>
-            <nail x="-136" y="-365"/>
-        </transition>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id150"/>
-            <label kind="guard" x="-382" y="-459">stop[id-1] &amp;&amp; !scs
-&amp;&amp; t_act&gt;=T_proc</label>
-            <label kind="assignment" x="-382" y="-425">active_robot[id-1] = true</label>
-        </transition>
-        <transition>
-            <source ref="id149"/>
-            <target ref="id148"/>
-            <label kind="synchronisation" x="-26" y="-552">opchk_fail!</label>
-            <label kind="comments" x="-433" y="-200">active_robot[id-1] is not set true because the synch messagge opchk_fail is not received by anyone</label>
-            <nail x="59" y="-229"/>
-            <nail x="59" y="-527"/>
-        </transition>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id149"/>
-            <label kind="guard" x="-238" y="-323">active_robot[id-1] == true</label>
-            <label kind="synchronisation" x="-238" y="-306">pass_out?</label>
-            <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
-            <nail x="-238" y="-348"/>
-            <nail x="-239" y="-256"/>
-        </transition>
-        <transition>
-            <source ref="id146"/>
-            <target ref="id149"/>
-            <label kind="guard" x="-841" y="-340">active_robot[id-1] == true</label>
-            <label kind="synchronisation" x="-841" y="-323">pass_out?</label>
-            <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
-            <nail x="-664" y="-265"/>
-        </transition>
-        <transition>
-            <source ref="id150"/>
-            <target ref="id148"/>
-            <label kind="synchronisation" x="-331" y="-501">opchk_stop!</label>
-            <nail x="-238" y="-527"/>
-        </transition>
-        <transition>
-            <source ref="id148"/>
-            <target ref="id146"/>
-            <label kind="guard" x="-748" y="-578">active_robot[id-1] == true &amp;&amp; 
-(currR == id || coR == id)</label>
-            <label kind="synchronisation" x="-697" y="-544">opchk_start?</label>
-            <label kind="assignment" x="-748" y="-527">initialize(), t_act=0, 
-active_robot[id-1] = false</label>
-            <nail x="-663" y="-527"/>
-        </transition>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id149"/>
-            <label kind="guard" x="-238" y="-280">active_robot[id-1] == true</label>
-            <label kind="synchronisation" x="-238" y="-263">dead_battery?</label>
-            <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
-            <nail x="-238" y="-255"/>
-        </transition>
-        <transition>
-            <source ref="id146"/>
-            <target ref="id149"/>
-            <label kind="guard" x="-841" y="-297">active_robot[id-1] == true</label>
-            <label kind="synchronisation" x="-841" y="-280">dead_battery?</label>
-            <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
-            <nail x="-663" y="-348"/>
-            <nail x="-663" y="-348"/>
-            <nail x="-663" y="-264"/>
-        </transition>
-        <transition>
-            <source ref="id147"/>
-            <target ref="id146"/>
-            <label kind="guard" x="-518" y="-323">!stop[id-1] &amp;&amp; !scs
-&amp;&amp; t_act&gt;=T_proc
-&amp;&amp; !fail</label>
-            <label kind="assignment" x="-467" y="-289">t_act=0</label>
-            <nail x="-450" y="-323"/>
-        </transition>
-        <transition>
-            <source ref="id146"/>
-            <target ref="id147"/>
-            <label kind="guard" x="-501" y="-408">t_act&gt;=T_int</label>
-            <label kind="assignment" x="-501" y="-391">check_actions(), t_act=0</label>
-        </transition>
-    </template>
+    </declaration>
+    <location id="id145" x="-663" y="-366">
+        <name x="-705" y="-399">op</name>
+        <label kind="invariant" x="-773" y="-374">t_act&lt;=T_int</label>
+    </location>
+    <location id="id146" x="-238" y="-366">
+        <name x="-221" y="-391">chk</name>
+        <label kind="invariant" x="-221" y="-365">t_act&lt;=T_proc</label>
+    </location>
+    <location id="id147" x="-442" y="-527">
+        <name x="-452" y="-561">off</name>
+    </location>
+    <location id="id148" x="-451" y="-222">
+        <committed/>
+    </location>
+    <location id="id149" x="-238" y="-459">
+        <committed/>
+    </location>
+    <location id="id150" x="-136" y="-459">
+        <committed/>
+    </location>
+    <init ref="id147"/>
+    <transition>
+        <source ref="id150"/>
+        <target ref="id147"/>
+        <label kind="synchronisation" x="-195" y="-518">opchk_scs!</label>
+        <nail x="-144" y="-467"/>
+        <nail x="-238" y="-527"/>
+    </transition>
+    <transition>
+        <source ref="id146"/>
+        <target ref="id150"/>
+        <label kind="guard" x="-127" y="-450">!stop[id-1] &amp;&amp; scs
+            &amp;&amp; t_act&gt;=T_proc
+        </label>
+        <label kind="assignment" x="-127" y="-416">active_robot[id-1] = true</label>
+        <nail x="-136" y="-365"/>
+    </transition>
+    <transition>
+        <source ref="id146"/>
+        <target ref="id149"/>
+        <label kind="guard" x="-382" y="-459">stop[id-1] &amp;&amp; !scs
+            &amp;&amp; t_act&gt;=T_proc
+        </label>
+        <label kind="assignment" x="-382" y="-425">active_robot[id-1] = true</label>
+    </transition>
+    <transition>
+        <source ref="id148"/>
+        <target ref="id147"/>
+        <label kind="synchronisation" x="-26" y="-552">opchk_fail!</label>
+        <label kind="comments" x="-433" y="-200">active_robot[id-1] is not set true because the synch messagge
+            opchk_fail is not received by anyone
+        </label>
+        <nail x="59" y="-229"/>
+        <nail x="59" y="-527"/>
+    </transition>
+    <transition>
+        <source ref="id146"/>
+        <target ref="id148"/>
+        <label kind="guard" x="-229" y="-323">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-229" y="-306">pass_out?</label>
+        <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
+        <nail x="-238" y="-263"/>
+    </transition>
+    <transition>
+        <source ref="id145"/>
+        <target ref="id148"/>
+        <label kind="guard" x="-841" y="-340">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-841" y="-323">pass_out?</label>
+        <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
+        <nail x="-663" y="-263"/>
+    </transition>
+    <transition>
+        <source ref="id149"/>
+        <target ref="id147"/>
+        <label kind="synchronisation" x="-331" y="-501">opchk_stop!</label>
+        <nail x="-238" y="-527"/>
+    </transition>
+    <transition>
+        <source ref="id147"/>
+        <target ref="id145"/>
+        <label kind="guard" x="-748" y="-578">active_robot[id-1] == true &amp;&amp;
+            (currR == id || coR == id)
+        </label>
+        <label kind="synchronisation" x="-697" y="-544">opchk_start?</label>
+        <label kind="assignment" x="-748" y="-527">initialize(), t_act=0,
+            active_robot[id-1] = false
+        </label>
+        <nail x="-663" y="-527"/>
+    </transition>
+    <transition>
+        <source ref="id146"/>
+        <target ref="id148"/>
+        <label kind="guard" x="-238" y="-280">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-238" y="-263">dead_battery?</label>
+        <label kind="assignment" x="-238" y="-246">active_robot[id-1] = false</label>
+        <nail x="-306" y="-263"/>
+    </transition>
+    <transition>
+        <source ref="id145"/>
+        <target ref="id148"/>
+        <label kind="guard" x="-841" y="-297">active_robot[id-1] == true</label>
+        <label kind="synchronisation" x="-841" y="-280">dead_battery?</label>
+        <label kind="assignment" x="-841" y="-246">active_robot[id-1] = false</label>
+        <nail x="-620" y="-272"/>
+    </transition>
+    <transition>
+        <source ref="id146"/>
+        <target ref="id145"/>
+        <label kind="guard" x="-518" y="-323">!stop[id-1] &amp;&amp; !scs
+            &amp;&amp; t_act&gt;=T_proc
+        </label>
+        <label kind="assignment" x="-476" y="-289">t_act=0</label>
+        <nail x="-450" y="-323"/>
+    </transition>
+    <transition>
+        <source ref="id145"/>
+        <target ref="id146"/>
+        <label kind="guard" x="-501" y="-408">t_act&gt;=T_int</label>
+        <label kind="assignment" x="-501" y="-391">check_actions(), t_act=0</label>
+    </transition>
+</template>
 <template>
 	<name>ROS_SensPub</name>
 	<parameter>int id, double l_avg, double l_dev</parameter>
@@ -5340,9 +5358,11 @@ void add_to_buffer() {
     if(id==0){
         buffer[buff_pos] = internal_charge[0];
         buffer3[buff_pos] = 0;
-        buff_pos++;
-        buffer[buff_pos] = internal_charge[1];
-        buffer3[buff_pos] = 1;
+        if(R&gt;=2) {
+            buff_pos++;
+            buffer[buff_pos] = internal_charge[1];
+            buffer3[buff_pos] = 1;
+        }
     }
     else if(id==3) {
         buffer[buff_pos] = internalHumX[currH-1];
@@ -5461,7 +5481,7 @@ L=0, update_lat()</label>
 </template>
 	<system>
 // Robot Instances
-r_1 = Robot(1, 60, 60, 2500.00, 400.00);
+r_1 = Robot(1, 100, 100, 300.00, 300.00);
 b_r_1 = Battery(1, 12.4);
 r_pub_1 = ROS_SensPub(1, 0.5, 0.01);
 c_pub = ROS_SensPub(0, 0.5, 0.01);
