@@ -3,7 +3,7 @@ Human-Robot Interactive Scenario Uppaal Model Generator
 
 The repository contains the implementation of an Uppaal model generator for the analysis of human-robot interaction scenarios in service settings.
 The model consists of a Stochastic Hybrid Automata network, described in detail in [this article][paper2].
-The network features automata modeling the humans, the robot, and the robot controller.
+The network features automata modeling the *humans*, the *robot*, and the *robot controller*.
 
 It is possible to customize the scenario parameters (e.g., how many humans, their features, the layout shape, etc.) in a JSON file. Example JSON files can be found in the [input_params](resources/input_params) folder.
 The tool customizes the templates constituting the Uppaal model (one for each automaton in the network, contained in folder [upp_templates](resources/upp_templates)) based on such user-specified parameters.
