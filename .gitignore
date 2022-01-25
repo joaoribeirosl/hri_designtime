@@ -6,6 +6,7 @@
 .idea/hri_designtime.iml
 resources/upp_results/fac_sub/*
 resources/gen_models/fac_sub/*
+resources/input_params/fac_sub/*
 src/mgr/__pycache__/upp_mgr.cpython-36.pyc
 src/mgr/__pycache__/tplt_mgr.cpython-36.pyc
 src/mgr/__pycache__/query_mgr.cpython-36.pyc

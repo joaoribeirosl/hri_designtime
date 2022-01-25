@@ -4,7 +4,7 @@ from src.domain.layout import Point
 
 
 class Interaction_Pattern(Enum):
-    ASSISTANT = "ASSISTANT"
+    APPLICANT = "APPLICANT"
     COMPETITOR = "COMPETITOR"
     FOLLOWER = "FOLLOWER"
     LEADER = "LEADER"
@@ -13,8 +13,8 @@ class Interaction_Pattern(Enum):
 
     @staticmethod
     def parse_ptrn(p: str):
-        if p == "ASSISTANT":
-            return Interaction_Pattern.ASSISTANT
+        if p == "APPLICANT":
+            return Interaction_Pattern.APPLICANT
         elif p == "COMPETITOR":
             return Interaction_Pattern.COMPETITOR
         elif p == "FOLLOWER":
@@ -27,7 +27,7 @@ class Interaction_Pattern(Enum):
             return Interaction_Pattern.RESCUER
 
     def to_int(self):
-        if self == Interaction_Pattern.ASSISTANT:
+        if self == Interaction_Pattern.APPLICANT:
             return 3
         elif self == Interaction_Pattern.COMPETITOR:
             return 12
@@ -118,8 +118,8 @@ class Human:
         self.path = path
 
     def get_constructor(self):
-        if self.ptrn == Interaction_Pattern.ASSISTANT:
-            return "{} = Human_Assistant({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+        if self.ptrn == Interaction_Pattern.APPLICANT:
+            return "{} = Human_Applicant({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                             self.p_f.to_int(),
                                                                             self.p_fw.to_int(), self.dext, self.path)
         elif self.ptrn == Interaction_Pattern.COMPETITOR:

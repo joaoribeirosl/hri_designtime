@@ -219,8 +219,7 @@ void plan_traj() {
     bool visited[N_I] = **N_I_false**
     curr[0] = internalHumX[id - 1];
     curr[1] = internalHumY[id - 1];
-    dest[0] = dX[currR - 1];
-    dest[1] = dY[currR - 1];
+    dest[0] = destX[id-1]; dest[1] = destY[id-1];
     // init trajectory
     for (i = 0; i &lt; N_P;i++)
     {

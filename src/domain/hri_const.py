@@ -18,7 +18,7 @@ class Constants(Enum):
     # Keywords to replace templates within main file
     ROB_KEY = "**ROBOT**"
     BTR_KEY = "**BATTERY**"
-    HA_KEY = "**HUMAN_ASSISTANT**"
+    HA_KEY = "**HUMAN_APPLICANT**"
     HC_KEY = "**HUMAN_COMPETITOR**"
     HF_KEY = "**HUMAN_FOLLOWER**"
     HL_KEY = "**HUMAN_LEADER**"

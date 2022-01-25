@@ -72,10 +72,12 @@ class Query:
                     q += "E[<={}](min:batteryCharge[{}])\n".format(self.tau, i)
                 return q
         else:
-            served = ''.join(['served[{}], '.format(h.h_id-1) for (i, h) in enumerate(self.hums) if h.path != 2])
+            served = ''.join(['served[{}], '.format(h.h_id - 1) for (i, h) in enumerate(self.hums) if h.path != 2])
             if self.n != ND:
                 return "simulate[<={};{}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
-                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100}}\n".format(self.tau, self.n, served)
+                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100, dX[currR-1]/100, dY[currR-1]/100, PATH}}\n".format(
+                    self.tau, self.n, served)
             else:
                 return "simulate[<={}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
-                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100}}\n".format(self.tau, served)
+                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100, dX[currR-1]/100, dY[currR-1]/100, PATH}}\n".format(
+                    self.tau, served)
