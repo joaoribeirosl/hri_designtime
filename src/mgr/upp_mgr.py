@@ -6,7 +6,7 @@ from src.logging.logger import Logger
 from datetime import datetime
 
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read('./resources/config/config.ini')
 config.sections()
 
 

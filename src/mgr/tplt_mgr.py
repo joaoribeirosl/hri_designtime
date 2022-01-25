@@ -6,7 +6,7 @@ from src.logging.logger import Logger
 from src.mgr.param_mgr import Param_Mgr
 
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read('./resources/config/config.ini')
 config.sections()
 
 

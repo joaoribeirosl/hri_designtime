@@ -10,15 +10,15 @@ from src.domain.robot import Robot
 from src.logging.logger import Logger
 
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read('./resources/config/config.ini')
 config.sections()
 
 
 class Json_Mgr:
     JSON_PATH = config['PARAMS SETTINGS']['PARAMS_PATH']
     JSON_EXT = config['PARAMS SETTINGS']['PARAMS_EXT']
-    SCENARIO_NAME = config['PARAMS SETTINGS']['SCENARIO_NAME']
-    PARAMS_FILE = config['PARAMS SETTINGS']['PARAMS_FILE']
+    SCENARIO_NAME = sys.argv[1] if len(sys.argv) >= 2 else None
+    PARAMS_FILE = sys.argv[1] if len(sys.argv) >= 2 else None
 
     def __init__(self):
         self.LOGGER = Logger('Json_Mgr')

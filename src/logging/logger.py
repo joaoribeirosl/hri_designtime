@@ -1,10 +1,9 @@
 import configparser
-import sys
 from datetime import datetime
 from enum import Enum
 
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read('./resources/config/config.ini')
 config.sections()
 
 

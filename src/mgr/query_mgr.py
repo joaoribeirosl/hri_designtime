@@ -6,7 +6,7 @@ from src.domain.query import Query
 from src.logging.logger import Logger
 
 config = configparser.ConfigParser()
-config.read(sys.argv[1])
+config.read('./resources/config/config.ini')
 config.sections()
 
 
