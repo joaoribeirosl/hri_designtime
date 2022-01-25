@@ -21,4 +21,4 @@ src/domain/__pycache__/human.cpython-36.pyc
 src/domain/__pycache__/hri_const.cpython-36.pyc
 src/domain/__pycache__/__init__.cpython-36.pyc
 src/__pycache__/__init__.cpython-36.pyc
-*.txt
+

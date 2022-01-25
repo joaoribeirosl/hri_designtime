@@ -40,7 +40,7 @@ Add the repo path to your Python path (fixes ModuleNotFoundError while trying to
 
 Run the main script specifying the path to your configuration file:
 
-	python3 $LSHA_REPO_PATH/src/main.py $CONFIG_FILE_PATH
+	python3 $REPO_PATH/src/main.py $CONFIG_FILE_PATH
 	
 ---
 
