@@ -83,8 +83,6 @@ bool synch = false;    //used to check if the syncrhonization between the two ro
 ** Added for multi-robot TESTING
 */
 bool busy[R] = **N_R_false**
-double poss_destX[5] = {4300.0, 2000.0, 500.0, 4300.0, 4300.0};
-double poss_destY[5] = {300.0, 300.0, 300.0, 200.0, 500.0};
 
 // Human Mgmt
 int currH = 1;
@@ -120,25 +118,26 @@ const int ND = -1;
 const double NDD = -1.0;
 int PATH = 0;
 
-int SAME_H_IDs[H][H] = {{1, 5, ND, ND, ND, ND}, {2, ND, ND, ND, ND, ND}, {3, 4, 6, ND, ND, ND}, 
-                    {4, 3, 6, ND, ND, ND}, {5, 1, ND, ND, ND, ND}, {6, 3, 4, ND, ND, ND}};
+int SAME_H_IDs[H][H] = **SAME_IDs_MAT**
+// int SAME_H_IDs[H][H] = {{1, 5, ND, ND, ND, ND}, {2, ND, ND, ND, ND, ND}, {3, 4, 6, ND, ND, ND},
+//                    {4, 3, 6, ND, ND, ND}, {5, 1, ND, ND, ND, ND}, {6, 3, 4, ND, ND, ND}};
 
 // -&gt; DEFINE PATTERN SEQUENCE (make sure it is consistent with humans ids)
 // 0: human follower, 1: human leader, 2: human recipient, 3: human applicant,
 // 10: human_rescuer, (11: human_interdependence_mission,) 12: human competitor
 int patterns[H] = **PTRNS**
-int patterns_alt1[H] = {0, 12, 10, 2, 0, 3}; //robot wins competition
-int patterns_alt2[H] = {0, 12, 1, 1, 0, 3}; //robot loses competition
+int patterns_alt1[H]; // = {0, 12, 10, 2, 0, 3}; //robot wins competition
+int patterns_alt2[H]; // = {0, 12, 1, 1, 0, 3}; //robot loses competition
 //
 
 // -&gt; DEFINE STARTING LOCATIONS IN CARTESIAN PLAN
 double startX[H] = **START_X**
 double startY[H] = **START_Y**
 
-const double startX_alt1[H] = {220.0,4300.0,700.0,2000.0,400.0,400.0};
-const double startY_alt1[H] = {300.0,300.0,300.0,300.0,150.0,150.0};
-const double startX_alt2[H] = {220.0,4300.0,2000.0,4300.0,400.0,400.0};
-const double startY_alt2[H] = {300.0,300.0,300.0,200.0,150.0,150.0};
+double startX_alt1[H]; // = {220.0,4300.0,700.0,2000.0,400.0,400.0};
+double startY_alt1[H]; // = {300.0,300.0,300.0,300.0,150.0,150.0};
+double startX_alt2[H]; // = {220.0,4300.0,2000.0,4300.0,400.0,400.0};
+double startY_alt2[H]; // = {300.0,300.0,300.0,200.0,150.0,150.0};
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,
@@ -146,10 +145,10 @@ const double startY_alt2[H] = {300.0,300.0,300.0,200.0,150.0,150.0};
 double destX[H] = **DEST_X**
 double destY[H] = **DEST_Y**
 
-const double destX_alt1[H] = {4300.0, 4300.0, 2000.0, 2000.0, 2000.0, 2000.0}; //robot wins competition
-const double destY_alt1[H] = {300.0, 500.0, 300.0, 300.0, 300.0, 300.0};
-const double destX_alt2[H] = {4300.0, 4300.0, 4300.0, 2000.0, 2000.0, 2000.0}; //robot loses competition
-const double destY_alt2[H] = {300.0, 500.0, 200.0, 300.0, 300.0, 300.0};
+double destX_alt1[H]; // = {4300.0, 4300.0, 2000.0, 2000.0, 2000.0, 2000.0}; //robot wins competition
+double destY_alt1[H]; // = {300.0, 500.0, 300.0, 300.0, 300.0, 300.0};
+double destX_alt2[H]; // = {4300.0, 4300.0, 4300.0, 2000.0, 2000.0, 2000.0}; //robot loses competition
+double destY_alt2[H]; // = {300.0, 500.0, 200.0, 300.0, 300.0, 300.0};
 
 /**
 * PARAMS FOR RESCUER AND APPLICANT (task size and dexterity)

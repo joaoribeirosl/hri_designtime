@@ -131,19 +131,26 @@ class Param_Mgr:
                     value += '};'
                 elif key == const.SAME_IDs_MAT.value:
                     value = '{'
-                    for i in range(len(self.hums)):
+
+                    same_ids = []
+                    for h_i, h in enumerate(self.hums):
+                        same_ids.append([])
+                        same_ids[-1].append(h.h_id)
+                        with_same_ids = list(filter(lambda h2: h.h_id != h2.h_id and
+                                                               ((h.same_as != -1 and h2.same_as == h.same_as) or
+                                                                h.h_id == h2.same_as or h2.h_id == h.same_as),
+                                                    self.hums))
+                        same_ids[-1].extend([h2.h_id for h2 in with_same_ids])
+                        while len(same_ids[-1]) < len(self.hums):
+                            same_ids[-1].append(-1)
+
+                    for r_i, row in enumerate(same_ids):
                         value += '{'
-                        for (j, hum) in enumerate(self.hums):
-                            if j == 0:
-                                value += str(hum.h_id)
-                            else:
-                                # FIXME (not using this feature yet)
-                                value += str(hum.same_as)
-                            if j <= len(self.hums) - 2:
-                                value += ','
+                        value += ','.join([str(x) for x in row])
                         value += '}'
-                        if i <= len(self.hums) - 2:
+                        if r_i < len(self.hums) - 1:
                             value += ','
+
                     value += '};'
                 main_content = main_content.replace(key, str(value))
             dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
