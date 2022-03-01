@@ -1,6 +1,6 @@
 <template>
 	<name>Robot</name>
-	<parameter>int id, int v_max, int a_max, double posX, double posY</parameter>
+	<parameter>int id, double v_max, double a_max, double posX, double posY</parameter>
 	<declaration>clock V, Th, tUpd;
 
 trajectory traj = **N_P_0.0**

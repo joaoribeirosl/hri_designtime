@@ -1,6 +1,6 @@
 <template>
     <name>Human_Applicant</name>
-    <parameter>int id, int v, int p_f, int p_fw, int p_dext, int path</parameter>
+    <parameter>int id, double v, int p_f, int p_fw, int p_dext, int path</parameter>
     <declaration>
 /* general comments
 - if the person is far from the objective, it will move towards it, otherwise it will wait for the command to

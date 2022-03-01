@@ -1,6 +1,6 @@
 <template>
     <name>Human_Rescuer</name>
-    <parameter>int id, int v, int p_f, int p_fw, int p_dext, int path</parameter>
+    <parameter>int id, double v, int p_f, int p_fw, int p_dext, int path</parameter>
     <declaration>//PATTERN N°10
 clock t, F, Fp;
 clock tUpd;

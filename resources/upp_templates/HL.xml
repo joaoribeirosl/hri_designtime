@@ -1,6 +1,6 @@
 <template>
     <name>Human_Leader</name>
-    <parameter>int id, int v, int p_f, int p_fw, int start_from, int path</parameter>
+    <parameter>int id, double v, int p_f, int p_fw, int start_from, int path</parameter>
     <declaration>clock t, F, Fp;
 clock tUpd;
 clock freeWill;
