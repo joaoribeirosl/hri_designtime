@@ -1,6 +1,6 @@
 <template>
     <name>Human_Follower</name>
-    <parameter>int id, double v, int p_f, int p_fw, int start_from, int path</parameter>
+    <parameter>int id, double _v, int p_f, int p_fw, int start_from, int path</parameter>
     <declaration>clock t, F, Fp;
 clock tUpd;
 clock freeWill;
@@ -19,6 +19,8 @@ const int Tpoll = 1;
 
 bool ONCE_FTG = true;
 bool ONCE_POS = true;
+
+int v;
 
 void updateF(double coeff, bool walking) {
     // if two human instances are the same person,
@@ -247,13 +249,17 @@ void initHuman() {
     tUpd = 0;
     F = 0;
     Fp = 0;
+    v = fint(_v);
 
-    if(start_from==-1) {
-        humanPositionX[id-1] = 220.0;
-        humanPositionY[id-1] = 300.0;
+    if(path==ND) {
+        humanPositionX[id - 1] = startX[id-1];
+        humanPositionY[id - 1] = startY[id-1];
+    } else if(path==1) {
+        humanPositionX[id - 1] = startX_alt1[id-1];
+        humanPositionY[id - 1] = startY_alt1[id-1];
     } else {
-        humanPositionX[id-1] = destX[start_from-1];
-        humanPositionY[id-1] = destY[start_from-1];
+        humanPositionX[id - 1] = startX_alt2[id-1];
+        humanPositionY[id - 1] = startY_alt2[id-1];
     }
     internalHumX[id-1] = humanPositionX[id-1];
     internalHumY[id-1] = humanPositionY[id-1];

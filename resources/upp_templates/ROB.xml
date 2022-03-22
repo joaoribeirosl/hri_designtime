@@ -1,6 +1,6 @@
 <template>
 	<name>Robot</name>
-	<parameter>int id, double v_max, double a_max, double posX, double posY</parameter>
+	<parameter>int id, double _v_max, double _a_max, double posX, double posY</parameter>
 	<declaration>clock V, Th, tUpd;
 
 trajectory traj = **N_P_0.0**
@@ -11,6 +11,8 @@ int curr_traj = 0;
 // Position Sharing parameters
 int t = 0;
 const int T_poll = 1;
+int v_max;
+int a_max;
 
 bool needsTurning = false;
 void change_orientation(double sx, double sy, double dx, double dy) {
@@ -194,6 +196,8 @@ void initRobot() {
     internalRobX[id-1] = posX;
     internalRobY[id-1] = posY;
     tUpd=0; 
+    v_max = fint(_v_max);
+    a_max = fint(_a_max);
 }
 
 void varsUpdate(double coeff) {

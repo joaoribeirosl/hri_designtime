@@ -1,6 +1,6 @@
 <template>
     <name>Human_Recipient</name>
-    <parameter>int id, double v, int p_f, int p_fw, int path</parameter>
+    <parameter>int id, double _v, int p_f, int p_fw, int path</parameter>
     <declaration>clock t, F, Fp;
 clock tUpd;
 clock freeWill;
@@ -14,6 +14,8 @@ double freeWillRange = 95.0;
 
 // Fatigue Sharing Parameters
 const int Tpoll = 1;
+
+int v;
 
 // Position Sharing Parameters
 
@@ -234,6 +236,7 @@ void initHuman() {
     F = 0;
     Fp = 0;
     t = 0;
+    v = fint(_v);
 
     tUpd = 0;
     if(path==ND) {
