@@ -159,7 +159,7 @@ class Human:
             return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                          self.p_f.to_int(), self.p_fw.to_int(),
                                                                          self.same_as, self.path)
-        elif self.ptrn == Interaction_Pattern.RECIPIENT:
+        elif self.ptrn == Interaction_Pattern.RECIPIENT: # int id, double _v, int p_f, int p_fw, int path
             return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
                                                                         self.p_fw.to_int(), self.path)
         else:
