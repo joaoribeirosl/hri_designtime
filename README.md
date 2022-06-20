@@ -2,7 +2,12 @@ Human-Robot Interactive Scenario Uppaal Model Generator
 ====================================
 
 The repository contains the implementation of an Uppaal model generator for the analysis of human-robot interaction scenarios in service settings.
-The model consists of a Stochastic Hybrid Automata network, described in detail in [this article][paper2].
+The model consists of a Stochastic Hybrid Automata network, described in detail in the following articles: 
+- Lestingi, L., Askarpour, M., Bersani, M. M., & Rossi, M. (2021). A Deployment Framework for Formally Verified Human-Robot Interactions. IEEE Access. [doi.org/10.1109/ACCESS.2021.3117852][paper4]
+- Lestingi, L., Askarpour, M., Bersani, M. M., & Rossi, M. (2020, September). *Formal verification of human-robot interaction in healthcare scenarios*. In SEFM 2020 (pp. 303-324). Springer, Cham. [doi.org/10.1007/978-3-030-58768-0_17][paper2]
+- Lestingi, L., Askarpour, M., Bersani, M. M., & Rossi, M. (2020). *A Model-driven Approach for the Formal Analysis of Human-Robot Interaction Scenarios*. In SMC 2020 (pp. 1907-1914), IEEE. [doi.org/10.1109/SMC42975.2020.9283204][paper3]
+- Lestingi, L., Askarpour, M., Bersani, M. M., & Rossi, M. (2020). *Statistical Model Checking of Human-Robot Interaction Scenarios*. AREA 2020 [doi.org/10.4204/EPTCS.319.2][paper1].
+
 The network features automata modeling the *humans*, the *robot*, and the *robot controller*.
 
 It is possible to customize the scenario parameters (e.g., how many humans, their features, the layout shape, etc.) in a JSON file. Example JSON files can be found in the [`./resources/input_params/`](resources/input_params) folder.
