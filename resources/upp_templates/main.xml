@@ -216,18 +216,18 @@ int SAME_H_IDs[H][H] = **SAME_IDs_MAT**
 // 0: human follower, 1: human leader, 2: human recipient, 3: human applicant,
 // 10: human_rescuer, (11: human_interdependence_mission,) 12: human competitor
 int patterns[H] = **PTRNS**
-int patterns_alt1[H]; // = {0, 12, 10, 2, 0, 3}; //robot wins competition
-int patterns_alt2[H]; // = {0, 12, 1, 1, 0, 3}; //robot loses competition
+int patterns_alt1[H] = **PTRNS**
+int patterns_alt2[H] = **PTRNS**
 //
 
 // -&gt; DEFINE STARTING LOCATIONS IN CARTESIAN PLAN
 double startX[H] = **START_X**
 double startY[H] = **START_Y**
 
-double startX_alt1[H];
-double startY_alt1[H];
-double startX_alt2[H];
-double startY_alt2[H];
+double startX_alt1[H] = **START_X**
+double startY_alt1[H] = **START_Y**
+double startX_alt2[H] = **START_X**
+double startY_alt2[H] = **START_Y**
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,
@@ -235,10 +235,10 @@ double startY_alt2[H];
 double destX[H] = **DEST_X**
 double destY[H] = **DEST_Y**
 
-double destX_alt1[H];
-double destY_alt1[H];
-double destX_alt2[H];
-double destY_alt2[H];
+double destX_alt1[H] = **DEST_X**
+double destY_alt1[H] = **DEST_Y**
+double destX_alt2[H] = **DEST_X**
+double destY_alt2[H] = **DEST_Y**
 
 /**
 * PARAMS FOR RESCUER AND APPLICANT (task size and dexterity)
