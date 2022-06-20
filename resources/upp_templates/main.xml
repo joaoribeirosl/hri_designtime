@@ -60,17 +60,20 @@ const int H3_ERR = 7;
 const int H4_ERR = 0;
 
 // obey/disobey
+const int DISABLED_WEIGHTS[2] = {100, 0};
 const int HIGH_WEIGHTS[2] = {90, 10};
 const int NORMAL_WEIGHTS[2] = {95, 5};
 const int LOW_WEIGHTS[2] = {99, 1};
 
 // free will
 const int FW_max = 100;
+const int DISABLED_FW = 101;
 const int NORMAL_FW = 99;
 const int HIGH_FW = 95;
 const int LOW_FW = 100;
 
 // timer expired
+const int DISABLED_DELTA = 9999;
 const int HIGH_DELTA = 200;
 const int NORMAL_DELTA = 400;
 const int LOW_DELTA = 800;
@@ -80,12 +83,14 @@ bool is_crit = false;
 bool ignore_crit = false;
 int collisions = 0;
 
+const int DISABLED_LAMBDA = 9999;
 const int HIGH_LAMBDA = 1;
 const int NORMAL_LAMBDA = 10;
 const int LOW_LAMBDA = 10000;
 
 // critical status
 const int FS = 1000;
+const int DISABLED_CRIT = 0;
 const int HIGH_CRIT = 2;
 const int NORMAL_CRIT = 1;
 const int LOW_CRIT = 0;
@@ -130,6 +135,14 @@ ERR_PROF get_error_params(int p) {
         res.FW_th = LOW_FW;
         res.obey = LOW_WEIGHTS[0];
         res.disobey = LOW_WEIGHTS[1];
+    }
+    else {
+        res.FW_th = DISABLED_FW;
+        res.obey = DISABLED_WEIGHTS[0];
+        res.disobey = DISABLED_WEIGHTS[1];
+        res.delta_x100 = DISABLED_DELTA;
+        res.lambda_inv = DISABLED_LAMBDA;
+        res.crit = DISABLED_CRIT;
     }
 
     return res;
