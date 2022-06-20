@@ -1,33 +1,33 @@
 {
   "queries": [
     {
-      "type": "pscs",
-      "tau": 520,
-      "n": -1
-    },
-    {
-      "type": "pscs",
-      "tau": 450,
-      "n": -1
-    },
-    {
-      "type": "pscs",
-      "tau": 400,
-      "n": -1
-    },
-    {
       "type": "sim",
-      "tau": 520,
+      "tau": 350,
+      "n": -1
+    },
+    {
+      "type": "pscs",
+      "tau": 350,
+      "n": -1
+    },
+    {
+      "type": "pscs",
+      "tau": 320,
+      "n": -1
+    },
+    {
+      "type": "pscs",
+      "tau": 300,
       "n": -1
     },
     {
       "type": "eftg",
-      "tau": 520,
+      "tau": 350,
       "n": -1
     },
     {
       "type": "echg",
-      "tau": 520,
+      "tau": 350,
       "n": -1
     }
   ],

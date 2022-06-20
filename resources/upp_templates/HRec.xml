@@ -20,7 +20,7 @@ double hs, crit, non_crit;
 meta int v;
 
 bool access() {
-    return accessible(internalHumX[id-1], internalHumY[id-1]);
+    return true;
 }
 
 void updateF(double coeff, bool walking) {
@@ -355,8 +355,7 @@ tExp'==0</label>
 			<target ref="id83"/>
 			<label kind="guard" x="127" y="-671">!access()</label>
 			<label kind="synchronisation" x="127" y="-688">h_fail!</label>
-			<label kind="assignment" x="127" y="-654">boundaryReachedFailure(),
-tExp = 0</label>
+			<label kind="assignment" x="127" y="-654">tExp = 0</label>
 		</transition>
 		<transition>
 			<source ref="id82"/>

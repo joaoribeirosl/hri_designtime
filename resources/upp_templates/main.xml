@@ -249,14 +249,6 @@ int dext = 1;
 int task_completion = 0;
 
 /**
-* SCENARIO FAILURES
-**/
-void boundaryReachedFailure() {
-    fail = true;
-    currOp[currR-1] = 0;
-}
-
-/**
 *** FLOOR PLAN
 **/
 const int N_A = **N_A**
@@ -302,27 +294,6 @@ double calculateDistance() {
 
     if(distance&lt;0) return -distance;
     else return distance;
-}
-
-const int N_NA = 2; //old not existing
-typedef area n_layout[N_NA];
-const n_layout NOT_ACCESSIBLE_FLOOR = {{{400.0, 400.0}, {400.0, 600.0}, {800.0, 600.0}, {800.0, 400.0}}, //decontamination room
-                                     {{0.0, 100.0}, {0.0, 500.0}, {200.0, 500.0}, {200.0, 100.0}}}; //elevator and staircase (symbolic dimensions)
-
-// allows us to determine whether the robot/human is in a forbidden are
-// se non dovesse andare bene la correzione in same_area, mettiamo che la coordinata è accessibile se e solo se
-// appartiene ad un'area non accessible, ma NON appartiene ad un'area accessible
-bool accessible(double x, double y) {
-    int i;
-    for (i = 0; i &lt; N_NA; i++)
-    {
-        if(x&gt;NOT_ACCESSIBLE_FLOOR[i][0][0]
-            &amp;&amp; x&lt;NOT_ACCESSIBLE_FLOOR[i][3][0]
-            &amp;&amp; y&gt;NOT_ACCESSIBLE_FLOOR[i][0][1]
-            &amp;&amp; y&lt;NOT_ACCESSIBLE_FLOOR[i][1][1]) // illegal pos
-            return false;
-    }
-    return true;
 }
 
 // Wall Corner Points

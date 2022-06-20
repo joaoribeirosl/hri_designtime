@@ -26,7 +26,7 @@ int v;
 
 // Position Sharing Parameters
 bool access() {
-    return accessible(internalHumX[id-1], internalHumY[id-1]);
+    return true;
 }
 
 void updateF(double coeff, bool walking) {
@@ -432,8 +432,7 @@ tExp'==0</label>
 			<target ref="id68"/>
 			<label kind="guard" x="273" y="-76">!access()</label>
 			<label kind="synchronisation" x="273" y="-59">h_fail!</label>
-			<label kind="assignment" x="272" y="-25">boundaryReachedFailure(),
-tExp = 0</label>
+			<label kind="assignment" x="272" y="-25">tExp = 0</label>
 		</transition>
 		<transition>
 			<source ref="id67"/>
@@ -524,8 +523,7 @@ check_crit()</label>
 		<transition>
 			<source ref="id61"/>
 			<target ref="id55"/>
-			<label kind="guard" x="-731" y="-391">!served[id-1]
-&amp;&amp; fw&lt;freeWillTh
+			<label kind="guard" x="-731" y="-391">fw&lt;freeWillTh
 &amp;&amp; !DO_START</label>
 			<label kind="synchronisation" x="-731" y="-340">publish_m[3]!</label>
 			<label kind="assignment" x="-731" y="-323">fw=0</label>

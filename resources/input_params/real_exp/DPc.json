@@ -1,18 +1,33 @@
 {
   "queries": [
     {
+      "type": "sim",
+      "tau": 1500,
+      "n": -1
+    },
+    {
+      "type": "pscs",
+      "tau": 1500,
+      "n": -1
+    },
+    {
+      "type": "pscs",
+      "tau": 1400,
+      "n": -1
+    },
+    {
       "type": "pscs",
       "tau": 1300,
       "n": -1
     },
     {
       "type": "eftg",
-      "tau": 1300,
+      "tau": 1500,
       "n": -1
     },
     {
       "type": "echg",
-      "tau": 1300,
+      "tau": 1500,
       "n": -1
     }
   ],
