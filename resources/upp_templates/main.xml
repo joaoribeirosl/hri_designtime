@@ -2,18 +2,14 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 <declaration>
-/**
-*** CHANNELS
-**/
-
 // Human Channels
-broadcast chan pass_out, free_start, free_stop, start_h_action, stop_h_action;
+broadcast chan start_h_action, stop_h_action, h_fail;
 
 // Robot Channels
-broadcast chan start_recharging[int], stop_recharging, start_r_action, stop_r_action, r_still;
+broadcast chan start_r_action, stop_r_action, r_still;
 
 // Battery Channels
-broadcast chan dead_battery;
+broadcast chan start_recharging[int], stop_recharging, dead_battery;
 
 // Orchestrator Channels
 broadcast chan opchk_start, opchk_stop, opchk_scs, opchk_fail;
@@ -32,29 +28,112 @@ const double YOUNG_HEALTHY[2] = {0.0005, 0.0005}; // approx. 1380s
 
 // Pre-Simulation
 
-const double YOUNG_SICK[2] = {0.001865, 0.005117}; 
+const double YOUNG_SICK[2] = {0.001865, 0.005117};
 const double YOUNG_SICK_SIGMA[2] = {0.000719, 0.000001};
 
-const double ELDERLY_HEALTHY[2] = {0.000409, 0.000450}; 
-const double ELDERLY_HEALTHY_SIGMA[2] = {0.000091, 0.000119}; 
+const double ELDERLY_HEALTHY[2] = {0.000409, 0.000450};
+const double ELDERLY_HEALTHY_SIGMA[2] = {0.000091, 0.000119};
 
 // Post-Simulation
 /*
-const double YOUNG_SICK[2] = {0.004538, 0.003328}; 
+const double YOUNG_SICK[2] = {0.004538, 0.003328};
 const double YOUNG_SICK_SIGMA[2] = {0.000469, 0.001342};
 
-const double ELDERLY_HEALTHY[2] = {0.000553, 0.000302}; 
-const double ELDERLY_HEALTHY_SIGMA[2] = {0.004548, 0.000175}; 
+const double ELDERLY_HEALTHY[2] = {0.000553, 0.000302};
+const double ELDERLY_HEALTHY_SIGMA[2] = {0.004548, 0.000175};
 */
 
 //
-const double ELDERLY_SICK[2] = {0.005, 0.004}; // approx. 350s 
+const double ELDERLY_SICK[2] = {0.005, 0.004}; // approx. 350s
 const double COVID_PATIENT[2] = {0.025, 0.001}; // approx. 280s
 
-// Human Free Will Profiles
-const int NORMAL = 99;
-const int HIGH = 80;
-const int DISABLED = 101;
+const int F_max = 1;
+
+/**
+** ERRORS PARAMS
+**/
+const int Tpoll = 1;
+
+const int H1_ERR = 0;
+const int H2_ERR = 0;
+const int H3_ERR = 7;
+const int H4_ERR = 0;
+
+// obey/disobey
+const int HIGH_WEIGHTS[2] = {90, 10};
+const int NORMAL_WEIGHTS[2] = {95, 5};
+const int LOW_WEIGHTS[2] = {99, 1};
+
+// free will
+const int FW_max = 100;
+const int NORMAL_FW = 99;
+const int HIGH_FW = 95;
+const int LOW_FW = 100;
+
+// timer expired
+const int HIGH_DELTA = 200;
+const int NORMAL_DELTA = 400;
+const int LOW_DELTA = 800;
+
+// safety distance
+bool is_crit = false;
+bool ignore_crit = false;
+int collisions = 0;
+
+const int HIGH_LAMBDA = 1;
+const int NORMAL_LAMBDA = 10;
+const int LOW_LAMBDA = 10000;
+
+// critical status
+const int FS = 1000;
+const int HIGH_CRIT = 2;
+const int NORMAL_CRIT = 1;
+const int LOW_CRIT = 0;
+
+typedef struct {
+    int obey, disobey;
+    int FW_th;
+    int delta_x100;
+    int lambda_inv;
+    int crit;
+} ERR_PROF;
+
+ERR_PROF get_error_params(int p) {
+    ERR_PROF res = {LOW_WEIGHTS[0], LOW_WEIGHTS[1], LOW_FW, LOW_DELTA, LOW_LAMBDA, LOW_CRIT};
+
+    if(p==1) { // busy professional
+        res.FW_th = HIGH_FW;
+        res.delta_x100 = HIGH_DELTA;
+    }
+    else if(p==2) { // free professional
+        res.FW_th = LOW_FW;
+        res.delta_x100 = LOW_DELTA;
+    }
+    else if(p==3) { // unexperienced professional
+        res.lambda_inv = HIGH_LAMBDA;
+    }
+    else if(p==4) { // experienced professional
+        res.lambda_inv = LOW_LAMBDA;
+    }
+    else if(p==5) { // critical patient
+        res.crit = HIGH_CRIT;
+    }
+    else if(p==6) { // stable patient
+        res.crit = NORMAL_CRIT;
+    }
+    else if(p==7) { // distracted patient
+        res.obey = HIGH_WEIGHTS[0];
+        res.disobey = HIGH_WEIGHTS[1];
+        res.FW_th = HIGH_FW;
+    }
+    else if(p==8) { // focused patient
+        res.FW_th = LOW_FW;
+        res.obey = LOW_WEIGHTS[0];
+        res.disobey = LOW_WEIGHTS[1];
+    }
+
+    return res;
+}
 
 /**
 *** VARIABLES
@@ -62,8 +141,8 @@ const int DISABLED = 101;
 
 // Mission Mgmt
 const int R = **N_R**
-int currOp[R] = **N_R_1** 
-double dX[R], dY[R];  
+int currOp[R] = **N_R_1**
+double dX[R], dY[R];
 
 bool stop[R] = **N_R_false**
 bool startHuman = false;
@@ -119,8 +198,6 @@ const double NDD = -1.0;
 int PATH = 0;
 
 int SAME_H_IDs[H][H] = **SAME_IDs_MAT**
-// int SAME_H_IDs[H][H] = {{1, 5, ND, ND, ND, ND}, {2, ND, ND, ND, ND, ND}, {3, 4, 6, ND, ND, ND},
-//                    {4, 3, 6, ND, ND, ND}, {5, 1, ND, ND, ND, ND}, {6, 3, 4, ND, ND, ND}};
 
 // -&gt; DEFINE PATTERN SEQUENCE (make sure it is consistent with humans ids)
 // 0: human follower, 1: human leader, 2: human recipient, 3: human applicant,
@@ -134,10 +211,10 @@ int patterns_alt2[H]; // = {0, 12, 1, 1, 0, 3}; //robot loses competition
 double startX[H] = **START_X**
 double startY[H] = **START_Y**
 
-double startX_alt1[H]; // = {220.0,4300.0,700.0,2000.0,400.0,400.0};
-double startY_alt1[H]; // = {300.0,300.0,300.0,300.0,150.0,150.0};
-double startX_alt2[H]; // = {220.0,4300.0,2000.0,4300.0,400.0,400.0};
-double startY_alt2[H]; // = {300.0,300.0,300.0,200.0,150.0,150.0};
+double startX_alt1[H];
+double startY_alt1[H];
+double startX_alt2[H];
+double startY_alt2[H];
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,
@@ -145,10 +222,10 @@ double startY_alt2[H]; // = {300.0,300.0,300.0,200.0,150.0,150.0};
 double destX[H] = **DEST_X**
 double destY[H] = **DEST_Y**
 
-double destX_alt1[H]; // = {4300.0, 4300.0, 2000.0, 2000.0, 2000.0, 2000.0}; //robot wins competition
-double destY_alt1[H]; // = {300.0, 500.0, 300.0, 300.0, 300.0, 300.0};
-double destX_alt2[H]; // = {4300.0, 4300.0, 4300.0, 2000.0, 2000.0, 2000.0}; //robot loses competition
-double destY_alt2[H]; // = {300.0, 500.0, 200.0, 300.0, 300.0, 300.0};
+double destX_alt1[H];
+double destY_alt1[H];
+double destX_alt2[H];
+double destY_alt2[H];
 
 /**
 * PARAMS FOR RESCUER AND APPLICANT (task size and dexterity)
@@ -157,6 +234,14 @@ double destY_alt2[H]; // = {300.0, 500.0, 200.0, 300.0, 300.0, 300.0};
 const int task_size = 150;
 int dext = 1;
 int task_completion = 0;
+
+/**
+* SCENARIO FAILURES
+**/
+void boundaryReachedFailure() {
+    fail = true;
+    currOp[currR-1] = 0;
+}
 
 /**
 *** FLOOR PLAN
@@ -173,7 +258,7 @@ typedef point trajectory[N_P];
 const layout FLOOR = **LAYOUT**
 const point INTERSECTIONS[N_I] = **INTERSECTIONS**
 
-// I apologize for the four doubles, 
+// I apologize for the four doubles,
 // but it seems to be bugging when arrays are passed as arguments.
 bool same_area(double sx, double sy, double dx, double dy) {
     int i;
@@ -201,11 +286,30 @@ double calculateDistance() {
     double xdifference = pow(robPositionX[currR-1]-humanPositionX[currH-1], 2);
     double ydifference = pow(robPositionY[currR-1]-humanPositionY[currH-1], 2);
     double distance = sqrt(xdifference + ydifference)/100;
-    if(distance&lt;0) {
-        return -distance;
-    } else {
-        return distance;
+
+    if(distance&lt;0) return -distance;
+    else return distance;
+}
+
+const int N_NA = 2; //old not existing
+typedef area n_layout[N_NA];
+const n_layout NOT_ACCESSIBLE_FLOOR = {{{400.0, 400.0}, {400.0, 600.0}, {800.0, 600.0}, {800.0, 400.0}}, //decontamination room
+                                     {{0.0, 100.0}, {0.0, 500.0}, {200.0, 500.0}, {200.0, 100.0}}}; //elevator and staircase (symbolic dimensions)
+
+// allows us to determine whether the robot/human is in a forbidden are
+// se non dovesse andare bene la correzione in same_area, mettiamo che la coordinata è accessibile se e solo se
+// appartiene ad un'area non accessible, ma NON appartiene ad un'area accessible
+bool accessible(double x, double y) {
+    int i;
+    for (i = 0; i &lt; N_NA; i++)
+    {
+        if(x&gt;NOT_ACCESSIBLE_FLOOR[i][0][0]
+            &amp;&amp; x&lt;NOT_ACCESSIBLE_FLOOR[i][3][0]
+            &amp;&amp; y&gt;NOT_ACCESSIBLE_FLOOR[i][0][1]
+            &amp;&amp; y&lt;NOT_ACCESSIBLE_FLOOR[i][1][1]) // illegal pos
+            return false;
     }
+    return true;
 }
 
 // Wall Corner Points
@@ -240,7 +344,7 @@ const point rechargeStation = {220.0, 320.00};
 **HUM_INST**
 //
 
-system 
+system
 **ALL_INST**
 ;
 </system>

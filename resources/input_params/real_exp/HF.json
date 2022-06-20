@@ -1,6 +1,11 @@
 {
   "queries": [
     {
+      "type": "sim",
+      "tau": 75,
+      "n": 1
+    },
+    {
       "type": "pscs",
       "tau": 75,
       "n": 10
