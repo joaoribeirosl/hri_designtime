@@ -75,29 +75,54 @@ class Fatigue_Profile(Enum):
 
 
 class FreeWill_Profile(Enum):
-    NORMAL = "n"
-    HIGH = "h"
-    LOW = "l"
-    DISABLED = "d"
+    DISABLED = 'd'
+    BUSY = 'busy'
+    FREE = 'free'
+    UNEXPERIENCED = 'unexp'
+    EXPERIENCED = 'exp'
+    CRITICAL = 'crit'
+    STABLE = 'stable'
+    DISTRACTED = 'distr'
+    FOCUSED = 'foc'
 
     def to_int(self):
-        if self == FreeWill_Profile.NORMAL:
+        if self == FreeWill_Profile.BUSY:
             return 1
-        elif self == FreeWill_Profile.HIGH:
+        elif self == FreeWill_Profile.FREE:
             return 2
-        elif self == FreeWill_Profile.LOW:
+        elif self == FreeWill_Profile.UNEXPERIENCED:
             return 3
+        elif self == FreeWill_Profile.EXPERIENCED:
+            return 4
+        elif self == FreeWill_Profile.CRITICAL:
+            return 5
+        elif self == FreeWill_Profile.STABLE:
+            return 6
+        elif self == FreeWill_Profile.DISTRACTED:
+            return 7
+        elif self == FreeWill_Profile.FOCUSED:
+            return 8
         else:
             return -1
 
     @staticmethod
     def parse_fw_profile(s: str):
-        if s == "n":
-            return FreeWill_Profile.NORMAL
-        elif s == "h":
-            return FreeWill_Profile.HIGH
-        elif s == "l":
-            return FreeWill_Profile.LOW
+        if s == 'busy':
+            return FreeWill_Profile.BUSY
+        elif s == 'free':
+            return FreeWill_Profile.FREE
+        elif s == 'unexp':
+            return FreeWill_Profile.UNEXPERIENCED
+        elif s == 'exp':
+            return FreeWill_Profile.EXPERIENCED
+        elif s == 'crit':
+            return FreeWill_Profile.CRITICAL
+        elif s == 'stable':
+            return FreeWill_Profile.STABLE
+        elif s == 'distr':
+            return FreeWill_Profile.DISTRACTED
+        elif s == 'foc':
+            return FreeWill_Profile.FOCUSED
         else:
             return FreeWill_Profile.DISABLED
 
@@ -134,7 +159,7 @@ class Human:
             return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                          self.p_f.to_int(), self.p_fw.to_int(),
                                                                          self.same_as, self.path)
-        elif self.ptrn == Interaction_Pattern.RECIPIENT:
+        elif self.ptrn == Interaction_Pattern.RECIPIENT: # int id, double _v, int p_f, int p_fw, int path
             return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
                                                                         self.p_fw.to_int(), self.path)
         else:

@@ -1,21 +1,27 @@
-<template>
-    <name>Human_Recipient</name>
-    <parameter>int id, double v, int p_f, int p_fw, int path</parameter>
-    <declaration>clock t, F, Fp;
+	<template>
+		<name>Human_Recipient</name>
+		<parameter>int id, double _v, int p_f, int p_fw, int path</parameter>
+		<declaration>clock t, F;
 clock tUpd;
-clock freeWill;
+clock tExp;
 
+double Fp;
 double lambda, mi;
 const double passout_th = 1.0;
 
-//Free Will Model
-double freeWillTh = 100.0;
-double freeWillRange = 95.0;
+// Errors Model
+int obey, disobey;
+double freeWillTh;
+double fw;
+int TE;
+double lambda_crit;
+double hs, crit, non_crit;
 
-// Fatigue Sharing Parameters
-const int Tpoll = 1;
+meta int v;
 
-// Position Sharing Parameters
+bool access() {
+    return true;
+}
 
 void updateF(double coeff, bool walking) {
     if(walking) {
@@ -123,6 +129,7 @@ void change_orientation(double sx, double sy, double dx, double dy) {
 }
 
 point curr, dest;
+
 void plan_traj() {
     int i, j, next_inters = -1;
     int neigh[**max_neigh**] = **max_neigh_-1**
@@ -183,7 +190,7 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        for(i=0; i&lt;**max_neigh**;i++) neigh[i] = -1;
+        for(j=0; j&lt;**max_neigh**;j++) neigh[j] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
@@ -219,21 +226,14 @@ void updateP() {
     internalHumY[id-1] = internalHumY[id-1] + v*Tpoll*sin(ort*PI/180);
 }
 
-void updateFreeWill(){
-    if(currH==id) {
-        freeWillTh = 100.0;
-        freeWillRange = 95.0;
-    } else {
-        freeWill = 0;
-        freeWillRange = 10;
-        freeWillTh = 20;
-    }
-}
-
 void initHuman() {
+    double dist_to_dest = pt_dist(startX[id-1], destX[id-1], startY[id-1], destY[id-1]);
+    ERR_PROF error_profile;
+
     F = 0;
     Fp = 0;
     t = 0;
+    v = fint(_v);
 
     tUpd = 0;
     if(path==ND) {
@@ -266,263 +266,275 @@ void initHuman() {
         lambda = 0.005; mi = 0.005; //default values
     }
 
-    if(p_fw==1) {
-        freeWillTh = NORMAL;
-    } else if(p_fw == 2) {
-        freeWillTh = HIGH;
-    } else if(p_fw == 3) {
-        freeWillTh = DISABLED;
-    }
+    error_profile = get_error_params(p_fw);
+    obey = error_profile.obey;
+    disobey = error_profile.disobey;
+    freeWillTh = error_profile.FW_th;
+    TE = fint(dist_to_dest / v * (error_profile.delta_x100/100));
+    lambda_crit = 1/error_profile.lambda_inv;
+    hs = error_profile.crit;
+    crit = 1.0;
+    non_crit = 999.0;
 }
     </declaration>
-    <location id="id61" x="-492" y="-399" color="#0000ff">
-        <name x="-526" y="-425">idle</name>
-        <label kind="invariant" x="-612" y="-518">Fp' == 0
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; freeWill&lt;=freeWillTh
-            &amp;&amp; F' == -Fp*mi*exp(-mi*t)
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
-    </location>
-    <location id="id62" x="119" y="-399" color="#0000ff">
-        <name x="127" y="-442">busy_mov</name>
-        <label kind="invariant" x="127" y="-544">Fp' == 0
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; freeWill&lt;=freeWillTh
-            &amp;&amp; F &lt;= passout_th
-            &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
-    </location>
-    <location id="id63" x="-687" y="-398">
-        <name x="-730" y="-415">Init</name>
-        <committed/>
-    </location>
-    <location id="id64" x="272" y="-399" color="#ff0000">
-        <name x="289" y="-416">passed_out</name>
-        <label kind="invariant" x="289" y="-399">t' == 0 &amp;&amp;
-            F' == 0 &amp;&amp;
-            freeWill' == 0
-        </label>
-        <label kind="exponentialrate" x="264" y="-382">1</label>
-    </location>
-    <location id="id65" x="-195" y="-569" color="#0000ff">
-        <name x="-186" y="-561">busy_rec</name>
-        <label kind="invariant" x="-187" y="-544">Fp' == 0
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; F' == -Fp*mi*exp(-mi*t)
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
-    </location>
-    <location id="id66" x="-493" y="-246">
-        <name x="-476" y="-238">pub_1</name>
-        <committed/>
-    </location>
-    <location id="id67" x="-578" y="-246">
-        <name x="-638" y="-254">pub_2</name>
-        <committed/>
-    </location>
-    <location id="id68" x="119" y="-246">
-        <name x="102" y="-229">pub_5</name>
-        <committed/>
-    </location>
-    <location id="id69" x="119" y="-323">
-        <name x="59" y="-331">pub_6</name>
-        <committed/>
-    </location>
-    <location id="id70" x="-85" y="-714">
-        <name x="-95" y="-748">pub_4</name>
-        <committed/>
-    </location>
-    <location id="id71" x="-195" y="-714">
-        <name x="-205" y="-748">pub_3</name>
-        <committed/>
-    </location>
-    <location id="id72" x="-688" y="-501" color="#a9a9a9">
-        <name x="-698" y="-535">not_needed</name>
-        <label kind="exponentialrate" x="-714" y="-510">1</label>
-    </location>
-    <init ref="id63"/>
-    <transition>
-        <source ref="id72"/>
-        <target ref="id72"/>
-        <nail x="-629" y="-501"/>
-        <nail x="-629" y="-467"/>
-    </transition>
-    <transition>
-        <source ref="id61"/>
-        <target ref="id72"/>
-        <label kind="guard" x="-731" y="-476">PATH!=0
-            &amp;&amp; PATH!=path
-        </label>
-        <nail x="-688" y="-425"/>
-    </transition>
-    <transition>
-        <source ref="id68"/>
-        <target ref="id62"/>
-        <label kind="guard" x="-93" y="-348">currH!=id &amp;&amp;
-            freeWill&lt;freeWillTh
-        </label>
-        <nail x="0" y="-246"/>
-        <nail x="0" y="-399"/>
-    </transition>
-    <transition>
-        <source ref="id71"/>
-        <target ref="id65"/>
-        <label kind="guard" x="-289" y="-739">currH!=id</label>
-        <nail x="-289" y="-714"/>
-        <nail x="-289" y="-569"/>
-    </transition>
-    <transition>
-        <source ref="id66"/>
-        <target ref="id62"/>
-        <label kind="guard" x="-178" y="-433">freeWill&gt;=freeWillTh</label>
-        <label kind="synchronisation" x="-178" y="-416">free_start!</label>
-        <label kind="assignment" x="-178" y="-399">t = 0, Fp = 1-F,
-            tUpd=0, freeWill = 0,
-            plan_traj()
-        </label>
-        <nail x="-187" y="-246"/>
-        <nail x="-187" y="-399"/>
-    </transition>
-    <transition>
-        <source ref="id68"/>
-        <target ref="id61"/>
-        <label kind="guard" x="-178" y="-280">freeWill&gt;=freeWillTh</label>
-        <label kind="synchronisation" x="-178" y="-263">free_stop!</label>
-        <label kind="assignment" x="-178" y="-246">t = 0, Fp = F, freeWill = 0,
-            tUpd=0, updateFreeWill()
-        </label>
-        <nail x="-229" y="-246"/>
-        <nail x="-229" y="-399"/>
-    </transition>
-    <transition>
-        <source ref="id70"/>
-        <target ref="id65"/>
-        <label kind="synchronisation" x="-136" y="-663">publish_m[4]!</label>
-        <label kind="assignment" x="-136" y="-646">tUpd=0</label>
-        <nail x="-85" y="-569"/>
-    </transition>
-    <transition>
-        <source ref="id71"/>
-        <target ref="id70"/>
-        <label kind="guard" x="-178" y="-714">currH==id</label>
-        <label kind="synchronisation" x="-187" y="-697">publish_m[3]!</label>
-    </transition>
-    <transition>
-        <source ref="id65"/>
-        <target ref="id71"/>
-        <label kind="guard" x="-289" y="-663">tUpd&gt;=Tpoll</label>
-        <label kind="assignment" x="-289" y="-646">updateF(-mi, 0),
-            tUpd=0
-        </label>
-    </transition>
-    <transition>
-        <source ref="id69"/>
-        <target ref="id62"/>
-        <label kind="synchronisation" x="17" y="-357">publish_m[4]!</label>
-        <label kind="assignment" x="59" y="-374">tUpd=0</label>
-    </transition>
-    <transition>
-        <source ref="id68"/>
-        <target ref="id69"/>
-        <label kind="guard" x="17" y="-306">currH==id &amp;&amp;
-            freeWill&lt;freeWillTh
-        </label>
-        <label kind="synchronisation" x="17" y="-272">publish_m[3]!</label>
-    </transition>
-    <transition>
-        <source ref="id62"/>
-        <target ref="id68"/>
-        <label kind="guard" x="204" y="-314">tUpd&gt;=Tpoll</label>
-        <label kind="assignment" x="204" y="-297">updateF(-lambda, 1),
-            updateP(), tUpd=0,
-            freeWill = random(freeWillRange)
-        </label>
-        <nail x="195" y="-399"/>
-        <nail x="195" y="-246"/>
-    </transition>
-    <transition>
-        <source ref="id67"/>
-        <target ref="id61"/>
-        <label kind="synchronisation" x="-671" y="-331">publish_m[4]!</label>
-        <label kind="assignment" x="-671" y="-314">tUpd=0</label>
-        <nail x="-578" y="-399"/>
-    </transition>
-    <transition>
-        <source ref="id66"/>
-        <target ref="id67"/>
-        <label kind="guard" x="-561" y="-289">currH==id &amp;&amp;
-            freeWill&lt;freeWillTh
-        </label>
-        <label kind="synchronisation" x="-561" y="-306">publish_m[3]!</label>
-    </transition>
-    <transition>
-        <source ref="id66"/>
-        <target ref="id61"/>
-        <label kind="guard" x="-544" y="-365">currH!=id &amp;&amp;
-            freeWill&lt;freeWillTh
-        </label>
-    </transition>
-    <transition>
-        <source ref="id61"/>
-        <target ref="id66"/>
-        <label kind="guard" x="-399" y="-357">tUpd&gt;=Tpoll</label>
-        <label kind="assignment" x="-399" y="-340">updateF(-mi, 0),
-            tUpd=0,
-            freeWill = random(freeWillRange)
-        </label>
-        <nail x="-408" y="-399"/>
-        <nail x="-408" y="-246"/>
-    </transition>
-    <transition>
-        <source ref="id65"/>
-        <target ref="id61"/>
-        <label kind="synchronisation" x="-484" y="-569">stop_h_action?</label>
-        <label kind="assignment" x="-484" y="-620">t = 0, Fp = F,
-            freeWill = 0,
-            tUpd=0
-        </label>
-        <nail x="-493" y="-569"/>
-    </transition>
-    <transition>
-        <source ref="id62"/>
-        <target ref="id65"/>
-        <label kind="guard" x="-17" y="-637">currH==id</label>
-        <label kind="synchronisation" x="-17" y="-569">start_h_action?</label>
-        <label kind="assignment" x="-17" y="-620">t = 0, Fp = F,
-            freeWill = 0,
-            tUpd=0
-        </label>
-        <nail x="119" y="-569"/>
-    </transition>
-    <transition>
-        <source ref="id61"/>
-        <target ref="id65"/>
-        <label kind="guard" x="-474" y="-433">currH==id</label>
-        <label kind="synchronisation" x="-357" y="-501">start_h_action?</label>
-        <label kind="assignment" x="-357" y="-484">F = 0, t = 0,
-            tUpd=0
-        </label>
-        <nail x="-365" y="-399"/>
-        <nail x="-365" y="-569"/>
-    </transition>
-    <transition>
-        <source ref="id62"/>
-        <target ref="id64"/>
-        <label kind="guard" x="137" y="-416">F &gt;= passout_th</label>
-        <label kind="synchronisation" x="162" y="-399">pass_out!</label>
-        <label kind="assignment" x="213" y="-382">t = 0</label>
-    </transition>
-    <transition>
-        <source ref="id64"/>
-        <target ref="id64"/>
-        <nail x="247" y="-348"/>
-        <nail x="289" y="-348"/>
-    </transition>
-    <transition>
-        <source ref="id63"/>
-        <target ref="id61"/>
-        <label kind="assignment" x="-671" y="-416">initHuman()</label>
-    </transition>
-</template>
+		<location id="id69" x="-492" y="-399">
+			<name x="-526" y="-425">idle</name>
+			<label kind="invariant" x="-578" y="-459">F' == -Fp*mi*exp(-mi*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
+		</location>
+		<location id="id70" x="119" y="-399">
+			<name x="127" y="-442">busy_mov</name>
+			<label kind="invariant" x="127" y="-493">F &lt;= passout_th
+&amp;&amp; F' == Fp*lambda*exp(-lambda*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
+		</location>
+		<location id="id71" x="-687" y="-398">
+			<name x="-730" y="-415">Init</name>
+			<committed/>
+		</location>
+		<location id="id72" x="272" y="-399" color="#ff0000">
+			<name x="289" y="-416">passed_out</name>
+			<label kind="invariant" x="289" y="-399">t' == 0 &amp;&amp;
+F' == 0 &amp;&amp;
+tExp'==0</label>
+			<label kind="exponentialrate" x="264" y="-382">1</label>
+		</location>
+		<location id="id73" x="-195" y="-569">
+			<name x="-187" y="-561">busy_rec</name>
+			<label kind="invariant" x="-187" y="-544">F' == -Fp*mi*exp(-mi*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
+		</location>
+		<location id="id74" x="-493" y="-246">
+			<name x="-476" y="-238">pub_1</name>
+			<committed/>
+		</location>
+		<location id="id75" x="-578" y="-246">
+			<name x="-638" y="-254">pub_2</name>
+			<committed/>
+		</location>
+		<location id="id76" x="119" y="-246">
+			<name x="102" y="-229">pub_5</name>
+			<committed/>
+		</location>
+		<location id="id77" x="119" y="-323">
+			<name x="59" y="-331">pub_6</name>
+			<committed/>
+		</location>
+		<location id="id78" x="-85" y="-714">
+			<name x="-95" y="-748">pub_4</name>
+			<committed/>
+		</location>
+		<location id="id79" x="-195" y="-714">
+			<name x="-205" y="-748">pub_3</name>
+			<committed/>
+		</location>
+		<location id="id80" x="-493" y="-688">
+			<name x="-476" y="-705">timeout_detection</name>
+			<committed/>
+		</location>
+		<location id="id81" x="-629" y="-688" color="#ff0000">
+			<name x="-639" y="-722">timer_expired_status</name>
+			<label kind="invariant" x="-637" y="-773">t' == 0 &amp;&amp;
+F' == 0 &amp;&amp;
+tExp'==0</label>
+			<label kind="exponentialrate" x="-646" y="-671">1</label>
+		</location>
+		<location id="id82" x="119" y="-569">
+			<committed/>
+		</location>
+		<location id="id83" x="119" y="-731" color="#ff0000">
+			<name x="145" y="-740">forbidden_area_status</name>
+			<label kind="invariant" x="144" y="-807">t' == 0 &amp;&amp;
+F' == 0 &amp;&amp;
+tExp'==0</label>
+			<label kind="exponentialrate" x="119" y="-783">1</label>
+		</location>
+		<init ref="id71"/>
+		<transition>
+			<source ref="id82"/>
+			<target ref="id83"/>
+			<label kind="guard" x="127" y="-671">!access()</label>
+			<label kind="synchronisation" x="127" y="-688">h_fail!</label>
+			<label kind="assignment" x="127" y="-654">tExp = 0</label>
+		</transition>
+		<transition>
+			<source ref="id82"/>
+			<target ref="id73"/>
+			<label kind="guard" x="-17" y="-595">access()</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id82"/>
+			<label kind="synchronisation" x="25" y="-501">start_h_action?</label>
+			<label kind="assignment" x="25" y="-552">t = 0, Fp = F,
+fw = 0, tUpd=0,
+tExp=0</label>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<nail x="-663" y="-714"/>
+			<nail x="-663" y="-671"/>
+		</transition>
+		<transition>
+			<source ref="id80"/>
+			<target ref="id81"/>
+			<label kind="synchronisation" x="-578" y="-705">h_fail!</label>
+			<label kind="assignment" x="-595" y="-688">tExp = 0</label>
+		</transition>
+		<transition color="#ff0000">
+			<source ref="id70"/>
+			<target ref="id80"/>
+			<label kind="guard" x="-127" y="-467">tExp &gt;= TE
+&amp;&amp; !served[id-1]</label>
+			<nail x="17" y="-399"/>
+			<nail x="17" y="-450"/>
+			<nail x="-212" y="-450"/>
+			<nail x="-212" y="-527"/>
+		</transition>
+		<transition color="#ff0000">
+			<source ref="id73"/>
+			<target ref="id80"/>
+			<label kind="guard" x="-475" y="-662">tExp &gt;= TE &amp;&amp;
+!served[id-1]</label>
+		</transition>
+		<transition color="#ff0000">
+			<source ref="id69"/>
+			<target ref="id80"/>
+			<label kind="guard" x="-629" y="-637">tExp &gt;= TE
+&amp;&amp; !served[id-1]</label>
+		</transition>
+		<transition color="#ff0000">
+			<source ref="id74"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-178" y="-433">currH==id &amp;&amp;
+fw&gt;=freeWillTh</label>
+			<label kind="assignment" x="-178" y="-399">t = 0, Fp = 1-F,
+tUpd=0, fw = 0,
+plan_traj(), tExp=0</label>
+			<nail x="-187" y="-246"/>
+			<nail x="-187" y="-399"/>
+		</transition>
+		<transition color="#ff0000">
+			<source ref="id76"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-178" y="-263">fw&gt;=freeWillTh</label>
+			<label kind="assignment" x="-178" y="-246">t = 0, Fp = F, fw = 0</label>
+			<nail x="-229" y="-246"/>
+			<nail x="-229" y="-399"/>
+		</transition>
+		<transition>
+			<source ref="id78"/>
+			<target ref="id73"/>
+			<label kind="synchronisation" x="-136" y="-663">publish_m[3]!</label>
+			<label kind="assignment" x="-136" y="-646">tUpd=0</label>
+			<nail x="-85" y="-569"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id78"/>
+			<label kind="guard" x="-178" y="-714">currH==id</label>
+			<label kind="synchronisation" x="-187" y="-697">publish_m[2]!</label>
+		</transition>
+		<transition>
+			<source ref="id73"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-289" y="-663">tUpd&gt;=Tpoll</label>
+			<label kind="assignment" x="-289" y="-646">updateF(-mi, 0),
+tUpd=0</label>
+		</transition>
+		<transition>
+			<source ref="id77"/>
+			<target ref="id70"/>
+			<label kind="synchronisation" x="17" y="-357">publish_m[3]!</label>
+			<label kind="assignment" x="59" y="-374">tUpd=0</label>
+		</transition>
+		<transition>
+			<source ref="id76"/>
+			<target ref="id77"/>
+			<label kind="guard" x="17" y="-306">fw&lt;freeWillTh</label>
+			<label kind="synchronisation" x="17" y="-272">publish_m[2]!</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id76"/>
+			<label kind="guard" x="204" y="-314">tUpd&gt;=Tpoll</label>
+			<label kind="assignment" x="204" y="-297">updateF(-lambda, 1),
+updateP(), tUpd=0,
+fw = random(FW_max)</label>
+			<nail x="195" y="-399"/>
+			<nail x="195" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id69"/>
+			<label kind="synchronisation" x="-671" y="-331">publish_m[3]!</label>
+			<label kind="assignment" x="-671" y="-314">tUpd=0</label>
+			<nail x="-578" y="-399"/>
+		</transition>
+		<transition>
+			<source ref="id74"/>
+			<target ref="id75"/>
+			<label kind="guard" x="-561" y="-289">currH==id &amp;&amp;
+fw&lt;freeWillTh</label>
+			<label kind="synchronisation" x="-561" y="-306">publish_m[2]!</label>
+		</transition>
+		<transition>
+			<source ref="id74"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-544" y="-365">currH!=id</label>
+			<label kind="assignment" x="-544" y="-348">tExp=0</label>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id74"/>
+			<label kind="guard" x="-399" y="-357">tUpd&gt;=Tpoll</label>
+			<label kind="assignment" x="-399" y="-340">updateF(-mi, 0), tUpd=0,
+fw = random(FW_max)</label>
+			<nail x="-408" y="-399"/>
+			<nail x="-408" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id73"/>
+			<target ref="id69"/>
+			<label kind="synchronisation" x="-459" y="-552">stop_h_action?</label>
+			<label kind="assignment" x="-459" y="-603">t = 0, Fp = F,
+fw = 0,
+tUpd=0</label>
+			<nail x="-467" y="-569"/>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id73"/>
+			<label kind="guard" x="-357" y="-518">currH==id</label>
+			<label kind="synchronisation" x="-357" y="-501">start_h_action?</label>
+			<label kind="assignment" x="-357" y="-484">F = 0, t = 0,
+tUpd=0</label>
+			<nail x="-365" y="-399"/>
+			<nail x="-365" y="-518"/>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id72"/>
+			<label kind="guard" x="137" y="-416">F &gt;= passout_th</label>
+			<label kind="synchronisation" x="204" y="-399">h_fail!</label>
+			<label kind="assignment" x="213" y="-382">t = 0</label>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<nail x="247" y="-348"/>
+			<nail x="289" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id69"/>
+			<label kind="assignment" x="-671" y="-416">initHuman()</label>
+		</transition>
+		<transition>
+			<source ref="id83"/>
+			<target ref="id83"/>
+			<nail x="145" y="-791"/>
+			<nail x="102" y="-791"/>
+		</transition>
+	</template>

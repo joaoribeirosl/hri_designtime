@@ -1,45 +1,51 @@
 <template>
     <name>Human_Applicant</name>
-    <parameter>int id, double v, int p_f, int p_fw, int p_dext, int path</parameter>
+    <parameter>int id, double _v, int p_f, int p_fw, int p_dext, int path</parameter>
     <declaration>
 /* general comments
 - if the person is far from the objective, it will move towards it, otherwise it will wait for the command to
 sincronyze and start executing.
 - functions for moving the humans are the same of human leader, they can be globally packaged maybe?
 */
-clock t, F, Fp;
+clock t, F;
 clock tUpd;
-clock freeWill;
 clock tWH;
+clock tExp;
 
+double Fp;
 double lambda, mi;
-double passout_th = 1.0;
 
-//Free Will Model
-double freeWillTh = 100.0;
-double freeWillRange = 95.0;
-int obey = 90;
-int disobey = 10;
-
-int Tpoll = 1;
+// Errors Model
+int obey, disobey;
+double freeWillTh;
+double fw;
+int TE;
+double lambda_crit;
+double hs, crit, non_crit;
 
 //this sets the state of the mission: getting to objective or working at mission
 bool exeMission = false;
 //threshHold for completing the mission
-double tWHTh = 60.0;
+const double tWHTh = 60.0;
 
 
 bool checkDist() {
     return pt_dist(internalHumX[id - 1], destX[id - 1], internalHumY[id - 1], destY[id - 1]) &lt;= 50.0;
 }
 
+meta int v;
 void initHuman() {
+    double dist_to_dest = pt_dist(startX[id-1], destX[id-1], startY[id-1], destY[id-1]);
+    ERR_PROF error_profile;
+
     F = 0;
     Fp = 0;
     t = 0;
     tWH = 0;
-
     tUpd = 0;
+
+    v = fint(_v);
+
     if(path==ND) {
         humanPositionX[id - 1] = startX[id-1];
         humanPositionY[id - 1] = startY[id-1];
@@ -86,18 +92,17 @@ void initHuman() {
         mi = 0.005; //default values
     }
 
-    if (p_fw == 1)
-    {
-        freeWillTh = NORMAL;
-    }
-    else if (p_fw == 2)
-    {
-        freeWillTh = HIGH;
-    }
-    else if (p_fw == 3)
-    {
-        freeWillTh = DISABLED;
-    }
+    error_profile = get_error_params(p_fw);
+    obey = error_profile.obey;
+    disobey = error_profile.disobey;
+    freeWillTh = error_profile.FW_th;
+    if(dist_to_dest&lt;1.0) TE = 999;
+    else TE = fint(dist_to_dest / v * (error_profile.delta_x100/100));
+    lambda_crit = 1/error_profile.lambda_inv;
+    hs = error_profile.crit;
+    crit = 1.0;
+    non_crit = 999.0;
+
     exeMission = checkDist();
 }
 
@@ -217,11 +222,10 @@ void plan_traj() {
     int k = 0;
     double dist, min_dist;
     bool visited[N_I] = **N_I_false**
-    curr[0] = internalHumX[id - 1];
-    curr[1] = internalHumY[id - 1];
+            curr[0] = internalHumX[id-1]; curr[1] = internalHumY[id-1];
     dest[0] = destX[id-1]; dest[1] = destY[id-1];
     // init trajectory
-    for (i = 0; i &lt; N_P;i++)
+    for (i = 0; i &lt; N_P; i++)
     {
         traj[i][0] = 0.0;
         traj[i][1] = 0.0;
@@ -234,7 +238,7 @@ void plan_traj() {
     // until the destination area is reached
     while (!same_area(curr[0], curr[1], dest[0], dest[1]))
     {
-        for (j = 0; j &lt; N_I;j++)
+        for (j = 0; j &lt; N_I; j++)
         {
             // find all int. pts which are a neighbor of curr. point
             // there are max. 3 in the long left hall
@@ -272,14 +276,14 @@ void plan_traj() {
         // reset
         next_inters = -1;
         k = 0;
-        for(i=0; i&lt;**max_neigh**;i++) neigh[i] = -1;
+        for(j=0; j&lt;**max_neigh**;j++) neigh[j] = -1;
     }
     // destination point is always part of the trajectory
     traj[i][0] = dest[0];
     traj[i][1] = dest[1];
 
     //sets initial orientation
-    change_orientation(internalHumX[id - 1], internalHumY[id - 1], traj[0][0], traj[0][1]);
+    change_orientation(internalHumX[id-1], internalHumY[id-1], traj[0][0], traj[0][1]);
 }
 
 void updateP() {
@@ -307,10 +311,10 @@ void start_moving() {
     F = 0;
     t = 0;
     tUpd = 0;
-    freeWill = 0;
+    fw = 0;
     plan_traj();
 }
-    </declaration>
+</declaration>
     <location id="id0" x="-815" y="-51">
         <name x="-825" y="-85">h_init</name>
         <committed/>
@@ -318,35 +322,26 @@ void start_moving() {
     <location id="id1" x="-620" y="-51" color="#0000ff">
         <name x="-630" y="-85">h_idle</name>
         <label kind="invariant" x="-671" y="-34">t' == 1
-            &amp;&amp; tWH' ==0
-            &amp;&amp; Fp' == 0
-            &amp;&amp; F' == -Fp*mi*exp(-mi*t)
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
+&amp;&amp; tWH' ==0
+&amp;&amp; F' == -Fp*mi*exp(-mi*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
     </location>
     <location id="id2" x="-161" y="-178" color="#0000ff">
         <name x="-204" y="-161">h_executing</name>
-        <label kind="invariant" x="-221" y="-331">t' == 1
-            &amp;&amp; tWH' == p_dext
-            &amp;&amp; tWH &lt;= tWHTh
-            &amp;&amp; Fp' == 0
-            &amp;&amp; F &lt;= passout_th
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
+        <label kind="invariant" x="-153" y="-289">t' == 1 &amp;&amp; tExp'==0
+&amp;&amp; tWH' == p_dext
+&amp;&amp; tWH &lt;= tWHTh
+&amp;&amp; F &lt;= F_max
+&amp;&amp; F' == Fp*lambda*exp(-lambda*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
     </location>
     <location id="id3" x="-161" y="212" color="#0000ff">
         <name x="-171" y="178">h_busy</name>
-        <label kind="invariant" x="-272" y="212">t' == 1
-            &amp;&amp; tWH' == 0
-            &amp;&amp; Fp' == 0
-            &amp;&amp; F &lt;= passout_th
-            &amp;&amp; freeWill' == 0
-            &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
-            &amp;&amp; tUpd&lt;=Tpoll
-        </label>
+        <label kind="invariant" x="-221" y="221">t' == 1
+&amp;&amp; tWH' == 0
+&amp;&amp; F &lt;= F_max
+&amp;&amp; F' == Fp*lambda*exp(-lambda*t)
+&amp;&amp; tUpd&lt;=Tpoll</label>
     </location>
     <location id="id4" x="-748" y="-331">
         <committed/>
@@ -373,11 +368,10 @@ void start_moving() {
         <urgent/>
     </location>
     <location id="id12" x="17" y="25" color="#ff0000">
-        <name x="7" y="-9">a</name>
+        <name x="68" y="-17">failed</name>
         <label kind="invariant" x="68" y="0">t' == 0 &amp;&amp;
-            F' == 0 &amp;&amp;
-            tWH' == 0
-        </label>
+F' == 0 &amp;&amp;
+tWH' == 0</label>
         <label kind="exponentialrate" x="42" y="17">1</label>
     </location>
     <location id="id13" x="-510" y="-144">
@@ -393,13 +387,29 @@ void start_moving() {
     <branchpoint id="id16" x="-484" y="-178">
     </branchpoint>
     <init ref="id0"/>
+    <transition color="#ff0000">
+        <source ref="id3"/>
+        <target ref="id12"/>
+        <label kind="guard" x="204" y="136">tExp &gt;= TE &amp;&amp; !served[id-1]</label>
+        <nail x="195" y="212"/>
+        <nail x="195" y="93"/>
+    </transition>
+    <transition color="#ff0000">
+        <source ref="id1"/>
+        <target ref="id12"/>
+        <label kind="guard" x="-561" y="-382">tExp &gt;= TE &amp;&amp; !served[id-1]</label>
+        <nail x="-578" y="-357"/>
+        <nail x="195" y="-357"/>
+        <nail x="280" y="-229"/>
+        <nail x="161" y="-34"/>
+    </transition>
     <transition>
         <source ref="id15"/>
         <target ref="id2"/>
         <label kind="assignment" x="-178" y="-102">hExe=1</label>
         <label kind="probability" x="-178" y="-119">obey</label>
     </transition>
-    <transition>
+    <transition color="#ff0000">
         <source ref="id15"/>
         <target ref="id3"/>
         <label kind="probability" x="-255" y="51">disobey</label>
@@ -413,9 +423,8 @@ void start_moving() {
         <source ref="id3"/>
         <target ref="id14"/>
         <label kind="guard" x="-153" y="76">!served[id-1]
-            &amp;&amp; currH == id
-            &amp;&amp; exeMission
-        </label>
+        &amp;&amp; currH == id
+        &amp;&amp; exeMission</label>
         <label kind="synchronisation" x="-153" y="127">start_h_action?</label>
     </transition>
     <transition>
@@ -425,13 +434,11 @@ void start_moving() {
     <transition>
         <source ref="id1"/>
         <target ref="id13"/>
-        <label kind="guard" x="-586" y="-127">!served[id-1]
-            &amp;&amp; currH == id
-            &amp;&amp; exeMission
-        </label>
+        <label kind="guard" x="-586" y="-127">!served[id-1] &amp;&amp; currH == id
+&amp;&amp; exeMission</label>
         <label kind="synchronisation" x="-586" y="-76">start_h_action?</label>
     </transition>
-    <transition>
+    <transition color="#ff0000">
         <source ref="id16"/>
         <target ref="id1"/>
         <label kind="probability" x="-561" y="-195">disobey</label>
@@ -462,37 +469,35 @@ void start_moving() {
     <transition>
         <source ref="id3"/>
         <target ref="id12"/>
-        <label kind="guard" x="25" y="59">F &gt;= passout_th</label>
-        <label kind="synchronisation" x="25" y="76">pass_out!</label>
-        <label kind="assignment" x="34" y="93">t = 0</label>
+        <label kind="guard" x="25" y="59">F &gt;= F_max</label>
+        <label kind="synchronisation" x="25" y="76">h_fail!</label>
+        <label kind="assignment" x="25" y="93">t = 0</label>
         <nail x="17" y="212"/>
     </transition>
     <transition>
         <source ref="id2"/>
         <target ref="id12"/>
-        <label kind="guard" x="-76" y="-85">F &gt;= passout_th</label>
-        <label kind="synchronisation" x="-76" y="-68">pass_out!</label>
+        <label kind="guard" x="-76" y="-85">F &gt;= F_max</label>
+        <label kind="synchronisation" x="-76" y="-68">h_fail!</label>
         <label kind="assignment" x="-76" y="-51">t = 0, hExe=0</label>
         <nail x="-76" y="-34"/>
         <nail x="17" y="-34"/>
     </transition>
-    <transition>
+    <transition color="#ff0000">
         <source ref="id3"/>
         <target ref="id1"/>
-        <label kind="guard" x="-603" y="212">!served[id-1] &amp;&amp;
-            freeWill &gt;= freeWillTh &amp;&amp;
-            tUpd&gt;=Tpoll
-        </label>
-        <label kind="assignment" x="-603" y="263">t = 0, Fp=F, tUpd=0</label>
+        <label kind="guard" x="-620" y="212">!served[id-1] &amp;&amp;
+fw &gt;= freeWillTh &amp;&amp;
+tUpd&gt;=Tpoll</label>
+        <label kind="assignment" x="-620" y="263">t = 0, Fp=F, tUpd=0</label>
         <nail x="-620" y="212"/>
     </transition>
-    <transition>
+    <transition color="#ff0000">
         <source ref="id2"/>
         <target ref="id1"/>
         <label kind="guard" x="-459" y="-297">!served[id-1] &amp;&amp;
-            freeWill &gt;= freeWillTh &amp;&amp;
-            tUpd &gt;= Tpoll
-        </label>
+fw &gt;= freeWillTh &amp;&amp;
+tUpd &gt;= Tpoll</label>
         <label kind="assignment" x="-459" y="-246">t = 0, Fp=F, tUpd=0, hExe=0</label>
         <nail x="-161" y="-220"/>
         <nail x="-595" y="-220"/>
@@ -516,8 +521,7 @@ void start_moving() {
         <source ref="id1"/>
         <target ref="id11"/>
         <label kind="guard" x="-510" y="59">!served[id-1]
-            &amp;&amp; !exeMission
-        </label>
+        &amp;&amp; !exeMission</label>
         <label kind="assignment" x="-510" y="93">start_moving()</label>
         <nail x="-527" y="110"/>
     </transition>
@@ -540,6 +544,7 @@ void start_moving() {
         <source ref="id8"/>
         <target ref="id3"/>
         <label kind="guard" x="25" y="255">currH!=id</label>
+        <label kind="assignment" x="34" y="238">tExp=0</label>
         <nail x="153" y="255"/>
         <nail x="-161" y="255"/>
     </transition>
@@ -547,16 +552,15 @@ void start_moving() {
         <source ref="id3"/>
         <target ref="id8"/>
         <label kind="guard" x="-51" y="187">tUpd&gt;=Tpoll</label>
-        <label kind="assignment" x="-51" y="136">updateF(-lambda, 1),
-            updateP(), tUpd=0,
-            freeWill = random(freeWillRange)
-        </label>
+        <label kind="assignment" x="25" y="127">updateF(-lambda, 1),
+updateP(), tUpd=0,
+fw = random(FW_max)</label>
         <nail x="0" y="212"/>
     </transition>
     <transition>
         <source ref="id9"/>
         <target ref="id3"/>
-        <label kind="synchronisation" x="25" y="297">publish_m[4]!</label>
+        <label kind="synchronisation" x="25" y="297">publish_m[2]!</label>
         <nail x="-161" y="297"/>
     </transition>
     <transition>
@@ -564,16 +568,15 @@ void start_moving() {
         <target ref="id1"/>
         <label kind="guard" x="-442" y="-68">tWH &gt;= tWHTh</label>
         <label kind="assignment" x="-442" y="-51">served[currH-1]= true,
-            t = 0, exeMission = 0, Fp=F,
-            tUpd=0, tWH=0,hExe=0
-        </label>
+        t = 0, exeMission = 0, Fp=F,
+        tUpd=0, tWH=0,hExe=0</label>
         <nail x="-229" y="-51"/>
     </transition>
     <transition>
         <source ref="id7"/>
         <target ref="id6"/>
         <label kind="guard" x="178" y="-161">currH==id</label>
-        <label kind="synchronisation" x="178" y="-144">publish_m[3]!</label>
+        <label kind="synchronisation" x="178" y="-144">publish_m[2]!</label>
     </transition>
     <transition>
         <source ref="id7"/>
@@ -585,19 +588,17 @@ void start_moving() {
     <transition>
         <source ref="id6"/>
         <target ref="id2"/>
-        <label kind="synchronisation" x="59" y="-119">publish_m[4]!</label>
+        <label kind="synchronisation" x="59" y="-119">publish_m[3]!</label>
         <nail x="-59" y="-119"/>
     </transition>
     <transition>
         <source ref="id2"/>
         <target ref="id7"/>
         <label kind="guard" x="51" y="-221">tUpd&gt;=Tpoll
-            &amp;&amp; tWH &lt; tWHTh
-        </label>
+        &amp;&amp; tWH &lt; tWHTh</label>
         <label kind="assignment" x="51" y="-272">updateF(-lambda, 1),
-            tUpd=0,
-            freeWill = random(freeWillRange)
-        </label>
+tUpd=0,
+fw = random(FW_max)</label>
         <nail x="8" y="-178"/>
     </transition>
     <transition>
@@ -605,9 +606,8 @@ void start_moving() {
         <target ref="id5"/>
         <label kind="guard" x="-705" y="-297">tUpd&gt;= Tpoll</label>
         <label kind="assignment" x="-705" y="-280">updateF(-mi, 0),
-            tUpd=0,
-            freeWill = random(freeWillRange)
-        </label>
+tUpd=0,
+fw = random(FW_max)</label>
         <nail x="-620" y="-187"/>
         <nail x="-620" y="-187"/>
     </transition>
@@ -615,14 +615,14 @@ void start_moving() {
         <source ref="id5"/>
         <target ref="id1"/>
         <label kind="guard" x="-714" y="-187">currH!=id</label>
+        <label kind="assignment" x="-705" y="-170">tExp=0</label>
         <nail x="-680" y="-331"/>
-        <nail x="-680" y="-212"/>
         <nail x="-680" y="-51"/>
     </transition>
     <transition>
         <source ref="id4"/>
         <target ref="id1"/>
-        <label kind="synchronisation" x="-850" y="-187">publish_m[4]!</label>
+        <label kind="synchronisation" x="-850" y="-187">publish_m[2]!</label>
         <nail x="-748" y="-51"/>
     </transition>
     <transition>

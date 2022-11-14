@@ -1,161 +1,129 @@
 <template>
     <name>Battery</name>
     <parameter>int id, double Cstart</parameter>
-    <declaration>clock C = 12.6, t, tUpd;
+    <declaration>
+clock C, t, tUpd;
 
-        // Discharge tresholds
-        const int C_100 = 100;
+// BatteryStatus Sharing parameters
+int dt = 0;
 
-        // Charge/Discharge Rate R:
-        // R = 1/Tcycle * ln(100/0.01)
-        const double R = 0.00102;
-        const double cheatFactor = 10.0;
+const double C_fail = 10.9;
+const double C_100 = 12.6;
 
-        // BatteryStatus Sharing parameters
-        //int chargeCounter = 0;
-        const int Tpoll = 1;
-        double Cp;
-        int dt = 0;
+double d_0 = C_100;
+const double d_1 = -3.05366882 * pow(10, -4);
+const double d_2 = 2.46157427 * pow(10, -8);
+const double d_3 = -8.33622587 * pow(10, -13);
 
-        const double a_0 = 1.23612015*10;
-        const double a_1 = -3.05366882*pow(10, -4);
-        const double a_2 = 2.46157427*pow(10, -8);
-        const double a_3 = -8.33622587*pow(10, -13);
+double r_0 = C_100;
+const double r_1 = +3.05366882 * pow(10, -4);
+const double r_2 = +2.46157427 * pow(10, -8);
+const double r_3 = -8.33622587 * pow(10, -13);
 
-        void updateCharge(bool charging) {
-        double increment;
 
-        increment = 100 - internal_charge[id-1];
+void updateCharge(bool charging) {
+    if (charging) internal_charge[id - 1] = internal_charge[id - 1] +
+                                  Tpoll * (r_1 + r_2 * Tpoll + 2 * r_2 * dt + r_3 * pow(Tpoll, 2)
+                                    + 3 * r_3 * pow(dt, 2) + 3 * r_3 * dt * Tpoll);
+    else
+        internal_charge[id - 1] = internal_charge[id - 1] +
+                                  Tpoll * (d_1 + d_2 * Tpoll + 2 * d_2 * dt + d_3 * pow(Tpoll, 2)
+                                    + 3 * d_3 * pow(dt, 2) + 3 * d_3 * dt * Tpoll);
+    dt += Tpoll;
+}
 
-        if(charging) {
-        internal_charge[id-1] = 100 - increment*exp(-R*(Tpoll));
-        } else {
-        internal_charge[id-1] = internal_charge[id-1]+Tpoll*(a_1+a_2*Tpoll+2*a_2*dt+a_3*pow(Tpoll,2)+3*a_3*pow(dt,
-        2)+3*a_3*dt*Tpoll);
-        //internal_charge[id-1] = 100 - increment*exp(R*(Tpoll));
-        }
-
-        dt+=Tpoll;
-        }
-
-        void initBattery() {
-        t=0;
-
-        if(Cstart==C_100) {
-        Cp = 99.99;
-        } else {
-        Cp = Cstart;
-        }
-        C = Cp;
-        batteryCharge[id-1] = Cp;
-        internal_charge[id-1] = Cp;
-        tUpd=0;
-        }
-    </declaration>
-    <location id="id111" x="408" y="204">
-        <name x="383" y="170">Init</name>
+void initBattery() {
+    t = 0;
+    C = Cstart;
+    batteryCharge[id - 1] = Cstart;
+    internal_charge[id - 1] = Cstart;
+    tUpd = 0;
+}
+</declaration>
+    <location id="id116" x="416" y="204">
+        <name x="391" y="170">Init</name>
         <committed/>
     </location>
-    <location id="id112" x="1063" y="204">
-        <name x="1080" y="179">empty</name>
-        <label kind="invariant" x="1080" y="196">C'==0</label>
-        <label kind="exponentialrate" x="1080" y="162">1</label>
+    <location id="id117" x="1071" y="204">
+        <name x="1088" y="179">empty</name>
+        <label kind="invariant" x="1088" y="196">C'==0</label>
+        <label kind="exponentialrate" x="1088" y="162">1</label>
     </location>
-    <location id="id113" x="689" y="204">
-        <name x="697" y="179">discharging</name>
-        <label kind="invariant" x="697" y="128">tUpd &lt;= Tpoll
-            &amp;&amp; t'==1
-            &amp;&amp; C' == a_1 + 2*a_2*t + 3*a_3*t*t
-        </label>
+    <location id="id118" x="688" y="204">
+        <name x="696" y="179">discharging</name>
+        <label kind="invariant" x="697" y="127">tUpd &lt;= Tpoll
+&amp;&amp; C' == d_1 + 2*d_2*t + 3*d_3*t*t
+&amp;&amp; C&gt;=C_fail</label>
     </location>
-    <location id="id114" x="689" y="425">
+    <location id="id119" x="689" y="425">
         <name x="697" y="434">recharging</name>
-        <label kind="invariant" x="697" y="451">C' == (100-Cp)*R*exp(-R*t)
-            &amp;&amp; C &lt; C_100 &amp;&amp; t'==1
-            &amp;&amp; tUpd &lt;= Tpoll
-        </label>
+        <label kind="invariant" x="697" y="451">C' == r_1 + 2*r_2*t + 3*r_3*t*t
+&amp;&amp; tUpd &lt;= Tpoll</label>
     </location>
-    <location id="id115" x="595" y="119">
+    <location id="id120" x="595" y="119">
         <committed/>
     </location>
-    <location id="id116" x="595" y="519">
+    <location id="id121" x="595" y="519">
         <committed/>
     </location>
-    <location id="id117" x="876" y="204">
-        <committed/>
-    </location>
-    <init ref="id111"/>
+    <init ref="id116"/>
     <transition>
-        <source ref="id113"/>
+        <source ref="id118"/>
         <target ref="id117"/>
-        <label kind="guard" x="748" y="204">C&lt;=0</label>
-        <label kind="assignment" x="706" y="221">active_robot[id-1] = true</label>
+        <label kind="guard" x="901" y="204">C&lt;=C_fail</label>
+        <label kind="synchronisation" x="875" y="221">dead_battery!</label>
+        <label kind="assignment" x="799" y="238">active_robot[id-1] = true</label>
     </transition>
     <transition>
-        <source ref="id116"/>
-        <target ref="id114"/>
+        <source ref="id121"/>
+        <target ref="id119"/>
         <label kind="synchronisation" x="544" y="459">publish_m[0]!</label>
     </transition>
     <transition>
-        <source ref="id114"/>
-        <target ref="id116"/>
+        <source ref="id119"/>
+        <target ref="id121"/>
         <label kind="guard" x="621" y="519">tUpd&gt;=Tpoll</label>
-        <label kind="assignment" x="621" y="536">tUpd=0,
-            updateCharge(1)
-        </label>
+        <label kind="assignment" x="621" y="536">tUpd=0, updateCharge(1)</label>
         <nail x="689" y="519"/>
     </transition>
     <transition>
-        <source ref="id115"/>
-        <target ref="id113"/>
+        <source ref="id120"/>
+        <target ref="id118"/>
         <label kind="synchronisation" x="536" y="153">publish_m[0]!</label>
     </transition>
     <transition>
-        <source ref="id113"/>
-        <target ref="id115"/>
-        <label kind="guard" x="621" y="51">tUpd&gt;=Tpoll
-            &amp;&amp; C&gt;0
-        </label>
-        <label kind="assignment" x="621" y="85">tUpd=0,
-            updateCharge(0)
-        </label>
-        <nail x="689" y="119"/>
+        <source ref="id118"/>
+        <target ref="id120"/>
+        <label kind="guard" x="620" y="76">tUpd&gt;=Tpoll &amp;&amp; C&gt;C_fail</label>
+        <label kind="assignment" x="620" y="93">tUpd=0, updateCharge(0)</label>
+        <nail x="688" y="119"/>
     </transition>
     <transition>
-        <source ref="id111"/>
-        <target ref="id113"/>
-        <label kind="assignment" x="510" y="213">initBattery()</label>
+        <source ref="id116"/>
+        <target ref="id118"/>
+        <label kind="assignment" x="442" y="178">initBattery()</label>
     </transition>
     <transition>
-        <source ref="id114"/>
-        <target ref="id113"/>
-        <label kind="guard" x="519" y="247">C&lt;C_100 &amp;&amp;
-            tUpd&lt;Tpoll &amp;&amp;
-            active_robot[id-1] == true
-        </label>
+        <source ref="id119"/>
+        <target ref="id118"/>
         <label kind="synchronisation" x="519" y="298">stop_recharging?</label>
-        <label kind="assignment" x="519" y="315">Cp=C, t=0, tUpd = 0,
-            active_robot[id-1] = false
-        </label>
+        <label kind="assignment" x="519" y="315">d_0=C, t=0,
+tUpd = 0, dt=0,
+active_robot[id-1] = false</label>
     </transition>
     <transition>
-        <source ref="id113"/>
-        <target ref="id114"/>
-        <label kind="guard" x="723" y="289">C&lt;C_100</label>
+        <source ref="id118"/>
+        <target ref="id119"/>
         <label kind="synchronisation" x="723" y="306">start_recharging[id]?</label>
-        <label kind="assignment" x="723" y="323">Cp=C, t=0, tUpd = 0</label>
-        <nail x="714" y="264"/>
+        <label kind="assignment" x="723" y="323">r_0=C, t=0,
+tUpd = 0, dt=0</label>
+        <nail x="714" y="263"/>
         <nail x="714" y="374"/>
     </transition>
     <transition>
-        <source ref="id112"/>
-        <target ref="id112"/>
-        <nail x="1080" y="247"/>
-        <nail x="1105" y="230"/>
-    </transition>
-    <transition>
         <source ref="id117"/>
-        <target ref="id112"/>
-        <label kind="synchronisation" x="910" y="204">dead_battery!</label>
+        <target ref="id117"/>
+        <nail x="1088" y="247"/>
+        <nail x="1113" y="230"/>
     </transition>
 </template>

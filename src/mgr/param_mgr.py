@@ -206,7 +206,7 @@ class Param_Mgr:
                     value += 'c_pub = ROS_SensPub(0, 0.5, 0.01);\n'
                 elif key == const.HUM_INST.value:
                     value = ''.join([h.get_constructor() for h in self.hums])
-                    value += 'h_pub_pos = ROS_SensPub(3, 0.5, 0.01);\nh_pub_ftg = ROS_SensPub(4, 0.5, 0.01);\n'
+                    value += 'h_pub_pos = ROS_SensPub(2, 0.5, 0.01);\nh_pub_ftg = ROS_SensPub(3, 0.5, 0.01);\n'
                 elif key == const.ORCH_INST.value:
                     value = ''.join([r.get_orch_constructor() for r in self.robs])
                 elif key == const.ALL_INST.value:

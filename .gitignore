@@ -4,12 +4,7 @@ bkp_dsl/
 .idea/misc.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/hri_designtime.iml
-resources/upp_results/fac_sub/*
-resources/gen_models/fac_sub/*
-resources/input_params/fac_sub/*
-resources/upp_results/formalise_sub/*
-resources/gen_models/formalise_sub/*
-resources/input_params/formalise_sub/*
+resources/upp_results/*
 src/mgr/__pycache__/upp_mgr.cpython-36.pyc
 src/mgr/__pycache__/tplt_mgr.cpython-36.pyc
 src/mgr/__pycache__/query_mgr.cpython-36.pyc
