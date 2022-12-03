@@ -62,6 +62,15 @@ class Configuration:
                              Point.parse(fields[2]), float(fields[3]), float(fields[4]), lb, ub)
 
 
+def update_csv():
+    with open(CSV_FILE, 'w') as out_csv:
+        write = csv.writer(out_csv)
+        write.writerow(HEADER)
+        for conf_towrite in configurations:
+            write.writerow([conf_towrite.pfw, conf_towrite.pftg, conf_towrite.start,
+                            conf_towrite.v, conf_towrite.chg, conf_towrite.lb, conf_towrite.ub])
+
+
 SCENARIO = sys.argv[1]
 FILE_PATH = '/Users/lestingi/PycharmProjects/hri_designtime/resources/input_params/ease_exp/{}.json'.format(SCENARIO)
 
@@ -192,10 +201,6 @@ for i, conf in enumerate(configurations[:N]):
     except IndexError:
         LOGGER.error('Verification unsuccessful.')
 
-with open(CSV_FILE, 'w') as out_csv:
-    write = csv.writer(out_csv)
-    write.writerow(HEADER)
-    for conf in configurations:
-        write.writerow([conf.pfw, conf.pftg, conf.start, conf.v, conf.chg, conf.lb, conf.ub])
+    update_csv()
 
 LOGGER.info('Done.')

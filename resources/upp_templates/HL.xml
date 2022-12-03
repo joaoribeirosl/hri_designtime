@@ -177,6 +177,7 @@ void plan_traj() {
                 k++;
             }
         }
+        if(neigh[0]==-1) return;
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
