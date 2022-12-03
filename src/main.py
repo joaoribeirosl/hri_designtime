@@ -17,7 +17,7 @@ LOGGER = Logger('main')
 if len(sys.argv) < 2:
     LOGGER.error('USAGE: main.py $JSON_FILE')
 else:
-    LOGGER.info('Starting configuration of HRI scenario...')
+    LOGGER.info('Starting conf of HRI scenario...')
 
     SCENARIO_NAME = sys.argv[1]
 

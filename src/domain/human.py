@@ -40,6 +40,9 @@ class Interaction_Pattern(Enum):
         elif self == Interaction_Pattern.RESCUER:
             return 10
 
+    def __str__(self):
+        return self.value
+
 
 class Fatigue_Profile(Enum):
     YOUNG_HEALTHY = "y/h"
@@ -72,6 +75,9 @@ class Fatigue_Profile(Enum):
             return Fatigue_Profile.ELDERLY_SICK
         else:
             return Fatigue_Profile.COVID_PATIENT
+
+    def __str__(self):
+        return self.value
 
 
 class FreeWill_Profile(Enum):
@@ -126,6 +132,9 @@ class FreeWill_Profile(Enum):
         else:
             return FreeWill_Profile.DISABLED
 
+    def __str__(self):
+        return self.value
+
 
 class Human:
     def __init__(self, name: str, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile,
@@ -159,7 +168,7 @@ class Human:
             return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                          self.p_f.to_int(), self.p_fw.to_int(),
                                                                          self.same_as, self.path)
-        elif self.ptrn == Interaction_Pattern.RECIPIENT: # int id, double _v, int p_f, int p_fw, int path
+        elif self.ptrn == Interaction_Pattern.RECIPIENT:  # int id, double _v, int p_f, int p_fw, int path
             return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
                                                                         self.p_fw.to_int(), self.path)
         else:

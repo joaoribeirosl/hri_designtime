@@ -1,9 +1,8 @@
 import configparser
 import os
-import sys
+from datetime import datetime
 
 from src.logging.logger import Logger
-from datetime import datetime
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -37,3 +36,4 @@ class Upp_Mgr:
                                           self.UPPAAL_XML_PATH + scen_name + self.QUERY_EXT,
                                           self.UPPAAL_OUT_PATH.format(res_name)))
         self.LOGGER.info('Verification complete.')
+        return self.UPPAAL_OUT_PATH.format(res_name)

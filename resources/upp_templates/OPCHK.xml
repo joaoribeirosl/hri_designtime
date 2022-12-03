@@ -270,7 +270,7 @@ void check_hr_mission(){
 }
 
 void check_service_provided() {
-    double eps = 100.0, dist_to_dest, humanRobotDist;
+    double eps = 200.0, dist_to_dest, humanRobotDist;
 
     dist_to_dest = pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]);
     humanRobotDist = calculateDistance();

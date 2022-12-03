@@ -1,5 +1,7 @@
+import csv
 import itertools
-from typing import List
+import sys
+from typing import List, Tuple
 
 import numpy as np
 
@@ -12,8 +14,56 @@ from src.mgr.query_mgr import Query_Mgr
 from src.mgr.tplt_mgr import Template_Mgr
 from src.mgr.upp_mgr import Upp_Mgr
 
-FILE_PATH = '/Users/lestingi/PycharmProjects/hri_designtime/resources/input_params/ease_exp/DPa.json'
-NAME = 'DPa_{}'
+
+class Configuration:
+    def __init__(self, pfw: FreeWill_Profile, pftg: Fatigue_Profile, start: Point,
+                 v: float, chg: float, lb: float = None, ub: float = None):
+        self.pfw = pfw
+        self.pftg = pftg
+        self.start = start
+        self.v = v
+        self.chg = chg
+        self.lb = lb
+        self.ub = ub
+
+    def __eq__(self, other):
+        return self.pfw == other.pfw and self.pftg == other.pftg and self.start == other.start \
+               and self.v == other.v and self.chg == other.chg
+
+    def __len__(self):
+        return 8
+
+    def __getitem__(self, item):
+        if item == 0:
+            return self.pfw
+        elif item == 1:
+            return self.pftg
+        elif item == 2:
+            return self.start
+        elif item == 3:
+            return self.v
+        elif item == 4:
+            return self.chg
+        elif item == 6:
+            return self.lb
+        elif item == 7:
+            return self.ub
+
+    @staticmethod
+    def parse(fields):
+        lb = None
+        ub = None
+        if len(fields[5]) > 0:
+            lb = float(fields[5])
+        if len(fields[6]) > 0:
+            ub = float(fields[6])
+
+        return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(fields[1]),
+                             Point.parse(fields[2]), float(fields[3]), float(fields[4]), lb, ub)
+
+
+SCENARIO = sys.argv[1]
+FILE_PATH = '/Users/lestingi/PycharmProjects/hri_designtime/resources/input_params/ease_exp/{}.json'.format(SCENARIO)
 
 LOGGER = Logger('EASE MAIN')
 
@@ -32,35 +82,78 @@ ftg_values = [Fatigue_Profile.YOUNG_HEALTHY, Fatigue_Profile.YOUNG_SICK,
 # starting position
 start_values: List[Point] = []
 ETA = 5.0
-DELTA = 2000.0
+DELTA = 3000.0
 for area in json_mgr.layout.areas:
     x_s = np.arange(area.corners[0].x + ETA, area.corners[2].x - ETA, DELTA)
     y_s = np.arange(area.corners[0].y + ETA, area.corners[2].y - ETA, DELTA)
     start_values.extend([Point(x, y) for x in x_s for y in y_s])
 
 # robot speed
-speed_values = [26.0, 83.0, 100.0]
+speed_values = [30.0, 80.0, 100.0]
 
 # robot charge
-charge_values = np.arange(11.2, 12.4, 0.2)
+charge_values = np.arange(11.1, 12.4, 0.5)
 
 factors = [fw_values, ftg_values, start_values, speed_values, charge_values]
 
-for i, configuration in enumerate(list(itertools.product(*factors))[:3]):
-    LOGGER.info('Processing configuration {}...'.format(i))
+configurations: List[Tuple] = list(itertools.product(*factors))
+configurations: List[Configuration] = [Configuration(conf[0], conf[1], conf[2], conf[3], conf[4]) for conf in
+                                       configurations]
 
-    SCENARIO_NAME = NAME.format(i)
+upp_mgr = Upp_Mgr()
+query_mg = Query_Mgr(json_mgr.queries)
 
-    json_mgr.hums[0].p_fw = configuration[0]
-    json_mgr.hums[3].p_fw = configuration[0]
-    json_mgr.hums[4].p_fw = configuration[0]
-    json_mgr.hums[0].p_f = configuration[1]
-    json_mgr.hums[3].p_f = configuration[1]
-    json_mgr.hums[4].p_f = configuration[1]
-    json_mgr.hums[1].start = configuration[2]
-    json_mgr.robots[0].v = configuration[3]
-    json_mgr.robots[0].a = configuration[3]
-    json_mgr.robots[0].chg = configuration[4]
+CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
+HEADER = ['PATIENT FREE WILL', 'PATIENT FATIGUE', 'DOCTOR START',
+          'ROBOT SPEED', 'ROBOT CHARGE', 'PR. SCS LOWER BOUND', 'PR. SCS UPPER BOUND']
+
+with open(CSV_FILE, 'r') as csv_in:
+    read = csv.reader(csv_in)
+    for i, row in enumerate(read):
+        if i == 0:
+            continue
+        else:
+            read_conf: Configuration = Configuration.parse(row)
+            if read_conf.lb is not None and read_conf.ub is not None:
+                index: int = configurations.index(read_conf)
+                configurations[index].lb = read_conf.lb
+                configurations[index].ub = read_conf.ub
+
+LOGGER.info('{} Configurations to process.'.format(len(configurations)))
+
+if len(sys.argv) > 2:
+    N = int(sys.argv[2])
+else:
+    N = len(factors)
+
+if len(sys.argv) > 3:
+    filter_processed = bool(sys.argv[3])
+else:
+    filter_processed = False
+
+for i, conf in enumerate(configurations[:N]):
+
+    if filter_processed and conf.lb is not None and conf.ub is not None:
+        LOGGER.info('Configuration {} already processed'.format(i))
+        continue
+
+    LOGGER.info('Processing conf {}...'.format(i))
+
+    SCENARIO_NAME = '{}_{}'.format(SCENARIO, i)
+
+    json_mgr.hums[0].p_fw = conf.pfw
+    json_mgr.hums[3].p_fw = conf.pfw
+    json_mgr.hums[4].p_fw = conf.pfw
+    json_mgr.hums[0].p_f = conf.pftg
+    json_mgr.hums[3].p_f = conf.pftg
+    json_mgr.hums[4].p_f = conf.pftg
+    json_mgr.hums[1].start = conf.start
+    json_mgr.hums[0].v = conf.v
+    json_mgr.hums[3].v = conf.v
+    json_mgr.hums[4].v = conf.v
+    json_mgr.robots[0].v = conf.v
+    json_mgr.robots[0].a = conf.v
+    json_mgr.robots[0].chg = conf.chg
 
     # Replaces PARAM keywords within main template file with scenario parameters
     param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout)
@@ -71,11 +164,25 @@ for i, configuration in enumerate(list(itertools.product(*factors))[:3]):
     tplt_mgr.replace_tplt(SCENARIO_NAME)
 
     # Generate query file
-    query_mg = Query_Mgr(json_mgr.queries)
     query_mg.gen_q_file(SCENARIO_NAME)
 
     # Run Uppaal Experiment
-    upp_mgr = Upp_Mgr()
-    upp_mgr.run_exp(SCENARIO_NAME)
+    out_file = upp_mgr.run_exp(SCENARIO_NAME)
+
+    try:
+        with open(out_file) as upp_res:
+            lines = upp_res.readlines()
+            pr_range = [line.split(' Pr(<> ...) in ')[1].replace('[', '').replace(']', '').replace('\n', '').split(',')
+                        for line in lines if line.__contains__('Pr(<> ...)')][0]
+            configurations[i].lb = float(pr_range[0])
+            configurations[i].ub = float(pr_range[1])
+    except IndexError:
+        LOGGER.error('Verification unsuccessful.')
+
+with open(CSV_FILE, 'w') as out_csv:
+    write = csv.writer(out_csv)
+    write.writerow(HEADER)
+    for conf in configurations:
+        write.writerow([conf.pfw, conf.pftg, conf.start, conf.v, conf.chg, conf.lb, conf.ub])
 
 LOGGER.info('Done.')
