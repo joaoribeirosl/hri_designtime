@@ -7,7 +7,7 @@ clock t_act;
 
 //Human-Robot Distance Parameters
 const double safetyDistance = 2.0;
-const double stopDistance = 4.0;
+const double stopDistance = 6.0;
 const double restartDistance = 3.0;
 int recipientStages = 0;
 

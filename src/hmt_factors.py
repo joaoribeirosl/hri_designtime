@@ -1,7 +1,7 @@
 import csv
-import itertools
+import random
 import sys
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
@@ -72,59 +72,72 @@ LOGGER.info('Reading scenario template...')
 json_mgr = Json_Mgr()
 json_mgr.load_json()
 
-# free will
-fw_values = [FreeWill_Profile.FOCUSED, FreeWill_Profile.FREE, FreeWill_Profile.DISTRACTED]
-
-# fatigue profile
-ftg_values = [Fatigue_Profile.YOUNG_HEALTHY, Fatigue_Profile.YOUNG_SICK,
-              Fatigue_Profile.ELDERLY_HEALTHY, Fatigue_Profile.ELDERLY_SICK, Fatigue_Profile.COVID_PATIENT]
-
-# starting position
-start_values: List[Point] = []
-ETA = 5.0
-DELTA = 3000.0
-for area in json_mgr.layout.areas:
-    x_s = np.arange(area.corners[0].x + ETA, area.corners[2].x - ETA, DELTA)
-    y_s = np.arange(area.corners[0].y + ETA, area.corners[2].y - ETA, DELTA)
-    start_values.extend([Point(x, y) for x in x_s for y in y_s])
-
-# robot speed
-speed_values = [30.0, 80.0, 100.0]
-
-# robot charge
-charge_values = np.arange(11.1, 12.4, 0.5)
-
-factors = [fw_values, ftg_values, start_values, speed_values, charge_values]
-
-configurations: List[Tuple] = list(itertools.product(*factors))
-configurations: List[Configuration] = [Configuration(conf[0], conf[1], conf[2], conf[3], conf[4]) for conf in
-                                       configurations]
-
 upp_mgr = Upp_Mgr()
 query_mg = Query_Mgr(json_mgr.queries)
 
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
-HEADER = ['PATIENT FREE WILL', 'PATIENT FATIGUE', 'DOCTOR START',
-          'ROBOT SPEED', 'ROBOT CHARGE', 'PR. SCS LOWER BOUND', 'PR. SCS UPPER BOUND']
+HEADER = ['PATIENT_FREEWILL', 'PATIENT_FATIGUE', 'DOCTOR_START',
+          'ROBOT_SPEED', 'ROBOT_CHARGE', 'PR.SCS_LOWER_BOUND', 'PR.SCS_UPPER_BOUND']
 
-with open(CSV_FILE, 'r') as csv_in:
-    read = csv.reader(csv_in)
-    for i, row in enumerate(read):
-        if i == 0:
-            continue
-        else:
-            read_conf: Configuration = Configuration.parse(row)
-            if read_conf.lb is not None and read_conf.ub is not None:
-                index: int = configurations.index(read_conf)
-                configurations[index].lb = read_conf.lb
-                configurations[index].ub = read_conf.ub
+# configurations: List[Tuple] = list(itertools.product(*factors))
+configurations: List[Configuration] = []
+
+resample = False
+
+if resample:
+    # free will
+    fw_values = [FreeWill_Profile.FOCUSED, FreeWill_Profile.FREE, FreeWill_Profile.DISTRACTED]
+
+    # fatigue profile
+    ftg_values = [Fatigue_Profile.YOUNG_HEALTHY, Fatigue_Profile.YOUNG_SICK,
+                  Fatigue_Profile.ELDERLY_HEALTHY, Fatigue_Profile.ELDERLY_SICK, Fatigue_Profile.COVID_PATIENT]
+
+    # starting position
+    start_values: List[Point] = json_mgr.layout.inter_pts
+    # ETA = 5.0
+    # DELTA = 3000.0
+    # for area in json_mgr.layout.areas:
+    #    x_s = np.arange(area.corners[0].x + ETA, area.corners[2].x - ETA, DELTA)
+    #    y_s = np.arange(area.corners[0].y + ETA, area.corners[2].y - ETA, DELTA)
+    #    start_values.extend([Point(x, y) for x in x_s for y in y_s])
+
+    # robot speed
+    speed_values = [30.0, 100.0]
+
+    # robot charge
+    charge_values = [11.1, 12.4]
+
+    N_SAMPLE = 1000
+
+    # factors = [fw_values, ftg_values, start_values, speed_values, charge_values]
+
+    for i in range(N_SAMPLE):
+        pfw = random.choice(fw_values)
+        pftg = random.choice(ftg_values)
+        start = random.choice(start_values)
+        v = speed_values[0] + ((speed_values[1] - speed_values[0]) * np.random.rand(1)[0])
+        chg = charge_values[0] + ((charge_values[1] - charge_values[0]) * np.random.rand(1)[0])
+        configurations.append(Configuration(pfw, pftg, start, v, chg))
+else:
+    with open(CSV_FILE, 'r') as csv_in:
+        read = csv.reader(csv_in)
+        for i, row in enumerate(read):
+            if i == 0:
+                continue
+            else:
+                configurations.append(Configuration.parse(row))
+                # read_conf: Configuration = Configuration.parse(row)
+                # if read_conf.lb is not None and read_conf.ub is not None:
+                #    index: int = configurations.index(read_conf)
+                #    configurations[index].lb = read_conf.lb
+                #    configurations[index].ub = read_conf.ub
 
 LOGGER.info('{} Configurations to process.'.format(len(configurations)))
 
 if len(sys.argv) > 2:
     N = int(sys.argv[2])
 else:
-    N = len(factors)
+    N = len(configurations)
 
 if len(sys.argv) > 3:
     filter_processed = bool(sys.argv[3])

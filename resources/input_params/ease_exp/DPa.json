@@ -2,7 +2,7 @@
   "queries": [
     {
       "type": "pscs",
-      "tau": 400,
+      "tau": 250,
       "n": 10
     }
   ],
