@@ -12,6 +12,9 @@ class Point:
     def __str__(self):
         return '{:.2f}, {:.2f}'.format(self.x, self.y)
 
+    def __hash__(self):
+        return hash(str(self))
+
     @staticmethod
     def parse(s: str):
         return Point(float(s.split(',')[0]), float(s.split(',')[1]))
