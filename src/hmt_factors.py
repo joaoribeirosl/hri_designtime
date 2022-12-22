@@ -72,7 +72,7 @@ def update_csv():
 
 
 SCENARIO = sys.argv[1]
-FILE_PATH = '/Users/lestingi/PycharmProjects/hri_designtime/resources/input_params/ease_exp/{}.json'.format(SCENARIO)
+FILE_PATH = '/home/lestingi/designtime/hri_designtime/resources/input_params/{}.json'.format(SCENARIO)
 
 LOGGER = Logger('EASE MAIN')
 
