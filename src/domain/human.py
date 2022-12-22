@@ -49,7 +49,8 @@ class Fatigue_Profile(Enum):
     YOUNG_SICK = "y/s"
     ELDERLY_HEALTHY = "e/h"
     ELDERLY_SICK = "e/s"
-    COVID_PATIENT = "c"
+    YOUNG_UNSTEADY = "y/u"
+    ELDERLY_UNSTEADY = "e/u"
 
     def to_int(self):
         if self == Fatigue_Profile.YOUNG_HEALTHY:
@@ -60,8 +61,10 @@ class Fatigue_Profile(Enum):
             return 3
         elif self == Fatigue_Profile.ELDERLY_SICK:
             return 4
-        else:
+        elif self == Fatigue_Profile.YOUNG_UNSTEADY:
             return 5
+        else:
+            return 6
 
     @staticmethod
     def parse_ftg_profile(s: str):
@@ -73,8 +76,10 @@ class Fatigue_Profile(Enum):
             return Fatigue_Profile.ELDERLY_HEALTHY
         elif s == "e/s":
             return Fatigue_Profile.ELDERLY_SICK
+        elif s == "y/u":
+            return Fatigue_Profile.YOUNG_UNSTEADY
         else:
-            return Fatigue_Profile.COVID_PATIENT
+            return Fatigue_Profile.ELDERLY_UNSTEADY
 
     def __str__(self):
         return self.value

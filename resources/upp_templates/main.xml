@@ -45,7 +45,8 @@ const double ELDERLY_HEALTHY_SIGMA[2] = {0.004548, 0.000175};
 
 //
 const double ELDERLY_SICK[2] = {0.005, 0.004}; // approx. 350s
-const double COVID_PATIENT[2] = {0.025, 0.001}; // approx. 280s
+const double YOUNG_UNSTEADY[2] = {0.025, 0.001}; // approx. 280s
+const double ELDERLY_UNSTEADY[2] = {0.035, 0.001};
 
 const int F_max = 1;
 
