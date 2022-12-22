@@ -83,8 +83,13 @@ void initHuman() {
     }
     else if (p_f == 5)
     {
-        lambda = COVID_PATIENT[0];
-        mi = COVID_PATIENT[1];
+        lambda = YOUNG_UNSTEADY[0];
+        mi = YOUNG_UNSTEADY[1];
+    }
+    else if (p_f == 6)
+    {
+        lambda = ELDERLY_UNSTEADY[0];
+        mi = ELDERLY_UNSTEADY[1];
     }
     else
     {

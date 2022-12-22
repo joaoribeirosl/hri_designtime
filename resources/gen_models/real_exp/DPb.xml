@@ -218,18 +218,18 @@ int SAME_H_IDs[H][H] = {{1,4,5,-1,-1},{2,3,-1,-1,-1},{3,2,-1,-1,-1},{4,1,5,-1,-1
 // 0: human follower, 1: human leader, 2: human recipient, 3: human applicant,
 // 10: human_rescuer, (11: human_interdependence_mission,) 12: human competitor
 int patterns[H] = {0,2,1,1,0};
-int patterns_alt1[H]; // = {0, 12, 10, 2, 0, 3}; //robot wins competition
-int patterns_alt2[H]; // = {0, 12, 1, 1, 0, 3}; //robot loses competition
+int patterns_alt1[H] = {0,2,1,1,0};
+int patterns_alt2[H] = {0,2,1,1,0};
 //
 
 // -&gt; DEFINE STARTING LOCATIONS IN CARTESIAN PLAN
 double startX[H] = {2500.0,4000.0,4000.0,800.0,900.0};
 double startY[H] = {500.0,150.0,150.0,700.0,700.0};
 
-double startX_alt1[H];
-double startY_alt1[H];
-double startX_alt2[H];
-double startY_alt2[H];
+double startX_alt1[H] = {2500.0,4000.0,4000.0,800.0,900.0};
+double startY_alt1[H] = {500.0,150.0,150.0,700.0,700.0};
+double startX_alt2[H] = {2500.0,4000.0,4000.0,800.0,900.0};
+double startY_alt2[H] = {500.0,150.0,150.0,700.0,700.0};
 
 // -&gt; DEFINE DESTINATIONS IN CARTESIAN PLAN
 // the definition of destination can vary depending on the pattern,
@@ -237,10 +237,10 @@ double startY_alt2[H];
 double destX[H] = {800.0,3000.0,3500.0,900.0,3500.0};
 double destY[H] = {700.0,200.0,150.0,700.0,150.0};
 
-double destX_alt1[H];
-double destY_alt1[H];
-double destX_alt2[H];
-double destY_alt2[H];
+double destX_alt1[H] = {800.0,3000.0,3500.0,900.0,3500.0};
+double destY_alt1[H] = {700.0,200.0,150.0,700.0,150.0};
+double destX_alt2[H] = {800.0,3000.0,3500.0,900.0,3500.0};
+double destY_alt2[H] = {700.0,200.0,150.0,700.0,150.0};
 
 /**
 * PARAMS FOR RESCUER AND APPLICANT (task size and dexterity)
@@ -1784,6 +1784,7 @@ void plan_traj() {
                 k++;
             }
         }
+        if(neigh[0]==-1) return;
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
@@ -2386,6 +2387,7 @@ void plan_traj() {
                 k++;
             }
         }
+        if(neigh[0]==-1) return;
         // next int. point to add to traj. is the closest to destination
         min_dist = pt_dist(INTERSECTIONS[neigh[0]][0], dest[0], INTERSECTIONS[neigh[0]][1], dest[1]);
         next_inters = neigh[0];
@@ -2449,7 +2451,7 @@ void checkSuccess() {
     dist_to_dest = pt_dist(destX[id-1], internalHumX[id-1], destY[id-1], internalHumY[id-1]);
     humanRobotDist = calculateDistance();
     // when humans reach their destination, they can set themselves as "served"
-    if(dist_to_dest &lt;= v*2.0 &amp;&amp; humanRobotDist&lt;=4.0) {
+    if(dist_to_dest &lt;= v*3.0 &amp;&amp; humanRobotDist&lt;=5.0) {
         served[id-1] = true;
     }
 }
@@ -5055,7 +5057,7 @@ clock t_act;
 
 //Human-Robot Distance Parameters
 const double safetyDistance = 2.0;
-const double stopDistance = 4.0;
+const double stopDistance = 6.0;
 const double restartDistance = 3.0;
 int recipientStages = 0;
 
@@ -5318,7 +5320,7 @@ void check_hr_mission(){
 }
 
 void check_service_provided() {
-    double eps = 100.0, dist_to_dest, humanRobotDist;
+    double eps = 200.0, dist_to_dest, humanRobotDist;
 
     dist_to_dest = pt_dist(robPositionX[currR-1], destX[currH-1], robPositionY[currR-1], destY[currH-1]);
     humanRobotDist = calculateDistance();

@@ -3,7 +3,7 @@
     {
       "type": "pscs",
       "tau": 250,
-      "n": 10
+      "n": 1
     }
   ],
   "humans": [
@@ -31,7 +31,7 @@
       "h_id": 2,
       "v": 100.0,
       "ptrn": "LEADER",
-      "p_f": "e/h",
+      "p_f": "y/h",
       "p_fw": "d",
       "start": [
         3000.0,
@@ -50,7 +50,7 @@
       "h_id": 3,
       "v": 100.0,
       "ptrn": "LEADER",
-      "p_f": "e/h",
+      "p_f": "y/h",
       "p_fw": "d",
       "start": [
         1400.0,

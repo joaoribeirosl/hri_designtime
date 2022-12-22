@@ -53,13 +53,15 @@ class Configuration:
     def parse(fields):
         lb = None
         ub = None
-        if len(fields[5]) > 0:
-            lb = float(fields[5])
         if len(fields[6]) > 0:
-            ub = float(fields[6])
+            lb = float(fields[6])
+        if len(fields[7]) > 0:
+            ub = float(fields[7])
 
-        return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(fields[1]),
-                             Point.parse(fields[2]), float(fields[3]), float(fields[4]), lb, ub)
+        ftg_prof = fields[1] + '/' + fields[2]
+
+        return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(ftg_prof),
+                             Point.parse(fields[3]), float(fields[4]), float(fields[5]), lb, ub)
 
 
 def update_csv():
@@ -67,7 +69,8 @@ def update_csv():
         write = csv.writer(out_csv)
         write.writerow(HEADER)
         for conf_towrite in configurations:
-            write.writerow([conf_towrite.pfw, conf_towrite.pftg, conf_towrite.start,
+            pftg_split = str(conf_towrite.pftg).split('/')
+            write.writerow([conf_towrite.pfw, pftg_split[0], pftg_split[1], conf_towrite.start,
                             conf_towrite.v, conf_towrite.chg, conf_towrite.lb, conf_towrite.ub])
 
 
@@ -99,7 +102,8 @@ if resample:
 
     # fatigue profile
     ftg_values = [Fatigue_Profile.YOUNG_HEALTHY, Fatigue_Profile.YOUNG_SICK,
-                  Fatigue_Profile.ELDERLY_HEALTHY, Fatigue_Profile.ELDERLY_SICK, Fatigue_Profile.COVID_PATIENT]
+                  Fatigue_Profile.ELDERLY_HEALTHY, Fatigue_Profile.ELDERLY_SICK,
+                  Fatigue_Profile.YOUNG_UNSTEADY, Fatigue_Profile.ELDERLY_UNSTEADY]
 
     # starting position
     start_values: List[Point] = json_mgr.layout.inter_pts
