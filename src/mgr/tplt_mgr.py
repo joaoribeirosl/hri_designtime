@@ -1,5 +1,5 @@
 import configparser
-import sys
+from typing import Dict
 
 from src.domain.hri_const import Constants as const
 from src.logging.logger import Logger
@@ -18,18 +18,22 @@ class Template_Mgr:
     TEMPLATES = [const.ROB_TPLT.value, const.BTR_TPLT.value, const.HA_TPLT.value, const.HC_TPLT.value,
                  const.HF_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value,
                  const.HRes_TPLT.value, const.ORCH_TPLT.value, const.OPCHK_TPLT.value, const.ROS_TPLT.value]
+    extendable_TEMPLATES = [4, 5, 6]
     KEYWORDS = [const.ROB_KEY.value, const.BTR_KEY.value, const.HA_KEY.value, const.HC_KEY.value,
                 const.HF_KEY.value, const.HL_KEY.value, const.HRec_KEY.value,
                 const.HRes_KEY.value, const.ORCH_KEY.value, const.OPCHK_KEY.value, const.ROS_KEY.value]
 
-    def fill_dict(self):
+    def fill_dict(self, params: Dict[str, str]):
         res = {}
-        for (i, tplt) in enumerate(self.TEMPLATES):
-            res[tplt] = self.KEYWORDS[i]
+        for i, tplt in enumerate(self.TEMPLATES):
+            if params['behavioral_model'] == 'cognitive_v1' and i in self.extendable_TEMPLATES:
+                res[tplt + '_v2'] = self.KEYWORDS[i]
+            else:
+                res[tplt] = self.KEYWORDS[i]
         return res
 
     def __init__(self, param_mgr: Param_Mgr):
-        self.TPLT_DICT = self.fill_dict()
+        self.TPLT_DICT = self.fill_dict(param_mgr.params)
         self.LOGGER = Logger('Template_Mgr')
         self.param_mgr = param_mgr
 
@@ -40,7 +44,7 @@ class Template_Mgr:
             for tplt in self.TPLT_DICT:
                 with open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r') as tplt_file:
                     self.LOGGER.debug('Replacing {} template...'.format(tplt))
-                    tplt_content = self.param_mgr.replace_traj_keys(tplt) # tplt_file.read()
+                    tplt_content = self.param_mgr.replace_traj_keys(tplt)  # tplt_file.read()
                     main_content = main_content.replace(self.TPLT_DICT[tplt], tplt_content)
         dest_model = open(self.DEST_PATH + scen_name + self.TPLT_EXT, 'w')
         dest_model.write(main_content)

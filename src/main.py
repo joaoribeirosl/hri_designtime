@@ -7,6 +7,7 @@ from src.mgr.param_mgr import Param_Mgr
 from src.mgr.query_mgr import Query_Mgr
 from src.mgr.tplt_mgr import Template_Mgr
 from src.mgr.upp_mgr import Upp_Mgr
+from src.mgr.tplt_gen import generate_templates
 
 config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
@@ -24,8 +25,12 @@ else:
     json_mgr = Json_Mgr()
     json_mgr.load_json()
 
+    # Generate Templates (if necessary)
+    if json_mgr.params['behavioral_model'] != 'random':
+        generate_templates(json_mgr.params['behavioral_model'])
+
     # Replaces PARAM keywords within main template file with scenario parameters
-    param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout)
+    param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout, json_mgr.params)
     param_mgr.replace_params(SCENARIO_NAME)
 
     # Replaces TPLT keywords within main template file with individual automata templates

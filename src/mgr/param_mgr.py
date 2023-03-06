@@ -1,5 +1,5 @@
 import configparser
-from typing import List
+from typing import List, Dict
 
 from src.domain.hri_const import Constants as const
 from src.domain.human import Human
@@ -19,7 +19,6 @@ class Param_Mgr:
     MAIN = const.MAIN_TPLT.value
     TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value,
                       const.HA_TPLT.value, const.HC_TPLT.value, const.HRes_TPLT.value]
-
     HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
                     const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,
                     const.DEST_Y.value, const.SAME_IDs_MAT.value]
@@ -31,7 +30,7 @@ class Param_Mgr:
     INST_KEYWORDS = [const.ROB_INST.value, const.ORCH_INST.value, const.HUM_INST.value, const.ALL_INST.value]
     QUERY_KEYWORDS = [const.TAU.value]
 
-    def __init__(self, hums: List[Human], robs: List[Robot], layout: Layout):
+    def __init__(self, hums: List[Human], robs: List[Robot], layout: Layout, params: Dict[str, str]):
         self.LOGGER = Logger('Param_Mgr')
         self.hums = hums
         self.N_H = len(hums)
@@ -45,8 +44,12 @@ class Param_Mgr:
         self.inst = [h.name for h in hums] + [r.name for r in robs] + ['b_{}'.format(r.name) for r in robs] + \
                     ['r_pub_{}'.format(r.r_id) for r in robs] + ['o_{}'.format(r.r_id) for r in robs] + \
                     ['opchk_{}'.format(r.r_id) for r in robs] + ['c_pub', 'h_pub_pos', 'h_pub_ftg']
+        self.params = params
 
     def replace_hum_keys(self, scen_name):
+        if self.params['behavioral_model'] == 'cognitive_v1':
+            self.MAIN += '_v2'
+
         with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:
             self.LOGGER.debug('Replacing Human-related parameters...')
             main_content = main_tplt.read()
@@ -235,7 +238,8 @@ class Param_Mgr:
         self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
 
     def replace_traj_keys(self, tplt):
-        if tplt in self.TRAJ_TEMPLATES:
+        if tplt in self.TRAJ_TEMPLATES or (
+                self.params['behavioral_model'] == 'cognitive_v1' and tplt.replace('_v2', '') in self.TRAJ_TEMPLATES):
             with open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r') as main_tplt:
                 self.LOGGER.debug('Replacing Trajectory-related parameters...')
                 main_content = main_tplt.read()
