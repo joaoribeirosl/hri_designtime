@@ -11,7 +11,7 @@ class Robot:
         self.chg = chg
 
     def get_constructor(self):
-        return "{} = Robot({}, {}, {}, {:.2f}, {:.2f});\n{} = Battery({}, {});\nr_pub_{} = ROS_SensPub({}, 0.5, 0.01);\n" \
+        return "{} = Robot({}, {}, {}, {:.2f}, {:.2f});\n{} = Battery({}, {});\nr_pub_{} = ROS_SensPub({}, 0.0, 0.00);\n" \
             .format(self.name, self.r_id, self.v, self.a, self.start.x,
                     self.start.y, "b_{}".format(self.name), self.r_id, self.chg, self.r_id, self.r_id)
 
