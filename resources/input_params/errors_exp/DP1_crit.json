@@ -2,8 +2,7 @@
 	"global_params": [
 			{ "behavioral_model" : "errors"}],
 	"queries": [
-			{ "type": "sim", "tau": 400, "n": -1 },
-			{ "type": "pscs", "tau": 400, "n": -1 },
+			{ "type": "pscs", "tau": 400, "n": 10 },
 			{ "type": "echg", "tau": 400, "n": -1 },
 			{ "type": "eftg", "tau": 400, "n": -1 }],
 	"humans": [

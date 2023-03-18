@@ -143,7 +143,8 @@ class FreeWill_Profile(Enum):
 
 class Human:
     def __init__(self, name: str, h_id: int, v: int, ptrn: Interaction_Pattern, p_f: Fatigue_Profile,
-                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int, same_as: int, path: int):
+                 p_fw: FreeWill_Profile, start: Point, dest: Point, dext: int, same_as: int, path: int,
+                 fw_model: str = None):
         self.name = name
         self.h_id = h_id
         self.v = v
@@ -155,6 +156,10 @@ class Human:
         self.dext = dext
         self.same_as = same_as
         self.path = path
+        if fw_model is not None:
+            self.fw_model = fw_model
+        else:
+            self.fw_model = 'random'
 
     def get_constructor(self):
         if self.ptrn == Interaction_Pattern.APPLICANT:
@@ -166,16 +171,49 @@ class Human:
                                                                          self.p_f.to_int(),
                                                                          self.p_fw.to_int(), self.path)
         elif self.ptrn == Interaction_Pattern.FOLLOWER:
-            return "{} = Human_Follower({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
-                                                                           self.p_f.to_int(),
-                                                                           self.p_fw.to_int(), self.same_as, self.path)
+            if self.fw_model in ['random', 'errors']:
+                return "{} = Human_Follower({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                               self.p_f.to_int(),
+                                                                               self.p_fw.to_int(), self.same_as,
+                                                                               self.path)
+            elif self.fw_model == 'cognitive_v1':
+                args = "{}_{}, {}_{}, {}_{}, {}_{}, {}_{}, {}_{}".format('arg_us_HF', self.h_id, 'arg_ad_HF',
+                                                                         self.h_id, 'SEEAO_HF', self.h_id,
+                                                                         'importance_entity_HF', self.h_id,
+                                                                         'importance_sense_HF', self.h_id,
+                                                                         'obj_xye_HF', self.h_id)
+                return "{} = Human_Follower({}, {}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                                   self.p_f.to_int(),
+                                                                                   self.p_fw.to_int(), self.same_as,
+                                                                                   self.path, args)
         elif self.ptrn == Interaction_Pattern.LEADER:
-            return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
-                                                                         self.p_f.to_int(), self.p_fw.to_int(),
-                                                                         self.same_as, self.path)
-        elif self.ptrn == Interaction_Pattern.RECIPIENT:  # int id, double _v, int p_f, int p_fw, int path
-            return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v, self.p_f.to_int(),
-                                                                        self.p_fw.to_int(), self.path)
+            if self.fw_model in ['random', 'errors']:
+                return "{} = Human_Leader({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                             self.p_f.to_int(), self.p_fw.to_int(),
+                                                                             self.same_as, self.path)
+            elif self.fw_model == 'cognitive_v1':
+                args = "{}_{}, {}_{}, {}_{}, {}_{}, {}_{}, {}_{}".format('arg_us_HL', self.h_id, 'arg_ad_HL',
+                                                                         self.h_id, 'SEEAO_HL', self.h_id,
+                                                                         'importance_entity_HL', self.h_id,
+                                                                         'importance_sense_HL', self.h_id,
+                                                                         'obj_xye_HL', self.h_id)
+                return "{} = Human_Leader({}, {}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                                 self.p_f.to_int(), self.p_fw.to_int(),
+                                                                                 self.same_as, self.path, args)
+        elif self.ptrn == Interaction_Pattern.RECIPIENT:
+            if self.fw_model in ['random', 'errors']:
+                return "{} = Human_Recipient({}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                            self.p_f.to_int(),
+                                                                            self.p_fw.to_int(), self.path)
+            elif self.fw_model == 'cognitive_v1':
+                args = "{}_{}, {}_{}, {}_{}, {}_{}, {}_{}, {}_{}".format('arg_us_HRec', self.h_id, 'arg_ad_HRec',
+                                                                         self.h_id, 'SEEAO_HRec', self.h_id,
+                                                                         'importance_entity_HRec', self.h_id,
+                                                                         'importance_sense_HRec', self.h_id,
+                                                                         'obj_xye_HRec', self.h_id)
+                return "{} = Human_Recipient({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
+                                                                                self.p_f.to_int(),
+                                                                                self.p_fw.to_int(), self.path, args)
         else:
             return "{} = Human_Rescuer({}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
                                                                           self.p_f.to_int(), self.p_fw.to_int(),
