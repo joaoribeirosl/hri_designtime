@@ -1,5 +1,4 @@
 import configparser
-import sys
 from typing import List
 
 from src.domain.query import Query

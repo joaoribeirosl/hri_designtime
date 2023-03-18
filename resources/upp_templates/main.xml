@@ -271,10 +271,10 @@ bool same_area(double sx, double sy, double dx, double dy) {
     bool x_s_in, y_s_in, x_d_in, y_d_in;
     for (i = 0; i &lt; N_A; i++)
     {
-        x_s_in = sx &gt; FLOOR[i][0][0] &amp;&amp; sx &lt; FLOOR[i][3][0];
-        y_s_in = sy &gt; FLOOR[i][0][1] &amp;&amp; sy &lt; FLOOR[i][1][1];
-        x_d_in = dx &gt; FLOOR[i][0][0] &amp;&amp; dx &lt; FLOOR[i][3][0];
-        y_d_in = dy &gt; FLOOR[i][0][1] &amp;&amp; dy &lt; FLOOR[i][1][1];
+        x_s_in = sx &gt; FLOOR[i][0][0] &amp;&amp; sx &lt; FLOOR[i][1][0];
+        y_s_in = sy &gt; FLOOR[i][0][1] &amp;&amp; sy &lt; FLOOR[i][3][1];
+        x_d_in = dx &gt; FLOOR[i][0][0] &amp;&amp; dx &lt; FLOOR[i][1][0];
+        y_d_in = dy &gt; FLOOR[i][0][1] &amp;&amp; dy &lt; FLOOR[i][3][1];
         if ((x_s_in &amp;&amp; y_s_in) &amp;&amp; (x_d_in &amp;&amp; y_d_in)) // start and dest in same area
             return true;
     }

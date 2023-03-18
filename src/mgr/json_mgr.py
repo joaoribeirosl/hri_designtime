@@ -13,6 +13,8 @@ config = configparser.ConfigParser()
 config.read('./resources/config/config.ini')
 config.sections()
 
+SCENARIO_NAME = sys.argv[1]
+
 
 class Json_Mgr:
     JSON_PATH = config['PARAMS SETTINGS']['PARAMS_PATH']
@@ -52,6 +54,9 @@ class Json_Mgr:
             robots_data = data['robots']
             self.LOGGER.info("Loading robot-related data...")
             for r in robots_data:
+                if SCENARIO_NAME.startswith('DP1'):
+                    r['v'] = 36.0
+                    r['a'] = 36.0
                 self.robots.append(
                     Robot(r['name'], r['r_id'], r['v'], r['a'], Point(r['start'][0], r['start'][1]), r['chg']))
             self.LOGGER.info("Successfully loaded.")
