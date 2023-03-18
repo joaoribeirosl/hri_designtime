@@ -168,7 +168,7 @@ void plan_traj() {
     // until the destination area is reached
     while (!same_area(curr[0], curr[1], dest[0], dest[1]))
     {
-        for (j = 0; j &lt; N_I; j++)
+        for (j = 0; j &lt; N_I &amp;&amp; k &lt; **max_neigh**; j++)
         {
             // find all int. pts which are a neighbor of curr. point
             // there are max. 3 in the long left hall
