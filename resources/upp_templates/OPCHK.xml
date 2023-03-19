@@ -117,7 +117,7 @@ bool getStop(int pattern) {
     double humanRobotDist = pt_dist(robPositionX[currR-1], humanPositionX[currH-1], robPositionY[currR-1],
                                     humanPositionY[currH-1])/100;
     double dist_to_dest = pt_dist(robPositionX[currR-1], dX[currR-1], robPositionY[currR-1], dY[currR-1]);
-    double dist = 100.0*1.1;
+    double dist = 100.0*2.0;
 
     if(pattern==0) { // stop cond. for follower
         if(dX[currR-1]==destX[currH-1] &amp;&amp; dY[currR-1]==destY[currH-1]) { //if currently moving towards destination
