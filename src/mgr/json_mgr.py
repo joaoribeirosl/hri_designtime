@@ -44,6 +44,8 @@ class Json_Mgr:
             humans_data = data['humans']
             self.LOGGER.info("Loading human-related data...")
             for h in humans_data:
+                if SCENARIO_NAME.startswith('DP2') and h['h_id'] >= 6:
+                    h['v'] = 26.0
                 self.hums.append(Human(h['name'], h['h_id'], h['v'], Interaction_Pattern.parse_ptrn(h['ptrn']),
                                        Fatigue_Profile.parse_ftg_profile(h['p_f']),
                                        FreeWill_Profile.parse_fw_profile(h['p_fw']),
