@@ -1,0 +1,16 @@
+python3 src/main.py DP2_crit
+python3 src/main.py DP2_stable
+python3 src/main.py DP2_inatt
+python3 src/main.py DP2_foc
+python3 src/main.py DP2_busy
+python3 src/main.py DP2_free
+python3 src/main.py DP2_inex
+python3 src/main.py DP2_exp
+python3 src/main.py DP2_crit2
+python3 src/main.py DP2_stable2
+python3 src/main.py DP2_inatt2
+python3 src/main.py DP2_foc2
+python3 src/main.py DP2_busy2
+python3 src/main.py DP2_free2
+python3 src/main.py DP2_inex2
+python3 src/main.py DP2_exp2
