@@ -287,7 +287,7 @@ void updateT(){
 }
 
 void checkRobot(){
-    nearRobot = calculateDistance() &lt;= v/100*1.2;
+    nearRobot = calculateDistance() &lt;= _v/100.0*2.0;
 }
     </declaration>
 		<location id="id84" x="-595" y="17">
@@ -355,10 +355,6 @@ F' == 0</label>
 		<location id="id99" x="204" y="476">
 			<committed/>
 		</location>
-		<location id="id100" x="-595" y="-153" color="#a9a9a9">
-			<name x="-605" y="-187">not_needed</name>
-			<label kind="exponentialrate" x="-586" y="-136">1</label>
-		</location>
 		<branchpoint id="id101" x="-391" y="476">
 		</branchpoint>
 		<branchpoint id="id102" x="17" y="17">
@@ -379,19 +375,6 @@ F' == 0</label>
 			<nail x="-493" y="-76"/>
 			<nail x="-493" y="-280"/>
 			<nail x="535" y="-280"/>
-		</transition>
-		<transition>
-			<source ref="id100"/>
-			<target ref="id100"/>
-			<nail x="-544" y="-153"/>
-			<nail x="-544" y="-119"/>
-		</transition>
-		<transition>
-			<source ref="id87"/>
-			<target ref="id100"/>
-			<label kind="guard" x="-663" y="-93">PATH!=0
-            &amp;&amp; PATH!=path</label>
-			<nail x="-595" y="-25"/>
 		</transition>
 		<transition color="#ff0000">
 			<source ref="id90"/>

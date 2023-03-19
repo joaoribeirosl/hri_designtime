@@ -1,0 +1,12 @@
+python3 src/main.py DP3a_crit
+python3 src/main.py DP3a_stable
+python3 src/main.py DP3a_inatt
+python3 src/main.py DP3a_foc
+python3 src/main.py DP3a_busy
+python3 src/main.py DP3a_free
+python3 src/main.py DP3a_inex
+python3 src/main.py DP3a_exp
+python3 src/main.py DP3a_busy2
+python3 src/main.py DP3a_free2
+python3 src/main.py DP3a_inex2
+python3 src/main.py DP3a_exp2
