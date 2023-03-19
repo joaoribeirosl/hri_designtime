@@ -33,7 +33,6 @@ bool checkDist() {
     return pt_dist(internalHumX[id - 1], destX[id - 1], internalHumY[id - 1], destY[id - 1]) &lt;= 50.0;
 }
 
-meta int v;
 void initHuman() {
     double dist_to_dest = pt_dist(startX[id-1], destX[id-1], startY[id-1], destY[id-1]);
     ERR_PROF error_profile;
@@ -43,8 +42,6 @@ void initHuman() {
     t = 0;
     tWH = 0;
     tUpd = 0;
-
-    v = fint(_v);
 
     if(path==ND) {
         humanPositionX[id - 1] = startX[id-1];
@@ -102,7 +99,7 @@ void initHuman() {
     disobey = error_profile.disobey;
     freeWillTh = error_profile.FW_th;
     if(dist_to_dest&lt;1.0) TE = 999;
-    else TE = fint(dist_to_dest / v * (error_profile.delta_x100/100));
+    else TE = fint(dist_to_dest / _v * (error_profile.delta_x100/100));
     lambda_crit = 1/error_profile.lambda_inv;
     hs = error_profile.crit;
     crit = 1.0;
@@ -299,7 +296,7 @@ void updateP() {
     if (curr_traj &gt;= N_P || (traj[curr_traj][0] == 0.0 &amp;&amp; traj[curr_traj][1] == 0.0))
         return;
 
-    if (pt_dist(internalHumX[id - 1], traj[curr_traj][0], internalHumY[id - 1], traj[curr_traj][1]) &lt; v * 1.1)
+    if (pt_dist(internalHumX[id - 1], traj[curr_traj][0], internalHumY[id - 1], traj[curr_traj][1]) &lt; _v * 1.1)
     {
         curr_traj++;
         if (curr_traj &gt;= N_P)
@@ -307,8 +304,8 @@ void updateP() {
         change_orientation(internalHumX[id - 1], internalHumY[id - 1], traj[curr_traj][0], traj[curr_traj][1]);
     }
 
-    internalHumX[id - 1] = internalHumX[id - 1] + v * Tpoll * cos(ort * PI / 180);
-    internalHumY[id - 1] = internalHumY[id - 1] + v * Tpoll * sin(ort * PI / 180);
+    internalHumX[id - 1] = internalHumX[id - 1] + _v * Tpoll * cos(ort * PI / 180);
+    internalHumY[id - 1] = internalHumY[id - 1] + _v * Tpoll * sin(ort * PI / 180);
 }
 
 
