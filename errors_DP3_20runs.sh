@@ -10,3 +10,15 @@ python3 src/main.py DP3a_busy2_20runs
 python3 src/main.py DP3a_free2_20runs
 python3 src/main.py DP3a_inex2_20runs
 python3 src/main.py DP3a_exp2_20runs
+python3 src/main.py DP3b_crit_20runs
+python3 src/main.py DP3b_stable_20runs
+python3 src/main.py DP3b_inatt_20runs
+python3 src/main.py DP3b_foc_20runs
+python3 src/main.py DP3b_busy_20runs
+python3 src/main.py DP3b_free_20runs
+python3 src/main.py DP3b_inex_20runs
+python3 src/main.py DP3b_exp_20runs
+python3 src/main.py DP3b_busy2_20runs
+python3 src/main.py DP3b_free2_20runs
+python3 src/main.py DP3b_inex2_20runs
+python3 src/main.py DP3b_exp2_20runs
