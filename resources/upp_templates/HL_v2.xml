@@ -1974,7 +1974,7 @@ tUpd&lt;=Tpoll</label>
 		<transition>
 			<source ref="id301"/>
 			<target ref="id291"/>
-			<label kind="synchronisation" x="136" y="-187">publish_m[4]!</label>
+			<label kind="synchronisation" x="136" y="-187">publish_m[2]!</label>
 			<label kind="assignment" x="136" y="-170">tUpd=0</label>
 		</transition>
 		<transition>
@@ -1993,7 +1993,7 @@ updateF(-lambda, 1)</label>
 		<transition>
 			<source ref="id299"/>
 			<target ref="id294"/>
-			<label kind="synchronisation" x="-484" y="-289">publish_m[4]!</label>
+			<label kind="synchronisation" x="-484" y="-289">publish_m[2]!</label>
 			<label kind="assignment" x="-484" y="-272">tUpd=0</label>
 			<nail x="-484" y="-221"/>
 		</transition>

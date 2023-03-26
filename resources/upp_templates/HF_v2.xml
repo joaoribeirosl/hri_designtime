@@ -1963,7 +1963,7 @@ tUpd=0</label>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id1"/>
-			<label kind="synchronisation" x="356" y="-178">publish_m[4]!</label>
+			<label kind="synchronisation" x="356" y="-178">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id8"/>
@@ -1974,7 +1974,7 @@ tUpd=0</label>
 		<transition>
 			<source ref="id9"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-390" y="-327">publish_m[4]!</label>
+			<label kind="synchronisation" x="-390" y="-327">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id7"/>

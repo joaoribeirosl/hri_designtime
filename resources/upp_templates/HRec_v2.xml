@@ -1892,7 +1892,7 @@ plan_traj()</label>
 		<transition>
 			<source ref="id370"/>
 			<target ref="id365"/>
-			<label kind="synchronisation" x="-136" y="-663">publish_m[4]!</label>
+			<label kind="synchronisation" x="-136" y="-663">publish_m[2]!</label>
 			<label kind="assignment" x="-136" y="-646">tUpd=0</label>
 			<nail x="-85" y="-569"/>
 		</transition>
@@ -1912,7 +1912,7 @@ tUpd=0</label>
 		<transition>
 			<source ref="id369"/>
 			<target ref="id362"/>
-			<label kind="synchronisation" x="68" y="-357">publish_m[4]!</label>
+			<label kind="synchronisation" x="68" y="-357">publish_m[2]!</label>
 			<label kind="assignment" x="59" y="-374">tUpd=0</label>
 		</transition>
 		<transition>
@@ -1934,7 +1934,7 @@ id_out=out_id()</label>
 		<transition>
 			<source ref="id367"/>
 			<target ref="id361"/>
-			<label kind="synchronisation" x="-637" y="-331">publish_m[4]!</label>
+			<label kind="synchronisation" x="-637" y="-331">publish_m[2]!</label>
 			<label kind="assignment" x="-637" y="-314">tUpd=0</label>
 			<nail x="-578" y="-399"/>
 		</transition>
