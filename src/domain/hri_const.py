@@ -32,6 +32,7 @@ class Constants(Enum):
     N_H = "**N_H**"
     N_H_bool = "**N_H_false**"
     N_H_double = "**N_H_0.0**"
+    N_H_double_2 = "**N_H_1.0**"
     N_H_int = "**N_H_0**"
     PATTERNS = "**PTRNS**"
     START_X = "**START_X**"

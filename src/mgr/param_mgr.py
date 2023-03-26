@@ -19,9 +19,9 @@ class Param_Mgr:
     MAIN = const.MAIN_TPLT.value
     TRAJ_TEMPLATES = [const.HF_TPLT.value, const.ROB_TPLT.value, const.HL_TPLT.value, const.HRec_TPLT.value,
                       const.HA_TPLT.value, const.HC_TPLT.value, const.HRes_TPLT.value]
-    HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_int.value,
-                    const.START_X.value, const.START_Y.value, const.PATTERNS.value, const.DEST_X.value,
-                    const.DEST_Y.value, const.SAME_IDs_MAT.value]
+    HUM_KEYWORDS = [const.N_H.value, const.N_H_bool.value, const.N_H_double.value, const.N_H_double_2.value,
+                    const.N_H_int.value, const.START_X.value, const.START_Y.value, const.PATTERNS.value,
+                    const.DEST_X.value, const.DEST_Y.value, const.SAME_IDs_MAT.value]
     ROB_KEYWORDS = [const.N_R.value, const.N_R_bool.value, const.N_R_int.value, const.N_R_neg.value,
                     const.N_R_double.value, const.N_R_act.value]
     TRAJ_KEYWORDS = [const.N_P_double.value, const.MAX_NEIGH.value, const.MAX_NEIGH_int.value, const.N_I_false.value]
@@ -49,6 +49,8 @@ class Param_Mgr:
     def replace_hum_keys(self, scen_name):
         if self.params['behavioral_model'] == 'cognitive_v1':
             self.MAIN += '_v2'
+        elif self.params['behavioral_model'] == 'cognitive_v2':
+            self.MAIN += '_v3'
 
         with open(self.TPLT_PATH + self.MAIN + self.TPLT_EXT, 'r') as main_tplt:
             self.LOGGER.debug('Replacing Human-related parameters...')
@@ -71,6 +73,14 @@ class Param_Mgr:
                     for x in range(self.N_H):
                         if self.hums[x].path in [1, -1]:
                             value += '0.0'
+                        if self.hums[x].path in [1, -1] and x < self.N_H - 1:
+                            value += ','
+                    value += '};'
+                elif key == const.N_H_double_2.value:
+                    value = "{"
+                    for x in range(self.N_H):
+                        if self.hums[x].path in [1, -1]:
+                            value += '1.0'
                         if self.hums[x].path in [1, -1] and x < self.N_H - 1:
                             value += ','
                     value += '};'
@@ -238,8 +248,9 @@ class Param_Mgr:
         self.LOGGER.info('{} model successfully saved in {}.'.format(scen_name, self.DEST_PATH))
 
     def replace_traj_keys(self, tplt):
-        if tplt in self.TRAJ_TEMPLATES or (
-                self.params['behavioral_model'] == 'cognitive_v1' and tplt.replace('_v2', '') in self.TRAJ_TEMPLATES):
+        is_cog_v1 = self.params['behavioral_model'] == 'cognitive_v1' and tplt.replace('_v2', '') in self.TRAJ_TEMPLATES
+        is_cog_v2 = self.params['behavioral_model'] == 'cognitive_v2' and tplt.replace('_v3', '') in self.TRAJ_TEMPLATES
+        if tplt in self.TRAJ_TEMPLATES or is_cog_v1 or is_cog_v2:
             with open(self.TPLT_PATH + tplt + self.TPLT_EXT, 'r') as main_tplt:
                 self.LOGGER.debug('Replacing Trajectory-related parameters...')
                 main_content = main_tplt.read()

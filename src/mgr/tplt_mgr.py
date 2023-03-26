@@ -28,6 +28,8 @@ class Template_Mgr:
         for i, tplt in enumerate(self.TEMPLATES):
             if params['behavioral_model'] == 'cognitive_v1' and i in self.extendable_TEMPLATES:
                 res[tplt + '_v2'] = self.KEYWORDS[i]
+            elif params['behavioral_model'] == 'cognitive_v2' and i in self.extendable_TEMPLATES:
+                res[tplt + '_v3'] = self.KEYWORDS[i]
             else:
                 res[tplt] = self.KEYWORDS[i]
         return res
