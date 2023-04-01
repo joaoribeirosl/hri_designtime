@@ -4,11 +4,6 @@
   ],
   "queries": [
     {
-      "type": "sim",
-      "tau": 400,
-      "n": -1
-    },
-    {
       "type": "pscs",
       "tau": 400,
       "n": -1
