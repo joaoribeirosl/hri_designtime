@@ -3,7 +3,12 @@
     {
       "type": "pscs",
       "tau": 250,
-      "n": 1
+      "n": -1
+    },
+    {
+      "type": "eftg",
+      "tau": 250,
+      "n": -1
     }
   ],
   "humans": [

@@ -3,10 +3,11 @@
 		<parameter>int id, double _v, int p_f, int p_fw, int start_from, int path,const double arg[n_arg_all],const int arg_ad[nr_argAd], const int SEEAO[nr_seeao_max][nc_seeao], const double importance_entity[nr_impEntity_max], const double importance_sense[nr_impSense_max], const double obj_xye[nr_obj_max][nc_obj]</parameter>
 		<declaration>
 
-clock t, F, Fp;
+clock t, F;
 clock tUpd;
 clock tExp;
 
+double Fp;
 double lambda, mi;
 const double passout_th = 1.0;
 
@@ -482,6 +483,9 @@ const int id_run=fint(arg[20]);
 const int id_stand=fint(arg[21]);
 
 
+const int id_person = fint(arg[22]);
+const int caso_fixed_obj = fint(arg[23]);
+const double distance_min = arg[24];
 
 /////////////////////
 const int n_rows = arg_ad[0];
@@ -509,15 +513,19 @@ const int nr_obj =arg_ad[6];// 7;
 //const int nc_obj = 3;//definita a livello globale
 double obj_xye_tmp[nr_obj][nc_obj];  
  // altro 
-    clock x;
+    clock tOut;
 
-const int nr_obj_dyn = R;// nel Dpa è definita da R
-const int nc_obj_dyn = nc_obj; // definita a livello globale
-double distance_obj_dyn[nr_obj_dyn];
-double obj_xye_dyn[nr_obj_dyn][nc_obj_dyn] ={{0.0,0.0,0.0}};
+const int nr_obj_dyn = R;
+const int nc_obj_dyn = 3;
+double distance_obj_rob[nr_obj_dyn];
+double distance_obj_hum[H];
+double obj_xye_dyn[nr_obj_dyn][nc_obj_dyn];
+double distance[nr_obj];
 //int id_robot = 1;
 
-const int nr_object = nr_obj + nr_obj_dyn;
+const int nr_object_neigh = nr_obj + R + H;
+int nr_object;
+int neigh[nr_object_neigh];
 
 /////////////////////////////////////////////////
 
@@ -615,7 +623,7 @@ void set_to_zero(){//function toset to zero the value of the vectors and the oth
     int id_action;
   
   
-double distance[nr_obj];
+//double distance[nr_obj];
 
 void upd_obj_dyn_pos(){
     int i;
@@ -628,7 +636,7 @@ void upd_obj_dyn_pos(){
 
 int event_from_entity[n_event];
 int id_object;
-int neigh[nr_object];
+
 double pos_human;
 double pos_object;
 // funzione che modifica il event may happen
@@ -641,7 +649,7 @@ void update_event_may_happen(){
     int k; 
     double k_th = 0.90;
     double d_th = distance_threshold*k_th; 
-    
+    int nr_obj_tmp;
   // il caso_event definisce se il vettore event_may_happen rimane come fissato(0) o è randomico (=1)
     if(caso_event == 1){
         // associa randomicamente 0(non succede) 1(succede)
@@ -656,7 +664,7 @@ void update_event_may_happen(){
         }
     }
     else if(caso_event == 2){
-    // initializzo il vettore event_may_happen a zero per fare in modo che poi cambia
+       // initializzo il vettore event_may_happen a zero per fare in modo che poi cambia
     // e non avere problemi che diventino tutti uno 
         for(i = 0; i &lt; n_event; i ++){
             event_may_happen[i] = 0;
@@ -666,6 +674,13 @@ void update_event_may_happen(){
         for(i = 0; i &lt; n_event; i ++){
             event_from_entity [i] = 0;
         }
+        // resetto il vettore neigh per il nuovo ciclo
+         for(i = 0; i &lt; nr_object_neigh; i ++){
+           neigh[i] = -1;
+        }  
+        
+        if(caso_fixed_obj ==1 || caso_obj == 0){
+        nr_obj_tmp = nr_obj;
       //+ popolo il vettore neighbour per oggetti statici
         for(i = 0; i &lt; nr_obj; i ++){
           //+ verifico la distanza tra entità ed umano
@@ -676,21 +691,21 @@ void update_event_may_happen(){
             //pos_object = 4.0;
             //pos_human =3.0;
 
+       /*
         // caso 1 della funzione
-            init_obj_xye_tmp(nr_obj,nc_obj);
             if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
-                obj_xye_tmp[i][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
-                obj_xye_tmp[i][1] = 0;
+                obj_xye[i][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye[i][1] = 0;
             }
         // caso 2 della fuzione 
             if(caso_obj == 2){
-                obj_xye_tmp[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
-                obj_xye_tmp[obj_selected][1] = 0;
-            }
+                obj_xye[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye[obj_selected][1] = 0;
+            }*/
         // calcolo della distanza
             distance[i] = pt_dist(humanPositionX[id -1],obj_xye[i][0],humanPositionY[id -1],obj_xye[i][1]);
         // verifica della condizione sulla distanza 
-            if( distance[i] &lt;= distance_threshold){
+            if( distance[i] &lt;= distance_threshold &amp;&amp; distance[i] &gt; distance_min ){
                 id_object =fint(obj_xye[i][2]);
                 neigh[i] = id_object;    
             }
@@ -699,15 +714,63 @@ void update_event_may_happen(){
                 neigh[i] = -1;
             }
         }
-        
+        }else if(caso_fixed_obj==0){
+            nr_obj_tmp = 0;    
+        }
+
+        if(caso_obj ==-1){
+           nr_obj_tmp = 0;
+           for(i = 0; i &lt; nr_object_neigh; i ++){
+           neigh[i] = -1;
+            }  
+        }
+        else if(caso_obj == 0){
+            nr_object = nr_obj_tmp;
+        }
+        else if (caso_obj == 1){//percepisce i robot oltre ai fissi
+         nr_object = nr_obj_tmp +R;
          j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
                // parte da zero come indice e non parte dall'indice finale di quella statica
                // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
                // che non esiste
         //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
-        for(i = nr_obj; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+        for(i = nr_obj_tmp; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
                                               // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
                                               // che dinamici
+       /* // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_rob[j] = pt_dist(humanPositionX[id -1],robPositionX[j],humanPositionY[id -1],robPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_rob[j] &lt;= distance_threshold  &amp;&amp; distance_obj_rob[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_robot;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+     }else if (caso_obj == 2){// percepisce gli umani oltre ai fissi
+         nr_object = nr_obj_tmp+ H;
+         j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
+               // parte da zero come indice e non parte dall'indice finale di quella statica
+               // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
+               // che non esiste
+        //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
+        for(i = nr_obj_tmp; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
         // caso 1 della funzione
             if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
                 obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
@@ -717,19 +780,89 @@ void update_event_may_happen(){
             if(caso_obj == 2){
                 obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
                 obj_xye_dyn[obj_selected][1] = 0;
-            }
+            }*/
         // calcolo della distanza
-            distance_obj_dyn[j] = pt_dist(humanPositionX[id -1],obj_xye_dyn[j][0],humanPositionY[id -1],obj_xye_dyn[j][1]);
+            distance_obj_hum[j] = pt_dist(humanPositionX[id -1],humanPositionX[j],humanPositionY[id -1],humanPositionY[j]);
         // verifica della condizione sulla distanza 
-            if( distance_obj_dyn[j] &lt;= distance_threshold){
-                id_object =fint(obj_xye_dyn[j][2]);
-                neigh[i] = id_object;    
+            if( distance_obj_hum[j] &lt;= distance_threshold &amp;&amp; distance_obj_hum[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_person;    
             }
             else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
                 // l'indipendenza con il caso precedente
                 neigh[i] = -1;
             }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
         }
+    }else if (caso_obj == 3){// percepisce gli umani e i robot oltre ai fissi
+         nr_object = nr_obj_tmp + H + R ;
+         j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
+               // parte da zero come indice e non parte dall'indice finale di quella statica
+               // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
+               // che non esiste
+        //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
+       
+        // per gli umani 
+       for(i = nr_obj_tmp; i &lt; nr_obj_tmp + H ; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
+        // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_hum[j] = pt_dist(humanPositionX[id -1],humanPositionX[j],humanPositionY[id -1],humanPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_hum[j] &lt;= distance_threshold &amp;&amp; distance_obj_hum[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_person;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+    j =0;
+       // per i robot     
+        for(i = nr_obj_tmp+ H ; i &lt; nr_obj_tmp + H + R ; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
+        // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_rob[j] = pt_dist(humanPositionX[id -1],robPositionX[j],humanPositionY[id -1],robPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_rob[j] &lt;= distance_threshold &amp;&amp; distance_obj_rob[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_robot;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+        
+    }
+
+
       //+ scorro la matrice per associare al vettore event_may_happen il valore 1 per l'entità
       // che rientra nel neighbour
         for(j = 0; j &lt; nr_object; j ++){  
@@ -1674,9 +1807,10 @@ void assignment_last_id(){
 //assignment
  bool event_all_zero = true;
 //unica funzione che fa tutto quello che il modello cmpct fa
-int out_id_ref(){
+int out_id(){
     int id_extracted_output;
     int j = 0;
+    index_cycle ++;
     event_all_zero = true;//to set at all the call of this function the doubt to have all event = zero
    // index_cycle ++;
    // set_to_zero();
@@ -1718,6 +1852,7 @@ int out_id_ref(){
           id_extracted_output = last_id_extracted_output; // in questo caso è zero
         // id_extracted_output = 6;   
         }
+        index_cycle = 2;// per non avere l'indice che va fuori scala
 return id_extracted_output;
 }
 
@@ -1728,6 +1863,7 @@ int last_id_extracted_tmp = 0; // inserito per fare in modo che nel caso_deelay 
                                // messa fuori perchè dentro viene definita = 0 ad ogni ciclo e quindi si blocca 
                                // il modello  
 // funzione che viene usata e poi 
+/*
 int out_id(){
     int id_extracted_output;
     index_cycle ++;
@@ -1805,104 +1941,121 @@ int out_id(){
 
 return id_extracted_output;
 }
-
+*/
 ////////////////////////////////////////////////
 </declaration>
-<location id="id290" x="59" y="-110">
+		<location id="id77" x="59" y="-110">
 			<name x="49" y="-144">d_2</name>
 			<committed/>
 		</location>
-		<location id="id291" x="254" y="-221">
-			<name x="263" y="-255">busy</name>
-			<label kind="invariant" x="263" y="-357">Fp' == 0
-&amp;&amp; F &lt;= passout_th 
-
+		<location id="id78" x="254" y="-221">
+			<name x="475" y="-255">busy</name>
+			<label kind="invariant" x="475" y="-357">F &lt;= passout_th
 &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
-		<location id="id292" x="-246" y="-110">
+		<location id="id79" x="-246" y="-110">
 			<name x="-314" y="-136">stopping</name>
 		</location>
-		<location id="id293" x="-170" y="-348">
+		<location id="id80" x="-170" y="-348">
 			<name x="-180" y="-382">d_1</name>
 			<committed/>
 		</location>
-		<location id="id294" x="-357" y="-221">
-			<name x="-399" y="-246">idle</name>
-			<label kind="invariant" x="-340" y="-229">Fp' == 0
-&amp;&amp; F' == -Fp*mi*exp(-mi*t)
-
+		<location id="id81" x="-357" y="-221">
+			<name x="-594" y="-246">idle</name>
+			<label kind="invariant" x="-340" y="-229">F' == -Fp*mi*exp(-mi*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
-		<location id="id295" x="-42" y="-272">
+		<location id="id82" x="-42" y="-272">
 			<name x="-52" y="-306">starting</name>
 			<urgent/>
 		</location>
-		<location id="id296" x="-552" y="-220">
-			<name x="-595" y="-237">Init</name>
+		<location id="id83" x="-875" y="-220">
+			<name x="-918" y="-237">Init</name>
 			<committed/>
 		</location>
-		<location id="id297" x="425" y="-221">
-			<name x="442" y="-238">passed_out</name>
-			<label kind="invariant" x="442" y="-221">t' == 0 &amp;&amp; 
+		<location id="id84" x="637" y="-221">
+			<name x="654" y="-238">passed_out</name>
+			<label kind="invariant" x="654" y="-221">t' == 0 &amp;&amp; 
 F' == 0</label>
-			<label kind="exponentialrate" x="417" y="-204">1</label>
+			<label kind="exponentialrate" x="629" y="-204">1</label>
 		</location>
-		<location id="id298" x="255" y="-42">
+		<location id="id85" x="255" y="-42">
 			<name x="272" y="-42">checking</name>
 			<committed/>
 		</location>
-		<location id="id299" x="-484" y="-408">
-			<name x="-527" y="-416">p_2</name>
+		<location id="id86" x="-807" y="-408">
+			<name x="-850" y="-416">p_2</name>
 			<committed/>
 		</location>
-		<location id="id300" x="-357" y="-408">
+		<location id="id87" x="-357" y="-408">
 			<name x="-367" y="-442">p_1</name>
 			<committed/>
 		</location>
-		<location id="id301" x="195" y="-221">
+		<location id="id88" x="195" y="-221">
 			<name x="178" y="-255">p_4</name>
 			<committed/>
 		</location>
-		<location id="id302" x="195" y="42">
+		<location id="id89" x="195" y="42">
 			<name x="178" y="59">p_3</name>
 			<committed/>
 		</location>
-		<location id="id303" x="59" y="-42">
+		<location id="id90" x="59" y="-42">
 			<name x="49" y="-76">d_3</name>
 			<committed/>
 		</location>
-		<location id="id304" x="-450" y="-42" color="#a9a9a9">
+		<location id="id91" x="-450" y="-42" color="#a9a9a9">
 			<name x="-552" y="-59">not_needed</name>
 			<label kind="exponentialrate" x="-433" y="-51">1</label>
 		</location>
-		<init ref="id296"/>
+		<init ref="id83"/>
+		<transition color="#ff00ff">
+			<source ref="id78"/>
+			<target ref="id85"/>
+			<label kind="guard" x="476" y="-93">tUpd&gt;=Tpoll
+&amp;&amp; tOut &lt; n_delay_index</label>
+			<label kind="assignment" x="484" y="-42">checkSuccess(),
+extraction_new=0,tUpd=0</label>
+			<nail x="459" y="-221"/>
+			<nail x="459" y="-42"/>
+		</transition>
+		<transition color="#ff00ff">
+			<source ref="id81"/>
+			<target ref="id87"/>
+			<label kind="guard" x="-544" y="-382">tUpd&gt;=Tpoll 
+&amp;&amp; tOut &lt; n_delay_index</label>
+			<label kind="assignment" x="-535" y="-340">updateF(-mi, 0), 
+tUpd=0, 
+extraction_new = 0</label>
+			<nail x="-552" y="-221"/>
+			<nail x="-552" y="-408"/>
+		</transition>
 		<transition color="#00ffff">
-			<source ref="id303"/>
-			<target ref="id291"/>
+			<source ref="id90"/>
+			<target ref="id78"/>
 			<label kind="guard" x="127" y="-85">id_out == id_run</label>
 			<nail x="221" y="-76"/>
 		</transition>
 		<transition color="#ffc0cb">
-			<source ref="id303"/>
-			<target ref="id291"/>
+			<source ref="id90"/>
+			<target ref="id78"/>
 			<label kind="guard" x="-8" y="-93">id_out == id_walk</label>
 		</transition>
 		<transition color="#00ffff">
-			<source ref="id290"/>
-			<target ref="id291"/>
+			<source ref="id77"/>
+			<target ref="id78"/>
 			<label kind="guard" x="34" y="-161">id_out == id_run</label>
 		</transition>
 		<transition color="#ffc0cb">
-			<source ref="id290"/>
-			<target ref="id291"/>
+			<source ref="id77"/>
+			<target ref="id78"/>
 			<label kind="guard" x="17" y="-204">id_out == id_walk</label>
 			<nail x="102" y="-178"/>
 			<nail x="102" y="-178"/>
 		</transition>
 		<transition color="#0000ff">
-			<source ref="id290"/>
-			<target ref="id292"/>
+			<source ref="id77"/>
+			<target ref="id79"/>
 			<label kind="guard" x="-170" y="-195">id_out == id_sit</label>
 			<label kind="synchronisation" x="-170" y="-178">stop_h_action!</label>
 			<label kind="assignment" x="-170" y="-161">hExe = 0, Fp = F</label>
@@ -1910,181 +2063,189 @@ F' == 0</label>
 			<nail x="-85" y="-178"/>
 		</transition>
 		<transition color="#ffa500">
-			<source ref="id290"/>
-			<target ref="id292"/>
+			<source ref="id77"/>
+			<target ref="id79"/>
 			<label kind="guard" x="-161" y="-110">id_out == id_stand</label>
 			<label kind="synchronisation" x="-161" y="-93">stop_h_action!</label>
 			<label kind="assignment" x="-161" y="-76">hExe=0,Fp = F</label>
 		</transition>
 		<transition color="#0000ff">
-			<source ref="id293"/>
-			<target ref="id294"/>
+			<source ref="id80"/>
+			<target ref="id81"/>
 			<label kind="guard" x="-255" y="-425">id_out == id_sit</label>
 			<nail x="-204" y="-391"/>
 			<nail x="-212" y="-382"/>
 		</transition>
 		<transition color="#ffa500">
-			<source ref="id293"/>
-			<target ref="id294"/>
+			<source ref="id80"/>
+			<target ref="id81"/>
 			<label kind="guard" x="-212" y="-238">id_out == id_stand</label>
 			<nail x="-171" y="-234"/>
 		</transition>
 		<transition color="#00ffff">
-			<source ref="id293"/>
-			<target ref="id295"/>
+			<source ref="id80"/>
+			<target ref="id82"/>
 			<label kind="guard" x="-178" y="-314">id_out == id_run</label>
 			<label kind="synchronisation" x="-170" y="-297">start_h_action!</label>
 			<label kind="assignment" x="-161" y="-280">start_moving()</label>
 		</transition>
 		<transition color="#ffc0cb">
-			<source ref="id293"/>
-			<target ref="id295"/>
+			<source ref="id80"/>
+			<target ref="id82"/>
 			<label kind="guard" x="-144" y="-408">id_out == id_walk</label>
 			<label kind="synchronisation" x="-136" y="-391">start_h_action!</label>
 			<label kind="assignment" x="-136" y="-374">start_moving()</label>
 			<nail x="-59" y="-348"/>
 		</transition>
 		<transition>
-			<source ref="id298"/>
-			<target ref="id303"/>
+			<source ref="id85"/>
+			<target ref="id90"/>
 			<label kind="guard" x="119" y="-59">served[id-1]</label>
 		</transition>
 		<transition>
-			<source ref="id292"/>
-			<target ref="id294"/>
+			<source ref="id79"/>
+			<target ref="id81"/>
 			<label kind="synchronisation" x="-357" y="-110">r_still?</label>
 			<label kind="assignment" x="-357" y="-93">t = 0, tUpd=0</label>
 			<nail x="-357" y="-110"/>
 		</transition>
 		<transition>
-			<source ref="id291"/>
-			<target ref="id290"/>
+			<source ref="id78"/>
+			<target ref="id77"/>
 			<label kind="guard" x="93" y="-136">!served[id-1] &amp;&amp;
 
 tUpd&lt;=Tpoll</label>
 			<nail x="255" y="-110"/>
 		</transition>
 		<transition>
-			<source ref="id300"/>
-			<target ref="id294"/>
-			<label kind="guard" x="-459" y="-323">currH!=id</label>
-			<nail x="-416" y="-408"/>
-			<nail x="-416" y="-221"/>
+			<source ref="id87"/>
+			<target ref="id81"/>
+			<label kind="guard" x="-782" y="-323">currH!=id</label>
+			<nail x="-739" y="-408"/>
+			<nail x="-739" y="-221"/>
 		</transition>
 		<transition>
-			<source ref="id301"/>
-			<target ref="id291"/>
+			<source ref="id88"/>
+			<target ref="id78"/>
 			<label kind="synchronisation" x="136" y="-187">publish_m[2]!</label>
 			<label kind="assignment" x="136" y="-170">tUpd=0</label>
 		</transition>
 		<transition>
-			<source ref="id302"/>
-			<target ref="id301"/>
+			<source ref="id89"/>
+			<target ref="id88"/>
 			<label kind="synchronisation" x="136" y="-8">publish_m[3]!</label>
 		</transition>
 		<transition>
-			<source ref="id298"/>
-			<target ref="id302"/>
+			<source ref="id85"/>
+			<target ref="id89"/>
 			<label kind="guard" x="263" y="-8">!served[id-1]</label>
 			<label kind="assignment" x="263" y="25">updateP(),
 updateF(-lambda, 1)</label>
 			<nail x="255" y="42"/>
 		</transition>
 		<transition>
-			<source ref="id299"/>
-			<target ref="id294"/>
-			<label kind="synchronisation" x="-484" y="-289">publish_m[2]!</label>
-			<label kind="assignment" x="-484" y="-272">tUpd=0</label>
-			<nail x="-484" y="-221"/>
+			<source ref="id86"/>
+			<target ref="id81"/>
+			<label kind="synchronisation" x="-705" y="-255">publish_m[2]!</label>
+			<label kind="assignment" x="-807" y="-272">tUpd=0</label>
+			<nail x="-807" y="-221"/>
 		</transition>
 		<transition>
-			<source ref="id300"/>
-			<target ref="id299"/>
-			<label kind="guard" x="-467" y="-450">currH==id</label>
-			<label kind="synchronisation" x="-467" y="-433">publish_m[3]!</label>
+			<source ref="id87"/>
+			<target ref="id86"/>
+			<label kind="guard" x="-790" y="-450">currH==id</label>
+			<label kind="synchronisation" x="-662" y="-433">publish_m[3]!</label>
 		</transition>
 		<transition color="#00ff00">
-			<source ref="id294"/>
-			<target ref="id300"/>
-			<label kind="guard" x="-348" y="-391">tUpd&gt;=Tpoll</label>
+			<source ref="id81"/>
+			<target ref="id87"/>
+			<label kind="guard" x="-348" y="-408">tUpd&gt;=Tpoll 
+&amp;&amp; tOut &gt;= n_delay_index</label>
 			<label kind="assignment" x="-348" y="-374">updateF(-mi, 0), 
 tUpd=0, 
-id_out = out_id()</label>
+id_out = out_id(),
+tOut = 0,
+extraction_new = 1</label>
 		</transition>
 		<transition>
-			<source ref="id295"/>
-			<target ref="id291"/>
+			<source ref="id82"/>
+			<target ref="id78"/>
 			<label kind="guard" x="34" y="-238">F==0</label>
 			<label kind="assignment" x="85" y="-238">Fp=1</label>
 			<nail x="-42" y="-221"/>
 		</transition>
 		<transition>
-			<source ref="id295"/>
-			<target ref="id291"/>
+			<source ref="id82"/>
+			<target ref="id78"/>
 			<label kind="guard" x="-17" y="-289">F&gt;0</label>
 			<label kind="assignment" x="17" y="-289">Fp=1-F</label>
 			<nail x="255" y="-272"/>
 		</transition>
 		<transition>
-			<source ref="id294"/>
-			<target ref="id293"/>
+			<source ref="id81"/>
+			<target ref="id80"/>
 			<label kind="guard" x="-289" y="-297">!served[id-1] 
 &amp;&amp; currH == id</label>
 			<nail x="-306" y="-255"/>
 		</transition>
 		<transition color="#00ff00">
-			<source ref="id291"/>
-			<target ref="id298"/>
-			<label kind="guard" x="263" y="-153">tUpd&gt;=Tpoll</label>
-			<label kind="assignment" x="263" y="-136">checkSuccess(),
-id_out = out_id()</label>
+			<source ref="id78"/>
+			<target ref="id85"/>
+			<label kind="guard" x="255" y="-161">tUpd&gt;=Tpoll
+&amp;&amp; tOut &gt;= n_delay_index</label>
+			<label kind="assignment" x="263" y="-127">checkSuccess(),
+id_out = out_id(),
+tOut = 0,tUpd=0,
+extraction_new= 1</label>
 		</transition>
 		<transition>
-			<source ref="id291"/>
-			<target ref="id297"/>
-			<label kind="guard" x="272" y="-238">F &gt;= passout_th</label>
-			<label kind="synchronisation" x="289" y="-221">h_fail!</label>
-			<label kind="assignment" x="289" y="-204">t = 0, hExe = 0</label>
+			<source ref="id78"/>
+			<target ref="id84"/>
+			<label kind="guard" x="484" y="-238">F &gt;= passout_th</label>
+			<label kind="synchronisation" x="501" y="-221">h_fail!</label>
+			<label kind="assignment" x="501" y="-204">t = 0, hExe = 0</label>
 		</transition>
 		<transition>
-			<source ref="id297"/>
-			<target ref="id297"/>
-			<nail x="400" y="-170"/>
-			<nail x="442" y="-170"/>
+			<source ref="id84"/>
+			<target ref="id84"/>
+			<nail x="612" y="-170"/>
+			<nail x="654" y="-170"/>
 		</transition>
 		<transition color="#00ff00">
-			<source ref="id296"/>
-			<target ref="id294"/>
-			<label kind="assignment" x="-535" y="-212">initHuman()
+			<source ref="id83"/>
+			<target ref="id81"/>
+			<label kind="assignment" x="-858" y="-212">initHuman()
 ,id_out = out_id()</label>
 		</transition>
 		<transition color="#0000ff">
-			<source ref="id303"/>
-			<target ref="id292"/>
-			<label kind="guard" x="-297" y="0">id_out == id_sit</label>
-			<label kind="synchronisation" x="-297" y="17">stop_h_action!</label>
-			<label kind="assignment" x="-297" y="34">hExe = 0, Fp = F</label>
-			<nail x="-178" y="42"/>
+			<source ref="id90"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-161" y="59">id_out == id_sit</label>
+			<label kind="synchronisation" x="-161" y="76">stop_h_action!</label>
+			<label kind="assignment" x="-161" y="93">hExe = 0, Fp = F</label>
+			<nail x="59" y="51"/>
+			<nail x="-246" y="50"/>
 		</transition>
 		<transition color="#ffa500">
-			<source ref="id303"/>
-			<target ref="id292"/>
-			<label kind="guard" x="-153" y="-42">id_out == id_stand</label>
-			<label kind="synchronisation" x="-153" y="-25">stop_h_action!</label>
-			<label kind="assignment" x="-153" y="-8">hExe=0,Fp = F</label>
-			<nail x="-144" y="-17"/>
+			<source ref="id90"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-144" y="-25">id_out == id_stand</label>
+			<label kind="synchronisation" x="-144" y="-8">stop_h_action!</label>
+			<label kind="assignment" x="-144" y="9">hExe=0,Fp = F</label>
+			<nail x="42" y="-42"/>
+			<nail x="-246" y="-42"/>
 		</transition>
 		<transition>
-			<source ref="id304"/>
-			<target ref="id304"/>
+			<source ref="id91"/>
+			<target ref="id91"/>
 			<nail x="-450" y="9"/>
 			<nail x="-425" y="9"/>
 		</transition>
 		<transition>
-			<source ref="id294"/>
-			<target ref="id304"/>
+			<source ref="id81"/>
+			<target ref="id91"/>
 			<label kind="guard" x="-518" y="-127">PATH!=0
             &amp;&amp; PATH!=path</label>
 			<nail x="-450" y="-127"/>
 		</transition>
-</template>
+	</template>

@@ -17,7 +17,8 @@ from src.mgr.upp_mgr import Upp_Mgr
 
 class Configuration:
     def __init__(self, pfw: FreeWill_Profile, pftg: Fatigue_Profile, start: Point,
-                 v: float, chg: float, lb: float = None, ub: float = None):
+                 v: float, chg: float, lb: float = None, ub: float = None,
+                 ftg_1: str = None, ftg_2: str = None):
         self.pfw = pfw
         self.pftg = pftg
         self.start = start
@@ -25,6 +26,8 @@ class Configuration:
         self.chg = chg
         self.lb = lb
         self.ub = ub
+        self.ftg_1 = ftg_1
+        self.ftg_2 = ftg_2
 
     def __eq__(self, other):
         return self.pfw == other.pfw and self.pftg == other.pftg and self.start == other.start \
@@ -48,20 +51,30 @@ class Configuration:
             return self.lb
         elif item == 7:
             return self.ub
+        elif item == 8:
+            return self.ftg_1
+        elif item == 9:
+            return self.ftg_2
 
     @staticmethod
     def parse(fields):
         lb = None
         ub = None
+        ftg_1 = None
+        ftg_2 = None
         if len(fields[6]) > 0:
             lb = float(fields[6])
         if len(fields[7]) > 0:
             ub = float(fields[7])
+        if len(fields[8]) > 0:
+            ftg_1 = fields[8]
+        if len(fields[9]) > 0:
+            ftg_2 = fields[9]
 
         ftg_prof = fields[1] + '/' + fields[2]
 
         return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(ftg_prof),
-                             Point.parse(fields[3]), float(fields[4]), float(fields[5]), lb, ub)
+                             Point.parse(fields[3]), float(fields[4]), float(fields[5]), lb, ub, ftg_1, ftg_2)
 
 
 def update_csv():
@@ -71,11 +84,12 @@ def update_csv():
         for conf_towrite in configurations:
             pftg_split = str(conf_towrite.pftg).split('/')
             write.writerow([conf_towrite.pfw, pftg_split[0], pftg_split[1], conf_towrite.start,
-                            conf_towrite.v, conf_towrite.chg, conf_towrite.lb, conf_towrite.ub])
+                            conf_towrite.v, conf_towrite.chg, conf_towrite.lb, conf_towrite.ub,
+                            conf_towrite.ftg_1, conf_towrite.ftg_2])
 
 
 SCENARIO = sys.argv[1]
-FILE_PATH = '/Users/lestingi/PycharmProjects/hri_designtime/resources/input_params/ease_exp/{}.json'.format(SCENARIO)
+FILE_PATH = './resources/input_params/ease_exp/{}.json'.format(SCENARIO)
 
 LOGGER = Logger('EASE MAIN')
 
@@ -85,13 +99,11 @@ json_mgr = Json_Mgr()
 json_mgr.load_json()
 
 upp_mgr = Upp_Mgr()
-query_mg = Query_Mgr(json_mgr.queries)
 
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
 HEADER = ['PATIENT_FREEWILL', 'PATIENT_FATIGUE', 'DOCTOR_START',
-          'ROBOT_SPEED', 'ROBOT_CHARGE', 'PR.SCS_LOWER_BOUND', 'PR.SCS_UPPER_BOUND']
+          'ROBOT_SPEED', 'ROBOT_CHARGE', 'PR.SCS_LOWER_BOUND', 'PR.SCS_UPPER_BOUND', 'PATIENT_FTG', 'DOCTOR_FTG']
 
-# configurations: List[Tuple] = list(itertools.product(*factors))
 configurations: List[Configuration] = []
 
 resample = False
@@ -107,12 +119,6 @@ if resample:
 
     # starting position
     start_values: List[Point] = json_mgr.layout.inter_pts
-    # ETA = 5.0
-    # DELTA = 3000.0
-    # for area in json_mgr.layout.areas:
-    #    x_s = np.arange(area.corners[0].x + ETA, area.corners[2].x - ETA, DELTA)
-    #    y_s = np.arange(area.corners[0].y + ETA, area.corners[2].y - ETA, DELTA)
-    #    start_values.extend([Point(x, y) for x in x_s for y in y_s])
 
     # robot speed
     speed_values = [30.0, 100.0]
@@ -139,11 +145,6 @@ else:
                 continue
             else:
                 configurations.append(Configuration.parse(row))
-                # read_conf: Configuration = Configuration.parse(row)
-                # if read_conf.lb is not None and read_conf.ub is not None:
-                #    index: int = configurations.index(read_conf)
-                #    configurations[index].lb = read_conf.lb
-                #    configurations[index].ub = read_conf.ub
 
 LOGGER.info('{} Configurations to process.'.format(len(configurations)))
 
@@ -157,11 +158,23 @@ if len(sys.argv) > 3:
 else:
     filter_processed = False
 
+queries_copy = json_mgr.queries.copy()
+
 for i, conf in enumerate(configurations[:N]):
 
-    if filter_processed and conf.lb is not None and conf.ub is not None:
-        LOGGER.info('Configuration {} already processed'.format(i))
-        continue
+    pscs_known = conf.lb is not None and conf.ub is not None
+    ftg_known = conf.ftg_1 is not None and conf.ftg_2 is not None
+
+    if filter_processed:
+        if pscs_known and ftg_known:
+            LOGGER.info('Configuration {} already processed'.format(i))
+            continue
+        elif pscs_known:
+            LOGGER.info('Configuration {}: pr. scs already estimated.'.format(i))
+            json_mgr.queries = queries_copy[1:]
+        elif ftg_known:
+            LOGGER.info('Configuration {}: max ftg. already estimated.'.format(i))
+            json_mgr.queries = [queries_copy[1]]
 
     LOGGER.info('Processing conf {}...'.format(i))
 
@@ -182,7 +195,7 @@ for i, conf in enumerate(configurations[:N]):
     json_mgr.robots[0].chg = conf.chg
 
     # Replaces PARAM keywords within main template file with scenario parameters
-    param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout)
+    param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout, json_mgr.params)
     param_mgr.replace_params(SCENARIO_NAME)
 
     # Replaces TPLT keywords within main template file with individual automata templates
@@ -190,18 +203,47 @@ for i, conf in enumerate(configurations[:N]):
     tplt_mgr.replace_tplt(SCENARIO_NAME)
 
     # Generate query file
+    query_mg = Query_Mgr(json_mgr.queries)
     query_mg.gen_q_file(SCENARIO_NAME)
 
     # Run Uppaal Experiment
     out_file = upp_mgr.run_exp(SCENARIO_NAME)
 
     try:
-        with open(out_file) as upp_res:
-            lines = upp_res.readlines()
-            pr_range = [line.split(' Pr(<> ...) in ')[1].replace('[', '').replace(']', '').replace('\n', '').split(',')
-                        for line in lines if line.__contains__('Pr(<> ...)')][0]
-            configurations[i].lb = float(pr_range[0])
-            configurations[i].ub = float(pr_range[1])
+        if not pscs_known:
+            with open(out_file) as upp_res:
+                lines = upp_res.readlines()
+                pr_range = \
+                    [line.split(' Pr(<> ...) in ')[1].replace('[', '').replace(']', '').replace('\n', '').split(',')
+                     for line in lines if line.__contains__('Pr(<> ...)')][0]
+                configurations[i].lb = float(pr_range[0])
+                configurations[i].ub = float(pr_range[1])
+        if not ftg_known:
+            with open(out_file) as upp_res:
+                lines = upp_res.readlines()
+                ftg_ranges = [line.split('Values in [')[1].split(']')[0].split(',')
+                              for line in lines if line.__contains__('Values in ')]
+                ftg_ranges = [(float(r[0]), float(r[1])) for r in ftg_ranges]
+                ftg_ranges = [(r[0] + (r[1] - r[0]) / 2, (r[1] - r[0]) / 2) for r in ftg_ranges]
+                _ftg_ranges = ftg_ranges.copy()
+                ftg_ranges = []
+                for r_i, r in enumerate(_ftg_ranges):
+                    if r_i in [1, 2]:
+                        continue
+                    if len(ftg_ranges) == 0:
+                        ftg_ranges.append(r)
+                    elif r[0] > ftg_ranges[0][0]:
+                        ftg_ranges[0] = r
+                for r_i, r in enumerate(_ftg_ranges):
+                    if r_i in [0, 3, 4]:
+                        continue
+                    if len(ftg_ranges) == 1:
+                        ftg_ranges.append(r)
+                    elif r[0] > ftg_ranges[1][0]:
+                        ftg_ranges[1] = r
+
+                configurations[i].ftg_1 = '{:.4f}+-{:.4f}'.format(ftg_ranges[0][0], ftg_ranges[0][1])
+                configurations[i].ftg_2 = '{:.4f}+-{:.4f}'.format(ftg_ranges[1][0], ftg_ranges[1][1])
     except IndexError:
         LOGGER.error('Verification unsuccessful.')
 
