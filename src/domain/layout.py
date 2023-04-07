@@ -24,6 +24,9 @@ class Area:
     def __init__(self, p1: Point, p2: Point, p3: Point, p4: Point):
         self.corners = [p1, p2, p3, p4]
 
+    def contains_point(self, p: Point):
+        return self.corners[0].x <= p.x <= self.corners[2].x and self.corners[0].y <= p.y <= self.corners[1].y
+
 
 class Layout:
     def __init__(self, areas: List[Area], inter_pts: List[Point], max_neigh: int):

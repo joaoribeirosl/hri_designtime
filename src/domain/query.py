@@ -36,6 +36,9 @@ class Query:
         self.hums = hums
         self.robs = robs
 
+    def __eq__(self, other):
+        return self.t == other.t and self.tau == other.tau and self.n == other.n
+
     def get_query(self):
         if self.t == Query_Type.P_SCS:
             if self.n != ND:

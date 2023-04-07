@@ -5,8 +5,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 
-from src.domain.human import Fatigue_Profile, FreeWill_Profile
-from src.domain.layout import Point
+from src.domain.hmtfactor import Configuration
 from src.mgr.upp_mgr import Upp_Mgr
 
 
@@ -71,56 +70,6 @@ plt.title('Virtual Memory Usage [KiB] per N. Runs')
 
 plt.show()
 
-
-class Configuration:
-    def __init__(self, pfw: FreeWill_Profile, pftg: Fatigue_Profile, start: Point,
-                 v: float, chg: float, lb: float = None, ub: float = None):
-        self.pfw = pfw
-        self.pftg = pftg
-        self.start = start
-        self.v = v
-        self.chg = chg
-        self.lb = lb
-        self.ub = ub
-
-    def __eq__(self, other):
-        return self.pfw == other.pfw and self.pftg == other.pftg and self.start == other.start \
-               and self.v == other.v and self.chg == other.chg
-
-    def __len__(self):
-        return 8
-
-    def __getitem__(self, item):
-        if item == 0:
-            return self.pfw
-        elif item == 1:
-            return self.pftg
-        elif item == 2:
-            return self.start
-        elif item == 3:
-            return self.v
-        elif item == 4:
-            return self.chg
-        elif item == 6:
-            return self.lb
-        elif item == 7:
-            return self.ub
-
-    @staticmethod
-    def parse(fields):
-        lb = None
-        ub = None
-        if len(fields[6]) > 0:
-            lb = float(fields[6])
-        if len(fields[7]) > 0:
-            ub = float(fields[7])
-
-        ftg_prof = fields[1] + '/' + fields[2]
-
-        return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(ftg_prof),
-                             Point.parse(fields[3]), float(fields[4]), float(fields[5]), lb, ub)
-
-
 configurations: List[Configuration] = []
 
 with open(CSV_FILE) as csv_in:
@@ -133,34 +82,112 @@ with open(CSV_FILE) as csv_in:
 
 configurations = [conf for conf in configurations if conf.lb is not None and conf.ub is not None]
 
-plt.figure(figsize=(10, 5))
+
+def parse_ftg(s: str):
+    fields = s.split('+-')
+    return float(fields[0]), float(fields[1])
+
+
+#
 fw_prof = list(set(conf.pfw for conf in configurations))
+
 fw_values = [[conf.lb + (conf.ub - conf.lb) / 2 for conf in configurations if conf.pfw == pf] for pf in fw_prof]
+plt.figure(figsize=(10, 5))
 plt.violinplot(fw_values, showmeans=True, positions=[i + 1 for i, x in enumerate(fw_prof)])
 plt.xticks(ticks=[i + 1 for i, x in enumerate(fw_prof)], labels=fw_prof)
+plt.title('Pr. Scs by fw. profile')
 plt.show()
 
+ftg_1_values = [[parse_ftg(conf.ftg_1)[0] for conf in configurations if conf.pfw == pf] for pf in fw_prof]
 plt.figure(figsize=(10, 5))
+plt.violinplot(ftg_1_values, showmeans=True, positions=[i + 1 for i, x in enumerate(fw_prof)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(fw_prof)], labels=fw_prof)
+plt.title('Ftg 1 by fw. profile')
+plt.show()
+
+ftg_2_values = [[parse_ftg(conf.ftg_2)[0] for conf in configurations if conf.pfw == pf] for pf in fw_prof]
+plt.figure(figsize=(10, 5))
+plt.violinplot(ftg_2_values, showmeans=True, positions=[i + 1 for i, x in enumerate(fw_prof)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(fw_prof)], labels=fw_prof)
+plt.title('Ftg 2 by fw. profile')
+plt.show()
+
+#
 age_group = list(set(str(conf.pftg).split('/')[0] for conf in configurations))
+
+plt.figure(figsize=(10, 5))
 ftg_values = [[conf.lb + (conf.ub - conf.lb) / 2 for conf in configurations if str(conf.pftg).split('/')[0] == pf] for
               pf in age_group]
 plt.violinplot(ftg_values, showmeans=True, positions=[i + 1 for i, x in enumerate(age_group)])
 plt.xticks(ticks=[i + 1 for i, x in enumerate(age_group)], labels=age_group)
+plt.title('Pr. Scs by age group')
 plt.show()
 
+ftg_1_values = [[parse_ftg(conf.ftg_1)[0] for conf in configurations if str(conf.pftg).split('/')[0] == pf] for
+                pf in age_group]
 plt.figure(figsize=(10, 5))
+plt.violinplot(ftg_1_values, showmeans=True, positions=[i + 1 for i, x in enumerate(age_group)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(age_group)], labels=age_group)
+plt.title('Ftg 1 by age group')
+plt.show()
+
+ftg_2_values = [[parse_ftg(conf.ftg_2)[0] for conf in configurations if str(conf.pftg).split('/')[0] == pf] for
+                pf in age_group]
+plt.figure(figsize=(10, 5))
+plt.violinplot(ftg_2_values, showmeans=True, positions=[i + 1 for i, x in enumerate(age_group)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(age_group)], labels=age_group)
+plt.title('Ftg 2 by age group')
+plt.show()
+
+#
 health_stat = list(set(str(conf.pftg).split('/')[1] for conf in configurations))
+
+plt.figure(figsize=(10, 5))
 ftg_values = [[conf.lb + (conf.ub - conf.lb) / 2 for conf in configurations if str(conf.pftg).split('/')[1] == pf] for
               pf in health_stat]
 plt.violinplot(ftg_values, showmeans=True, positions=[i + 1 for i, x in enumerate(health_stat)])
 plt.xticks(ticks=[i + 1 for i, x in enumerate(health_stat)], labels=health_stat)
+plt.title('Pr. Scs by health stat')
 plt.show()
 
-plt.figure(figsize=(20, 5))
+plt.figure(figsize=(10, 5))
+ftg_1_values = [[parse_ftg(conf.ftg_1)[0] for conf in configurations if str(conf.pftg).split('/')[1] == pf] for
+                pf in health_stat]
+plt.violinplot(ftg_1_values, showmeans=True, positions=[i + 1 for i, x in enumerate(health_stat)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(health_stat)], labels=health_stat)
+plt.title('Ftg.1 by health stat')
+plt.show()
+
+plt.figure(figsize=(10, 5))
+ftg_2_values = [[parse_ftg(conf.ftg_2)[0] for conf in configurations if str(conf.pftg).split('/')[1] == pf] for
+                pf in health_stat]
+plt.violinplot(ftg_2_values, showmeans=True, positions=[i + 1 for i, x in enumerate(health_stat)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(health_stat)], labels=health_stat)
+plt.title('Ftg.2 by health stat')
+plt.show()
+
+#
 start_pos = list(set(conf.start for conf in configurations))
+
+plt.figure(figsize=(20, 5))
 start_values = [[conf.lb + (conf.ub - conf.lb) / 2 for conf in configurations if conf.start == pf] for pf in start_pos]
 plt.violinplot(start_values, showmeans=True, positions=[i + 1 for i, x in enumerate(start_pos)])
 plt.xticks(ticks=[i + 1 for i, x in enumerate(start_pos)], labels=[str(x) for x in start_pos])
+plt.title('Pr. Scs by start pos')
+plt.show()
+
+plt.figure(figsize=(20, 5))
+ftg_1_values = [[parse_ftg(conf.ftg_1)[0] for conf in configurations if conf.start == pf] for pf in start_pos]
+plt.violinplot(ftg_1_values, showmeans=True, positions=[i + 1 for i, x in enumerate(start_pos)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(start_pos)], labels=[str(x) for x in start_pos])
+plt.title('Ftg.1 by start pos')
+plt.show()
+
+plt.figure(figsize=(20, 5))
+ftg_2_values = [[parse_ftg(conf.ftg_2)[0] for conf in configurations if conf.start == pf] for pf in start_pos]
+plt.violinplot(ftg_2_values, showmeans=True, positions=[i + 1 for i, x in enumerate(start_pos)])
+plt.xticks(ticks=[i + 1 for i, x in enumerate(start_pos)], labels=[str(x) for x in start_pos])
+plt.title('Ftg.2 by start pos')
 plt.show()
 
 plt.figure(figsize=(20, 5))
