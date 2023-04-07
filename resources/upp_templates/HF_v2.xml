@@ -3,10 +3,11 @@
 		<parameter>int id, double _v, int p_f, int p_fw, int start_from, int path,const double arg[n_arg_all],const int arg_ad[nr_argAd], const int SEEAO[nr_seeao_max][nc_seeao], const double importance_entity[nr_impEntity_max], const double importance_sense[nr_impSense_max], const double obj_xye[nr_obj_max][nc_obj]</parameter>
 		<declaration>
 
-clock t, F, Fp;
+clock t, F;
 clock tUpd;
 clock tExp;
 
+double Fp;
 double lambda, mi;
 const double passout_th = 1.0;
 
@@ -455,6 +456,9 @@ const int id_run=fint(arg[20]);
 const int id_stand=fint(arg[21]);
 
 
+const int id_person = fint(arg[22]);
+const int caso_fixed_obj = fint(arg[23]);
+const double distance_min = arg[24];
 
 /////////////////////
 const int n_rows = arg_ad[0];
@@ -482,15 +486,19 @@ const int nr_obj =arg_ad[6];// 7;
 //const int nc_obj = 3;//definita a livello globale
 double obj_xye_tmp[nr_obj][nc_obj];  
  // altro 
-    clock x;
+    clock tOut;
 
-const int nr_obj_dyn = R;// nel Dpa è definita da R
-const int nc_obj_dyn = nc_obj; // definita a livello globale
-double distance_obj_dyn[nr_obj_dyn];
-double obj_xye_dyn[nr_obj_dyn][nc_obj_dyn] ={{0.0,0.0,0.0}};
+const int nr_obj_dyn = R;
+const int nc_obj_dyn = 3;
+double distance_obj_rob[nr_obj_dyn];
+double distance_obj_hum[H];
+double obj_xye_dyn[nr_obj_dyn][nc_obj_dyn];
+double distance[nr_obj];
 //int id_robot = 1;
 
-const int nr_object = nr_obj + nr_obj_dyn;
+const int nr_object_neigh = nr_obj + R + H;
+int nr_object;
+int neigh[nr_object_neigh];
 
 /////////////////////////////////////////////////
 
@@ -588,7 +596,7 @@ void set_to_zero(){//function toset to zero the value of the vectors and the oth
     int id_action;
   
   
-double distance[nr_obj];
+//double distance[nr_obj];
 
 void upd_obj_dyn_pos(){
     int i;
@@ -601,7 +609,7 @@ void upd_obj_dyn_pos(){
 
 int event_from_entity[n_event];
 int id_object;
-int neigh[nr_object];
+
 double pos_human;
 double pos_object;
 // funzione che modifica il event may happen
@@ -614,7 +622,7 @@ void update_event_may_happen(){
     int k; 
     double k_th = 0.90;
     double d_th = distance_threshold*k_th; 
-    
+    int nr_obj_tmp;
   // il caso_event definisce se il vettore event_may_happen rimane come fissato(0) o è randomico (=1)
     if(caso_event == 1){
         // associa randomicamente 0(non succede) 1(succede)
@@ -629,7 +637,7 @@ void update_event_may_happen(){
         }
     }
     else if(caso_event == 2){
-    // initializzo il vettore event_may_happen a zero per fare in modo che poi cambia
+       // initializzo il vettore event_may_happen a zero per fare in modo che poi cambia
     // e non avere problemi che diventino tutti uno 
         for(i = 0; i &lt; n_event; i ++){
             event_may_happen[i] = 0;
@@ -639,6 +647,13 @@ void update_event_may_happen(){
         for(i = 0; i &lt; n_event; i ++){
             event_from_entity [i] = 0;
         }
+        // resetto il vettore neigh per il nuovo ciclo
+         for(i = 0; i &lt; nr_object_neigh; i ++){
+           neigh[i] = -1;
+        }  
+        
+        if(caso_fixed_obj ==1 || caso_obj == 0){
+        nr_obj_tmp = nr_obj;
       //+ popolo il vettore neighbour per oggetti statici
         for(i = 0; i &lt; nr_obj; i ++){
           //+ verifico la distanza tra entità ed umano
@@ -649,21 +664,21 @@ void update_event_may_happen(){
             //pos_object = 4.0;
             //pos_human =3.0;
 
+       /*
         // caso 1 della funzione
-            init_obj_xye_tmp(nr_obj,nc_obj);
             if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
-                obj_xye_tmp[i][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
-                obj_xye_tmp[i][1] = 0;
+                obj_xye[i][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye[i][1] = 0;
             }
         // caso 2 della fuzione 
             if(caso_obj == 2){
-                obj_xye_tmp[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
-                obj_xye_tmp[obj_selected][1] = 0;
-            }
+                obj_xye[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye[obj_selected][1] = 0;
+            }*/
         // calcolo della distanza
             distance[i] = pt_dist(humanPositionX[id -1],obj_xye[i][0],humanPositionY[id -1],obj_xye[i][1]);
         // verifica della condizione sulla distanza 
-            if( distance[i] &lt;= distance_threshold){
+            if( distance[i] &lt;= distance_threshold &amp;&amp; distance[i] &gt; distance_min ){
                 id_object =fint(obj_xye[i][2]);
                 neigh[i] = id_object;    
             }
@@ -672,15 +687,63 @@ void update_event_may_happen(){
                 neigh[i] = -1;
             }
         }
-        
+        }else if(caso_fixed_obj==0){
+            nr_obj_tmp = 0;    
+        }
+
+        if(caso_obj ==-1){
+           nr_obj_tmp = 0;
+           for(i = 0; i &lt; nr_object_neigh; i ++){
+           neigh[i] = -1;
+            }  
+        }
+        else if(caso_obj == 0){
+            nr_object = nr_obj_tmp;
+        }
+        else if (caso_obj == 1){//percepisce i robot oltre ai fissi
+         nr_object = nr_obj_tmp +R;
          j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
                // parte da zero come indice e non parte dall'indice finale di quella statica
                // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
                // che non esiste
         //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
-        for(i = nr_obj; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+        for(i = nr_obj_tmp; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
                                               // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
                                               // che dinamici
+       /* // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_rob[j] = pt_dist(humanPositionX[id -1],robPositionX[j],humanPositionY[id -1],robPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_rob[j] &lt;= distance_threshold  &amp;&amp; distance_obj_rob[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_robot;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+     }else if (caso_obj == 2){// percepisce gli umani oltre ai fissi
+         nr_object = nr_obj_tmp+ H;
+         j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
+               // parte da zero come indice e non parte dall'indice finale di quella statica
+               // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
+               // che non esiste
+        //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
+        for(i = nr_obj_tmp; i &lt; nr_object; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
         // caso 1 della funzione
             if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
                 obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
@@ -690,19 +753,89 @@ void update_event_may_happen(){
             if(caso_obj == 2){
                 obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
                 obj_xye_dyn[obj_selected][1] = 0;
-            }
+            }*/
         // calcolo della distanza
-            distance_obj_dyn[j] = pt_dist(humanPositionX[id -1],obj_xye_dyn[j][0],humanPositionY[id -1],obj_xye_dyn[j][1]);
+            distance_obj_hum[j] = pt_dist(humanPositionX[id -1],humanPositionX[j],humanPositionY[id -1],humanPositionY[j]);
         // verifica della condizione sulla distanza 
-            if( distance_obj_dyn[j] &lt;= distance_threshold){
-                id_object =fint(obj_xye_dyn[j][2]);
-                neigh[i] = id_object;    
+            if( distance_obj_hum[j] &lt;= distance_threshold &amp;&amp; distance_obj_hum[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_person;    
             }
             else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
                 // l'indipendenza con il caso precedente
                 neigh[i] = -1;
             }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
         }
+    }else if (caso_obj == 3){// percepisce gli umani e i robot oltre ai fissi
+         nr_object = nr_obj_tmp + H + R ;
+         j = 0;// perchè non faccio più riferimento alla matrice statica ma a quella dynamica che ha 
+               // parte da zero come indice e non parte dall'indice finale di quella statica
+               // lo faccio soptrattutto per evitare errore di indici perchè accederei a parti della matrice
+               // che non esiste
+        //+ popolo il vettore neighbour per oggetti dinamici dalla fine degli oggetti statici al numero totale di oggetti
+       
+        // per gli umani 
+       for(i = nr_obj_tmp; i &lt; nr_obj_tmp + H ; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
+        // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_hum[j] = pt_dist(humanPositionX[id -1],humanPositionX[j],humanPositionY[id -1],humanPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_hum[j] &lt;= distance_threshold &amp;&amp; distance_obj_hum[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_person;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+    j =0;
+       // per i robot     
+        for(i = nr_obj_tmp+ H ; i &lt; nr_obj_tmp + H + R ; i ++){ // parto da nr_obj perchè il vettore neigh non lo divido tra dinamico
+                                              // e statico ma ne mantengo uno solo con dentro sia gli oggetti statici
+                                              // che dinamici
+        /*
+        // caso 1 della funzione
+            if(random(N_random)+1&lt;= 50 &amp;&amp; caso_obj == 1){
+                obj_xye_dyn[j][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[j][1] = 0;
+            }
+        // caso 2 della fuzione 
+            if(caso_obj == 2){
+                obj_xye_dyn[obj_selected][0] = humanPositionX[id -1] + sqrt(pow(d_th,2) - pow(humanPositionY[id -1],2));
+                obj_xye_dyn[obj_selected][1] = 0;
+            }*/
+        // calcolo della distanza
+            distance_obj_rob[j] = pt_dist(humanPositionX[id -1],robPositionX[j],humanPositionY[id -1],robPositionY[j]);
+        // verifica della condizione sulla distanza 
+            if( distance_obj_rob[j] &lt;= distance_threshold &amp;&amp; distance_obj_rob[j] &gt; distance_min){
+                //id_object =fint(obj_xye_dyn[j][2]);
+                neigh[i] = id_robot;    
+            }
+            else{// posso fare un assegnazione qui o settarlo prima tutto a zero per perdere 
+                // l'indipendenza con il caso precedente
+                neigh[i] = -1;
+            }
+            j++; // necessario altrimenti non calcolo le distanze degli altri robot
+        }
+        
+    }
+
+
       //+ scorro la matrice per associare al vettore event_may_happen il valore 1 per l'entità
       // che rientra nel neighbour
         for(j = 0; j &lt; nr_object; j ++){  
@@ -1647,9 +1780,10 @@ void assignment_last_id(){
 //assignment
  bool event_all_zero = true;
 //unica funzione che fa tutto quello che il modello cmpct fa
-int out_id_ref(){
+int out_id(){
     int id_extracted_output;
     int j = 0;
+    index_cycle ++;
     event_all_zero = true;//to set at all the call of this function the doubt to have all event = zero
    // index_cycle ++;
    // set_to_zero();
@@ -1691,6 +1825,7 @@ int out_id_ref(){
           id_extracted_output = last_id_extracted_output; // in questo caso è zero
         // id_extracted_output = 6;   
         }
+        index_cycle = 2;// per non avere l'indice che va fuori scala
 return id_extracted_output;
 }
 
@@ -1701,6 +1836,7 @@ int last_id_extracted_tmp = 0; // inserito per fare in modo che nel caso_deelay 
                                // messa fuori perchè dentro viene definita = 0 ad ogni ciclo e quindi si blocca 
                                // il modello  
 // funzione che viene usata e poi 
+/*
 int out_id(){
     int id_extracted_output;
     index_cycle ++;
@@ -1778,19 +1914,17 @@ int out_id(){
 
 return id_extracted_output;
 }
-
+*/
 ////////////////////////////////////////////////
 </declaration>
 		<location id="id0" x="-390" y="-255">
 			<name x="-425" y="-246">idle</name>
-			<label kind="invariant" x="-467" y="-229">Fp'==0 
-&amp;&amp; F' == -Fp*mi*exp(-mi*t)
+			<label kind="invariant" x="-467" y="-229">F' == -Fp*mi*exp(-mi*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
 		<location id="id1" x="365" y="-255">
 			<name x="357" y="-289">busy</name>
-			<label kind="invariant" x="356" y="-374">Fp'==0
-&amp;&amp; F &lt;= passout_th 
+			<label kind="invariant" x="356" y="-374">F &lt;= passout_th
 &amp;&amp; F' == Fp*lambda*exp(-lambda*t)
 &amp;&amp; tUpd&lt;=Tpoll</label>
 		</location>
@@ -1963,7 +2097,7 @@ tUpd=0</label>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id1"/>
-			<label kind="synchronisation" x="356" y="-178">publish_m[4]!</label>
+			<label kind="synchronisation" x="356" y="-178">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id8"/>
@@ -1974,7 +2108,7 @@ tUpd=0</label>
 		<transition>
 			<source ref="id9"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-390" y="-327">publish_m[4]!</label>
+			<label kind="synchronisation" x="-390" y="-327">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id7"/>

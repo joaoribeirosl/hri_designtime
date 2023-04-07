@@ -22,7 +22,7 @@ double rewards;
 
 // Errors Model
 int obey, disobey;
-double freeWillTh, freeWillRange;
+double freeWillTh, freeWillRange=6.0;
 double fw;
 int TE;
 double lambda_crit;
@@ -38,10 +38,10 @@ int v;
 void updateFreeWill(){
     if(currH==id) {
         freeWillTh = 100.0;
-        freeWillRange = 95.0;
+        freeWillRange = 6.0;
     } else {
         freeWill = 0;
-        freeWillRange = 10;
+        freeWillRange = 6.0;
         freeWillTh = 20;
     }
 }

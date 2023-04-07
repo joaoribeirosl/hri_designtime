@@ -20,7 +20,7 @@ double rewards;
 
 // Errors Model
 int obey, disobey;
-double freeWillTh, freeWillRange;
+double freeWillTh, freeWillRange=6.0;
 double fw;
 int TE;
 double lambda_crit;
@@ -29,7 +29,7 @@ double hs, crit, non_crit;
 void updateFreeWill(){
     if(currH==id) {
         freeWillTh = 100.0;
-        freeWillRange = 95.0;
+        freeWillRange = 6.0;
     } else {
         freeWill = 0;
         freeWillRange = 10;
@@ -428,7 +428,7 @@ void initHuman() {
 		<transition>
 			<source ref="id46"/>
 			<target ref="id37"/>
-			<label kind="synchronisation" x="179" y="-179">publish_m[4]!</label>
+			<label kind="synchronisation" x="179" y="-179">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id44"/>
@@ -439,7 +439,7 @@ void initHuman() {
 		<transition>
 			<source ref="id45"/>
 			<target ref="id36"/>
-			<label kind="synchronisation" x="-390" y="-327">publish_m[4]!</label>
+			<label kind="synchronisation" x="-390" y="-327">publish_m[2]!</label>
 		</transition>
 		<transition>
 			<source ref="id43"/>
