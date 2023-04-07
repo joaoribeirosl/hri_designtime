@@ -1,95 +1,30 @@
 import csv
-import random
 import sys
 from typing import List
 
-import numpy as np
-
-from src.domain.human import Fatigue_Profile, FreeWill_Profile
-from src.domain.layout import Point
+from src.domain.hmtfactor import Configuration
 from src.logging.logger import Logger
 from src.mgr.json_mgr import Json_Mgr
 from src.mgr.param_mgr import Param_Mgr
 from src.mgr.query_mgr import Query_Mgr
 from src.mgr.tplt_mgr import Template_Mgr
 from src.mgr.upp_mgr import Upp_Mgr
+from src.mgr.factor_mgr import Factor_Mgr
 
 
-class Configuration:
-    def __init__(self, pfw: FreeWill_Profile, pftg: Fatigue_Profile, start: Point,
-                 v: float, chg: float, lb: float = None, ub: float = None,
-                 ftg_1: str = None, ftg_2: str = None):
-        self.pfw = pfw
-        self.pftg = pftg
-        self.start = start
-        self.v = v
-        self.chg = chg
-        self.lb = lb
-        self.ub = ub
-        self.ftg_1 = ftg_1
-        self.ftg_2 = ftg_2
-
-    def __eq__(self, other):
-        return self.pfw == other.pfw and self.pftg == other.pftg and self.start == other.start \
-               and self.v == other.v and self.chg == other.chg
-
-    def __len__(self):
-        return 8
-
-    def __getitem__(self, item):
-        if item == 0:
-            return self.pfw
-        elif item == 1:
-            return self.pftg
-        elif item == 2:
-            return self.start
-        elif item == 3:
-            return self.v
-        elif item == 4:
-            return self.chg
-        elif item == 6:
-            return self.lb
-        elif item == 7:
-            return self.ub
-        elif item == 8:
-            return self.ftg_1
-        elif item == 9:
-            return self.ftg_2
-
-    @staticmethod
-    def parse(fields):
-        lb = None
-        ub = None
-        ftg_1 = None
-        ftg_2 = None
-        if len(fields[6]) > 0:
-            lb = float(fields[6])
-        if len(fields[7]) > 0:
-            ub = float(fields[7])
-        if len(fields[8]) > 0:
-            ftg_1 = fields[8]
-        if len(fields[9]) > 0:
-            ftg_2 = fields[9]
-
-        ftg_prof = fields[1] + '/' + fields[2]
-
-        return Configuration(FreeWill_Profile.parse_fw_profile(fields[0]), Fatigue_Profile.parse_ftg_profile(ftg_prof),
-                             Point.parse(fields[3]), float(fields[4]), float(fields[5]), lb, ub, ftg_1, ftg_2)
-
-
-def update_csv():
+def update_csv(configurations: List[Configuration]):
     with open(CSV_FILE, 'w') as out_csv:
         write = csv.writer(out_csv)
-        write.writerow(HEADER)
+        write.writerow(configurations[0].get_header())
         for conf_towrite in configurations:
-            pftg_split = str(conf_towrite.pftg).split('/')
-            write.writerow([conf_towrite.pfw, pftg_split[0], pftg_split[1], conf_towrite.start,
-                            conf_towrite.v, conf_towrite.chg, conf_towrite.lb, conf_towrite.ub,
-                            conf_towrite.ftg_1, conf_towrite.ftg_2])
+            write.writerow([f.value for f in conf_towrite.factors] + [m.value for m in conf_towrite.metrics])
 
 
 SCENARIO = sys.argv[1]
 FILE_PATH = './resources/input_params/ease_exp/{}.json'.format(SCENARIO)
+
+CONFIG_JSON = sys.argv[2]
+CONFIG_JSON_PATH = './resources/config/{}.json'.format(CONFIG_JSON)
 
 LOGGER = Logger('EASE MAIN')
 
@@ -101,42 +36,16 @@ json_mgr.load_json()
 upp_mgr = Upp_Mgr()
 
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
-HEADER = ['PATIENT_FREEWILL', 'PATIENT_FATIGUE', 'DOCTOR_START',
-          'ROBOT_SPEED', 'ROBOT_CHARGE', 'PR.SCS_LOWER_BOUND', 'PR.SCS_UPPER_BOUND', 'PATIENT_FTG', 'DOCTOR_FTG']
 
 configurations: List[Configuration] = []
 
-resample = False
+resample = len(sys.argv) > 5
 
 if resample:
-    # free will
-    fw_values = [FreeWill_Profile.FOCUSED, FreeWill_Profile.FREE, FreeWill_Profile.DISTRACTED]
-
-    # fatigue profile
-    ftg_values = [Fatigue_Profile.YOUNG_HEALTHY, Fatigue_Profile.YOUNG_SICK,
-                  Fatigue_Profile.ELDERLY_HEALTHY, Fatigue_Profile.ELDERLY_SICK,
-                  Fatigue_Profile.YOUNG_UNSTEADY, Fatigue_Profile.ELDERLY_UNSTEADY]
-
-    # starting position
-    start_values: List[Point] = json_mgr.layout.inter_pts
-
-    # robot speed
-    speed_values = [30.0, 100.0]
-
-    # robot charge
-    charge_values = [11.1, 12.4]
-
-    N_SAMPLE = 1000
-
-    # factors = [fw_values, ftg_values, start_values, speed_values, charge_values]
-
+    N_SAMPLE = int(sys.argv[5])
     for i in range(N_SAMPLE):
-        pfw = random.choice(fw_values)
-        pftg = random.choice(ftg_values)
-        start = random.choice(start_values)
-        v = speed_values[0] + ((speed_values[1] - speed_values[0]) * np.random.rand(1)[0])
-        chg = charge_values[0] + ((charge_values[1] - charge_values[0]) * np.random.rand(1)[0])
-        configurations.append(Configuration(pfw, pftg, start, v, chg))
+        configurations.append(Configuration.sample(CONFIG_JSON_PATH))
+    update_csv(configurations)
 else:
     with open(CSV_FILE, 'r') as csv_in:
         read = csv.reader(csv_in)
@@ -144,55 +53,40 @@ else:
             if i == 0:
                 continue
             else:
-                configurations.append(Configuration.parse(row))
+                configurations.append(Configuration.parse(CONFIG_JSON_PATH, row))
 
 LOGGER.info('{} Configurations to process.'.format(len(configurations)))
 
-if len(sys.argv) > 2:
-    N = int(sys.argv[2])
+if len(sys.argv) > 3:
+    N = int(sys.argv[3])
 else:
     N = len(configurations)
 
-if len(sys.argv) > 3:
-    filter_processed = bool(sys.argv[3])
+if len(sys.argv) > 4:
+    filter_processed = bool(sys.argv[4])
 else:
     filter_processed = False
 
 queries_copy = json_mgr.queries.copy()
 
 for i, conf in enumerate(configurations[:N]):
-
-    pscs_known = conf.lb is not None and conf.ub is not None
-    ftg_known = conf.ftg_1 is not None and conf.ftg_2 is not None
+    factor_mgr = Factor_Mgr(json_mgr)
 
     if filter_processed:
-        if pscs_known and ftg_known:
+        if len(conf.processed()) == len(conf.metrics):
             LOGGER.info('Configuration {} already processed'.format(i))
             continue
-        elif pscs_known:
-            LOGGER.info('Configuration {}: pr. scs already estimated.'.format(i))
-            json_mgr.queries = queries_copy[1:]
-        elif ftg_known:
-            LOGGER.info('Configuration {}: max ftg. already estimated.'.format(i))
-            json_mgr.queries = [queries_copy[1]]
+        else:
+            to_be_processed = [m.m_id for j, m in enumerate(conf.metrics) if j not in conf.processed()]
+            LOGGER.info('Configuration {}: {} to be estimated.'.format(i, ','.join(to_be_processed)))
+            to_be_processed = [x.split('_')[0] for x in to_be_processed]
+            factor_mgr.filter_queries(to_be_processed, queries_copy)
 
     LOGGER.info('Processing conf {}...'.format(i))
 
     SCENARIO_NAME = '{}_{}'.format(SCENARIO, i)
 
-    json_mgr.hums[0].p_fw = conf.pfw
-    json_mgr.hums[3].p_fw = conf.pfw
-    json_mgr.hums[4].p_fw = conf.pfw
-    json_mgr.hums[0].p_f = conf.pftg
-    json_mgr.hums[3].p_f = conf.pftg
-    json_mgr.hums[4].p_f = conf.pftg
-    json_mgr.hums[1].start = conf.start
-    json_mgr.hums[0].v = conf.v
-    json_mgr.hums[3].v = conf.v
-    json_mgr.hums[4].v = conf.v
-    json_mgr.robots[0].v = conf.v
-    json_mgr.robots[0].a = conf.v
-    json_mgr.robots[0].chg = conf.chg
+    factor_mgr.apply(conf)
 
     # Replaces PARAM keywords within main template file with scenario parameters
     param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout, json_mgr.params)
@@ -210,43 +104,10 @@ for i, conf in enumerate(configurations[:N]):
     out_file = upp_mgr.run_exp(SCENARIO_NAME)
 
     try:
-        if not pscs_known:
-            with open(out_file) as upp_res:
-                lines = upp_res.readlines()
-                pr_range = \
-                    [line.split(' Pr(<> ...) in ')[1].replace('[', '').replace(']', '').replace('\n', '').split(',')
-                     for line in lines if line.__contains__('Pr(<> ...)')][0]
-                configurations[i].lb = float(pr_range[0])
-                configurations[i].ub = float(pr_range[1])
-        if not ftg_known:
-            with open(out_file) as upp_res:
-                lines = upp_res.readlines()
-                ftg_ranges = [line.split('Values in [')[1].split(']')[0].split(',')
-                              for line in lines if line.__contains__('Values in ')]
-                ftg_ranges = [(float(r[0]), float(r[1])) for r in ftg_ranges]
-                ftg_ranges = [(r[0] + (r[1] - r[0]) / 2, (r[1] - r[0]) / 2) for r in ftg_ranges]
-                _ftg_ranges = ftg_ranges.copy()
-                ftg_ranges = []
-                for r_i, r in enumerate(_ftg_ranges):
-                    if r_i in [1, 2]:
-                        continue
-                    if len(ftg_ranges) == 0:
-                        ftg_ranges.append(r)
-                    elif r[0] > ftg_ranges[0][0]:
-                        ftg_ranges[0] = r
-                for r_i, r in enumerate(_ftg_ranges):
-                    if r_i in [0, 3, 4]:
-                        continue
-                    if len(ftg_ranges) == 1:
-                        ftg_ranges.append(r)
-                    elif r[0] > ftg_ranges[1][0]:
-                        ftg_ranges[1] = r
-
-                configurations[i].ftg_1 = '{:.4f}+-{:.4f}'.format(ftg_ranges[0][0], ftg_ranges[0][1])
-                configurations[i].ftg_2 = '{:.4f}+-{:.4f}'.format(ftg_ranges[1][0], ftg_ranges[1][1])
+        factor_mgr.save_metrics(conf, out_file)
     except IndexError:
         LOGGER.error('Verification unsuccessful.')
 
-    update_csv()
+    update_csv(configurations)
 
 LOGGER.info('Done.')

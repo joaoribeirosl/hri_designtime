@@ -1,0 +1,50 @@
+{
+  "factors": [
+    {
+      "id": "HUM_1_FW",
+      "type": "FreeWillProfile"
+    },
+    {
+      "id": "HUM_1_FTG",
+      "type": "FatigueProfile"
+    },
+    {
+      "id": "HUM_2_POS",
+      "type": "Point",
+      "min_x": 50.0,
+      "max_x": 4450.0,
+      "min_y": 200.0,
+      "max_y": 800.0
+    },
+    {
+      "id": "ROB_1_VEL",
+      "type": "float",
+      "min": 30.0,
+      "max": 100.0
+    },
+    {
+      "id": "ROB_1_CHG",
+      "type": "float",
+      "min": 11.1,
+      "max": 12.4
+    }
+  ],
+  "metrics": [
+    {
+      "id": "PRSCS_LOWER_BOUND",
+      "type": "float"
+    },
+    {
+      "id": "PRSCS_UPPER_BOUND",
+      "type": "float"
+    },
+    {
+      "id": "FTG_HUM_1",
+      "type": "str"
+    },
+    {
+      "id": "FTG_HUM_2",
+      "type": "str"
+    }
+  ]
+}
