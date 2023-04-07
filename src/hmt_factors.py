@@ -41,10 +41,18 @@ configurations: List[Configuration] = []
 
 resample = len(sys.argv) > 5
 
+factor_mgr = Factor_Mgr(json_mgr)
+
 if resample:
+    f = open(CSV_FILE, 'w')
+    f.truncate(0)
+    f.close()
     N_SAMPLE = int(sys.argv[5])
     for i in range(N_SAMPLE):
-        configurations.append(Configuration.sample(CONFIG_JSON_PATH))
+        new_conf = Configuration.sample(CONFIG_JSON_PATH)
+        while not factor_mgr.validate(new_conf):
+            new_conf = Configuration.sample(CONFIG_JSON_PATH)
+        configurations.append(new_conf)
     update_csv(configurations)
 else:
     with open(CSV_FILE, 'r') as csv_in:
@@ -70,8 +78,6 @@ else:
 queries_copy = json_mgr.queries.copy()
 
 for i, conf in enumerate(configurations[:N]):
-    factor_mgr = Factor_Mgr(json_mgr)
-
     if filter_processed:
         if len(conf.processed()) == len(conf.metrics):
             LOGGER.info('Configuration {} already processed'.format(i))
@@ -95,6 +101,8 @@ for i, conf in enumerate(configurations[:N]):
     # Replaces TPLT keywords within main template file with individual automata templates
     tplt_mgr = Template_Mgr(param_mgr)
     tplt_mgr.replace_tplt(SCENARIO_NAME)
+
+    factor_mgr.fix_orch_params(conf, SCENARIO_NAME)
 
     # Generate query file
     query_mg = Query_Mgr(json_mgr.queries)

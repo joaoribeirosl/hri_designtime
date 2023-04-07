@@ -49,7 +49,6 @@ class HMTFactor:
                           Fatigue_Profile.YOUNG_UNSTEADY, Fatigue_Profile.ELDERLY_UNSTEADY]
             self.set_value(random.choice(ftg_values).value)
         elif self.hmt_type == 'Point':
-            # TODO: must be within an area...
             x = self.ranges[0][0] + ((self.ranges[0][1] - self.ranges[0][0]) * np.random.rand(1)[0])
             y = self.ranges[1][0] + ((self.ranges[1][1] - self.ranges[1][0]) * np.random.rand(1)[0])
             self.set_value('{:.2f},{:.2f}'.format(x, y))

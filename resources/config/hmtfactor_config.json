@@ -1,11 +1,61 @@
 {
   "factors": [
     {
+      "id": "ORCH_1_Dstop",
+      "type": "float",
+      "min": 5.0,
+      "max": 7.5
+    },
+    {
+      "id": "ORCH_1_Drestart",
+      "type": "float",
+      "min": 2.0,
+      "max": 4.5
+    },
+    {
+      "id": "ORCH_1_Fstop",
+      "type": "float",
+      "min": 0.5,
+      "max": 0.8
+    },
+    {
+      "id": "ORCH_1_Frestart",
+      "type": "float",
+      "min": 0.1,
+      "max": 0.4
+    },
+    {
+      "id": "PSCS__TAU",
+      "type": "int",
+      "min": 250,
+      "max": 700
+    },
+    {
+      "id": "HUM_1_VEL",
+      "type": "float",
+      "min": 30.0,
+      "max": 100.0
+    },
+    {
+      "id": "HUM_2_VEL",
+      "type": "float",
+      "min": 30.0,
+      "max": 100.0
+    },
+    {
       "id": "HUM_1_FW",
       "type": "FreeWillProfile"
     },
     {
       "id": "HUM_1_FTG",
+      "type": "FatigueProfile"
+    },
+    {
+      "id": "HUM_2_FW",
+      "type": "FreeWillProfile"
+    },
+    {
+      "id": "HUM_2_FTG",
       "type": "FatigueProfile"
     },
     {
