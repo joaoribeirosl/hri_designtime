@@ -52,7 +52,11 @@
       ],
       "dext": -1,
       "same_as": -1,
-      "path": -1
+      "path": -1,
+      "freewill_ulA": 0.01,
+      "freewill_ulB": 0.05,
+      "rewards_a": 13.0,
+      "rewards_b": -1.9
     },
     {
       "name": "h_2",
@@ -71,7 +75,11 @@
       ],
       "dext": -1,
       "same_as": -1,
-      "path": -1
+      "path": -1,
+      "freewill_ulA": 0.01,
+      "freewill_ulB": 0.05,
+      "rewards_a": 13.0,
+      "rewards_b": -1.9
     },
     {
       "name": "h_3",
@@ -90,7 +98,11 @@
       ],
       "dext": -1,
       "same_as": 2,
-      "path": -1
+      "path": -1,
+      "freewill_ulA": 0.01,
+      "freewill_ulB": 0.05,
+      "rewards_a": 13.0,
+      "rewards_b": -1.9
     },
     {
       "name": "h_4",
@@ -109,7 +121,11 @@
       ],
       "dext": -1,
       "same_as": 1,
-      "path": -1
+      "path": -1,
+      "freewill_ulA": 0.01,
+      "freewill_ulB": 0.05,
+      "rewards_a": 13.0,
+      "rewards_b": -1.9
     },
     {
       "name": "h_5",
@@ -128,7 +144,11 @@
       ],
       "dext": -1,
       "same_as": 1,
-      "path": -1
+      "path": -1,
+      "freewill_ulA": 0.01,
+      "freewill_ulB": 0.05,
+      "rewards_a": 13.0,
+      "rewards_b": -1.9
     }
   ],
   "robots": [
