@@ -1,3 +1,4 @@
+import math
 from typing import List
 
 
@@ -18,6 +19,9 @@ class Point:
     @staticmethod
     def parse(s: str):
         return Point(float(s.split(',')[0]), float(s.split(',')[1]))
+
+    def dist_from(self, other):
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
 
 class Area:
