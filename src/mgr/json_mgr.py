@@ -104,7 +104,10 @@ class Json_Mgr:
                     if len(dependencies[old_ids]) == 1 or h.h_id == min(dependencies[old_ids]):
                         h.same_as = -1
                     else:
-                        h.same_as = new_ids[min(dependencies[old_ids])]
+                        if min(dependencies[old_ids]) in new_ids:
+                            h.same_as = new_ids[min(dependencies[old_ids])]
+                        else:
+                            h.same_as = -1
 
             h.h_id -= served
 
