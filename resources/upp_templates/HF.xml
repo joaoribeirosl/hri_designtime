@@ -502,7 +502,7 @@ update_crit()</label>
 		<transition color="#ff0000">
 			<source ref="id36"/>
 			<target ref="id42"/>
-			<label kind="guard" x="-263" y="-459">!served[id-1]
+			<label kind="guard" x="-263" y="-459">!served[id-1] &amp;&amp; currH==id
 &amp;&amp; fw&gt;=freeWillTh
 &amp;&amp; !stopHuman</label>
 			<label kind="assignment" x="-76" y="-442">t = 0, tUpd=0,
@@ -536,8 +536,8 @@ tUpd=0</label>
 		<transition color="#ff0000">
 			<source ref="id37"/>
 			<target ref="id36"/>
-			<label kind="guard" x="-297" y="-77">!served[id-1] &amp;&amp;
-fw&gt;=freeWillTh</label>
+			<label kind="guard" x="-297" y="-77">!served[id-1] &amp;&amp; currH==id
+&amp;&amp; fw&gt;=freeWillTh</label>
 			<label kind="assignment" x="-93" y="-77">t = 0, fw = 0,
 Fp = F, tUpd=0, tExp=0</label>
 			<nail x="119" y="-85"/>

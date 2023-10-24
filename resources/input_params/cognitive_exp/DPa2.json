@@ -4,11 +4,6 @@
   ],
   "queries": [
     {
-      "type": "sim",
-      "tau": 400,
-      "n": -1
-    },
-    {
       "type": "pscs",
       "tau": 400,
       "n": -1
@@ -402,5 +397,10 @@
       ]
     }
   ],
+<<<<<<< HEAD
+  "max_neigh": 5
+}
+=======
   "max_neigh": 6
 }
+>>>>>>> a9a9b1919b1cabe6c8c625c71ff96310ff82a91e
