@@ -1,7 +1,7 @@
 import csv
 import os
 import sys
-from typing import List
+from typing import List, Tuple
 
 from src.domain.hmtfactor import Configuration
 from src.domain.layout import Point
@@ -89,6 +89,15 @@ def sim_to_conf(config_json: str, sims_path: str, sim: str):
             else:
                 sig[6] = signals[i - 1][6]
 
+    exp_ftg: List[Tuple[float, float]] = []
+    max_ftg: Tuple[float, float] = (0.0, 0.0)
+    for sig in signals:
+        if sig[2] > max_ftg[0]:
+            max_ftg = (sig[2], max_ftg[1])
+        if sig[3] > max_ftg[1]:
+            max_ftg = (max_ftg[0], sig[3])
+        exp_ftg.append(max_ftg)
+
     rows = [["5.0", "2.0", "0.7", "0.3", str(500 - signals[0][0]), "100.0", "100.0",
              "free", "y/s", "foc", "e/h", str(signals[0][1]), "26.0", str(signals[0][4] * 0.9 / 100 + 11.1),
              None, None, None, None]]
@@ -113,4 +122,5 @@ def dump_csv(configurations: List[Configuration], csv_path: str):
 
 sims = [x for x in os.listdir(SIM_PATH) if x.startswith('SIM')]
 [dump_csv(sim_to_conf(CONFIG_JSON_PATH, SIM_PATH, sim), CSV_FILE.format(sim)) for sim in sims]
+# [sim_to_conf(CONFIG_JSON_PATH, SIM_PATH, sim) for sim in sims]
 LOGGER.info('Done.')
