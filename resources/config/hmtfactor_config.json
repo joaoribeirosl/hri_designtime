@@ -59,6 +59,14 @@
       "type": "FatigueProfile"
     },
     {
+      "id": "HUM_1_POS",
+      "type": "Point",
+      "min_x": 50.0,
+      "max_x": 4450.0,
+      "min_y": 200.0,
+      "max_y": 800.0
+    },
+    {
       "id": "HUM_2_POS",
       "type": "Point",
       "min_x": 50.0,
