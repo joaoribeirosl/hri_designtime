@@ -80,3 +80,32 @@ class Json_Mgr:
             for q in queries_data:
                 self.queries.append(Query(Query_Type.parse_query(q['type']), q['tau'], q['n'], self.hums, self.robots))
             self.LOGGER.info("Successfully loaded.")
+
+    def rescale_hums(self, served: int):
+        if served == 0:
+            return self.hums
+
+        new_hums: List[Human] = []
+
+        dependencies = {h.h_id: [h_2.h_id for h_2 in self.hums if h_2.same_as == h.h_id] for h in self.hums}
+        new_ids = {}
+
+        for i, h in enumerate(self.hums):
+            if h.h_id <= served:
+                continue
+            new_ids[h.h_id] = h.h_id - served
+            new_hums.append(
+                Human(h.name, h.h_id, h.v, h.ptrn, h.p_f, h.p_fw, h.start, h.dest, h.dext, h.same_as, h.path,
+                      h.fw_model))
+
+        for i, h in enumerate(new_hums):
+            for old_ids in dependencies:
+                if h.h_id in dependencies[old_ids]:
+                    if len(dependencies[old_ids]) == 1 or h.h_id == min(dependencies[old_ids]):
+                        h.same_as = -1
+                    else:
+                        h.same_as = new_ids[min(dependencies[old_ids])]
+
+            h.h_id -= served
+
+        return new_hums

@@ -1,15 +1,16 @@
 import csv
+import os
 import sys
 from typing import List
 
 from src.domain.hmtfactor import Configuration
 from src.logging.logger import Logger
+from src.mgr.factor_mgr import Factor_Mgr
 from src.mgr.json_mgr import Json_Mgr
 from src.mgr.param_mgr import Param_Mgr
 from src.mgr.query_mgr import Query_Mgr
 from src.mgr.tplt_mgr import Template_Mgr
 from src.mgr.upp_mgr import Upp_Mgr
-from src.mgr.factor_mgr import Factor_Mgr
 
 
 def update_csv(configurations: List[Configuration]):
@@ -37,8 +38,7 @@ upp_mgr = Upp_Mgr()
 
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
 
-#FIXME
-SIM_FILE = "/Users/lestingi/Desktop/test_1.csv"
+SIM_PATH = upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '')
 
 configurations: List[Configuration] = []
 
@@ -61,7 +61,9 @@ if resample is not None:
                 new_conf = Configuration.sample(CONFIG_JSON_PATH)
             configurations.append(new_conf)
     elif resample.upper() == 'SIM':
-        configurations = Configuration.parse_from_sim(CONFIG_JSON_PATH, N_SAMPLE, SIM_FILE)
+        sim_files = [s for s in os.listdir(SIM_PATH) if s.startswith('upp_sim')]
+        for sim in sim_files:
+            configurations.extend(Configuration.parse_from_sim(CONFIG_JSON_PATH, N_SAMPLE, SIM_PATH + '/' + sim))
     update_csv(configurations)
 else:
     with open(CSV_FILE, 'r') as csv_in:
@@ -103,8 +105,12 @@ for i, conf in enumerate(configurations[:N]):
 
     factor_mgr.apply(conf)
 
+    if conf.checkpoint == len(json_mgr.hums):
+        LOGGER.warn('Discarding configuration (empty mission).')
+        continue
+
     # Replaces PARAM keywords within main template file with scenario parameters
-    param_mgr = Param_Mgr(json_mgr.hums, json_mgr.robots, json_mgr.layout, json_mgr.params)
+    param_mgr = Param_Mgr(json_mgr.rescale_hums(conf.checkpoint), json_mgr.robots, json_mgr.layout, json_mgr.params)
     param_mgr.replace_params(SCENARIO_NAME)
 
     # Replaces TPLT keywords within main template file with individual automata templates
@@ -115,6 +121,7 @@ for i, conf in enumerate(configurations[:N]):
 
     # Generate query file
     query_mg = Query_Mgr(json_mgr.queries)
+    query_mg.hums = json_mgr.rescale_hums(conf.checkpoint)
     query_mg.gen_q_file(SCENARIO_NAME)
 
     # Run Uppaal Experiment

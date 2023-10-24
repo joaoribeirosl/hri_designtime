@@ -1,7 +1,8 @@
 import json
+import math
 import random
 from typing import List, Tuple, Any, Dict
-import math
+
 import numpy as np
 
 from src.domain.human import Fatigue_Profile, FreeWill_Profile
@@ -76,6 +77,7 @@ class Configuration:
     def __init__(self, factors: List[HMTFactor], metrics: List[Metric]):
         self.factors = factors
         self.metrics = metrics
+        self.checkpoint = 0
 
     def __eq__(self, other):
         return all([f in other.factors for f in self.factors])
@@ -88,6 +90,9 @@ class Configuration:
             return self.factors[item].value
         else:
             return self.metrics[item - len(self.factors)].value
+
+    def set_checkpoint(self, chk):
+        self.checkpoint = chk
 
     def lookup(self, key: str):
         for i, factor in enumerate(self.factors):
@@ -157,7 +162,8 @@ class Configuration:
                          'h_1.p_fw': 'HUM_1_FW', 'h_1.p_f': 'HUM_1_FTG', 'h_2.p_fw': 'HUM_2_FW',
                          'h_2.p_f': 'HUM_2_FTG', 'humanPositionX[0]': 'HUM_1_POS_X', 'humanPositionY[0]': 'HUM_1_POS_Y',
                          'humanPositionX[1]': 'HUM_2_POS_X', 'humanPositionY[1]': 'HUM_2_POS_Y',
-                         'r_1.v_max': 'ROB_1_VEL', 'b_r_1.C': 'ROB_1_CHG'}
+                         'r_1.v_max': 'ROB_1_VEL', 'b_r_1.C': 'ROB_1_CHG',
+                         }
 
         signals: Dict[str, Dict[int, Any]] = {}
         T = 400
@@ -169,10 +175,13 @@ class Configuration:
             lines = sim_file.readlines()
             new_variables_indexes = [i for i, l in enumerate(lines) if l.startswith('#')][1:]
             for i, index in enumerate(new_variables_indexes):
-                if i == len(new_variables_indexes) - 1:
+                if i >= len(new_variables_indexes) - 1:
                     continue
 
-                sig_name = name_2_factor[lines[index].split(' ')[1]]
+                if lines[index].split(' ')[1] in name_2_factor:
+                    sig_name = name_2_factor[lines[index].split(' ')[1]]
+                else:
+                    sig_name = lines[index].split(' ')[1]
                 points = lines[index + 1:new_variables_indexes[i + 1]]
                 points = [(int(float(pt.split(' ')[0])), float(pt.split(' ')[1])) for pt in points]
                 points = {pt[0]: pt[1] for pt in points}
@@ -184,9 +193,15 @@ class Configuration:
                     if sig_name == 'PSCS__TAU':
                         points[t] = T - t
                     elif 'FTG' in sig_name:
-                        points[t] = Fatigue_Profile.parse_from_int(points[t]).value
+                        try:
+                            points[t] = Fatigue_Profile.parse_from_int(int(points[t]))
+                        except TypeError:
+                            pass
                     elif 'FW' in sig_name:
-                        points[t] = FreeWill_Profile.parse_from_int(points[t]).value
+                        try:
+                            points[t] = FreeWill_Profile.parse_from_int(int(points[t]))
+                        except TypeError:
+                            pass
 
                 signals[sig_name] = points
 
@@ -194,10 +209,17 @@ class Configuration:
             if 'POS_X' in sig_name:
                 for t in signals[sig_name]:
                     signals[sig_name.replace('_X', '')][t] = "{},{}".format(signals[sig_name][t],
-                                                                        signals[sig_name.replace('_X', '_Y')][t])
+                                                                            signals[sig_name.replace('_X', '_Y')][t])
 
         for i in range(1, T, int(math.floor(T / N_SAMPLE))):
+            served = 0
+            for sig in signals:
+                if sig.startswith('served'):
+                    if signals[sig][i] > 0:
+                        served += 1
+
             new_conf = Configuration.config(config_json)
+            new_conf.set_checkpoint(served)
 
             for factor in new_conf.factors:
                 factor.set_value(str(signals[factor.hmt_id][i]))
