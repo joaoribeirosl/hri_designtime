@@ -226,9 +226,9 @@ class Human:
                 # TODO: should be configurable
                 args = "{}, {}, {}, {}".format(0.01, 0.05, 13.0, -1.9)
                 return "{} = Human_Follower({}, {}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
-                                                                               self.p_f.to_int(),
-                                                                               self.p_fw.to_int(), self.same_as,
-                                                                               self.path, args)
+                                                                                   self.p_f.to_int(),
+                                                                                   self.p_fw.to_int(), self.same_as,
+                                                                                   self.path, args)
 
         elif self.ptrn == Interaction_Pattern.LEADER:
             if self.fw_model in ['random', 'errors']:
@@ -248,8 +248,8 @@ class Human:
                 # TODO: should be configurable
                 args = "{}, {}, {}, {}".format(0.01, 0.05, 13.0, -1.9)
                 return "{} = Human_Leader({}, {}, {}, {}, {}, {}, {});\n".format(self.name, self.h_id, self.v,
-                                                                             self.p_f.to_int(), self.p_fw.to_int(),
-                                                                             self.same_as, self.path, args)
+                                                                                 self.p_f.to_int(), self.p_fw.to_int(),
+                                                                                 self.same_as, self.path, args)
 
         elif self.ptrn == Interaction_Pattern.RECIPIENT:
             if self.fw_model in ['random', 'errors', 'cognitive_v2']:
