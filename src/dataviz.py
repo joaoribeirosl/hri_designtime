@@ -17,15 +17,15 @@ SCENARIO = sys.argv[1]
 upp_mgr = Upp_Mgr()
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
 logs = [file.split('_')[1] for i, file in
-        enumerate(os.listdir(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/norun_bound_20pts/')))]
-uppaal_logs = [file for file in os.listdir(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/norun_bound_20pts/')) if
+        enumerate(os.listdir(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/dpa_16factors/')))]
+uppaal_logs = [file for file in os.listdir(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/dpa_16factors/')) if
                file.startswith('DPa')]
 uppaal_logs.sort(key=get_conf_id)
 
 # Performance analysis
 perf_data = []
 for i, file in enumerate(uppaal_logs):
-    with open(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/norun_bound_20pts/') + file) as uppaal_log:
+    with open(upp_mgr.UPPAAL_OUT_PATH.replace('/{}.txt', '/dpa_16factors/') + file) as uppaal_log:
         lines = uppaal_log.readlines()
         runs = list(filter(lambda l: l.__contains__('Pr(<> ...) in'), lines))[0].split(' runs')[0].replace('(', '')
         states = list(filter(lambda l: l.__contains__('States explored'), lines))[0].split(' : ')[1].replace(

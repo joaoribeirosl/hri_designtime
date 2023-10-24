@@ -81,6 +81,21 @@ class Fatigue_Profile(Enum):
         else:
             return Fatigue_Profile.ELDERLY_UNSTEADY
 
+    @staticmethod
+    def parse_from_int(x: int):
+        if x == 1:
+            return Fatigue_Profile.YOUNG_HEALTHY
+        elif x == 2:
+            return Fatigue_Profile.YOUNG_SICK
+        elif x == 3:
+            return Fatigue_Profile.ELDERLY_HEALTHY
+        elif x == 4:
+            return Fatigue_Profile.ELDERLY_SICK
+        elif x == 5:
+            return Fatigue_Profile.YOUNG_UNSTEADY
+        else:
+            return Fatigue_Profile.ELDERLY_UNSTEADY
+
     def __str__(self):
         return self.value
 
@@ -133,6 +148,27 @@ class FreeWill_Profile(Enum):
         elif s == 'distr':
             return FreeWill_Profile.DISTRACTED
         elif s == 'foc':
+            return FreeWill_Profile.FOCUSED
+        else:
+            return FreeWill_Profile.DISABLED
+
+    @staticmethod
+    def parse_from_int(x: int):
+        if x == 1:
+            return FreeWill_Profile.BUSY
+        elif x == 2:
+            return FreeWill_Profile.FREE
+        elif x == 3:
+            return FreeWill_Profile.UNEXPERIENCED
+        elif x == 4:
+            return FreeWill_Profile.EXPERIENCED
+        elif x == 5:
+            return FreeWill_Profile.CRITICAL
+        elif x == 6:
+            return FreeWill_Profile.STABLE
+        elif x == 7:
+            return FreeWill_Profile.DISTRACTED
+        elif x == 8:
             return FreeWill_Profile.FOCUSED
         else:
             return FreeWill_Profile.DISABLED

@@ -37,22 +37,31 @@ upp_mgr = Upp_Mgr()
 
 CSV_FILE = upp_mgr.UPPAAL_OUT_PATH.format(SCENARIO).replace('.txt', '.csv')
 
+#FIXME
+SIM_FILE = "/Users/lestingi/Desktop/test_1.csv"
+
 configurations: List[Configuration] = []
 
-resample = len(sys.argv) > 5
+if len(sys.argv) > 5:
+    resample = sys.argv[6]
+else:
+    resample = None
 
 factor_mgr = Factor_Mgr(json_mgr)
 
-if resample:
+if resample is not None:
     f = open(CSV_FILE, 'w')
     f.truncate(0)
     f.close()
     N_SAMPLE = int(sys.argv[5])
-    for i in range(N_SAMPLE):
-        new_conf = Configuration.sample(CONFIG_JSON_PATH)
-        while not factor_mgr.validate(new_conf):
+    if resample.upper() == 'SCRATCH':
+        for i in range(N_SAMPLE):
             new_conf = Configuration.sample(CONFIG_JSON_PATH)
-        configurations.append(new_conf)
+            while not factor_mgr.validate(new_conf):
+                new_conf = Configuration.sample(CONFIG_JSON_PATH)
+            configurations.append(new_conf)
+    elif resample.upper() == 'SIM':
+        configurations = Configuration.parse_from_sim(CONFIG_JSON_PATH, N_SAMPLE, SIM_FILE)
     update_csv(configurations)
 else:
     with open(CSV_FILE, 'r') as csv_in:
