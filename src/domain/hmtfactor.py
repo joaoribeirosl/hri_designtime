@@ -166,14 +166,18 @@ class Configuration:
                          }
 
         signals: Dict[str, Dict[int, Any]] = {}
-        T = 400
 
         signals['HUM_1_POS'] = {}
         signals['HUM_2_POS'] = {}
 
         with open(sim_file) as sim_file:
             lines = sim_file.readlines()
+
+            TAU_line = lines.index('# TAU #1\n')
+            T = int(float(lines[TAU_line+1].split(' ')[1]))
+
             new_variables_indexes = [i for i, l in enumerate(lines) if l.startswith('#')][1:]
+
             for i, index in enumerate(new_variables_indexes):
                 if i >= len(new_variables_indexes) - 1:
                     continue
