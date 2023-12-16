@@ -34,6 +34,9 @@ class Factor_Mgr:
             return [agent for agent in self.get_agent_list(s) if agent_id in [agent.h_id, agent.same_as]]
 
     def set_factor_value(self, factor: HMTFactor):
+        if factor.hmt_id == 'PROGRESS':
+            return
+
         factor_name = factor.hmt_id.split('_')[2]
         if factor_name == 'TAU':
             for q in self.scenario.queries:
@@ -89,7 +92,7 @@ class Factor_Mgr:
                     m.value = float(pr_range[1])
             elif m.m_id.startswith('FTG'):
                 ftg_ranges = [line.split('Values in [')[1].split(']')[0].split(',') for l_i, line in enumerate(lines)
-                              if line.__contains__('Values in ') and not lines[l_i-2].__contains__('Pr(<> ...)')]
+                              if line.__contains__('Values in ') and not lines[l_i - 2].__contains__('Pr(<> ...)')]
                 ftg_ranges = [(float(r[0]), float(r[1])) for r in ftg_ranges]
                 ftg_ranges = [(r[0] + (r[1] - r[0]) / 2, (r[1] - r[0]) / 2) for r in ftg_ranges]
                 h_ids = [h.h_id - 1 for h in self.get_agents(m.m_id.replace('FTG_', ''))]

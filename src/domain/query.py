@@ -75,11 +75,31 @@ class Query:
                     q += "E[<={}](min:batteryCharge[{}])\n".format(self.tau, i)
                 return q
         else:
-            served = ''.join(['served[{}], '.format(h.h_id - 1) for (i, h) in enumerate(self.hums) if h.path != 2])
+            served = ''.join(['served[{}],'.format(h.h_id - 1) for (i, h) in enumerate(self.hums)])
+            humPositionX = ''.join(['humanPositionX[{}],'.format(h.h_id - 1) for (i, h) in enumerate(self.hums)])
+            humPositionY = ''.join(['humanPositionY[{}],'.format(h.h_id - 1) for (i, h) in enumerate(self.hums)])
+            hum_v = ''.join(['h_{}.v,'.format(h.h_id) for (i, h) in enumerate(self.hums)])
+            hum_fw = ''.join(['h_{}.p_f,'.format(h.h_id) for (i, h) in enumerate(self.hums)])
+            hum_ftg = ''.join(['h_{}.p_fw,'.format(h.h_id) for (i, h) in enumerate(self.hums)])
+            robPositionX = ''.join(['robPositionX[{}],'.format(r.r_id - 1) for (i, r) in enumerate(self.robs)])
+            robPositionY = ''.join(['robPositionY[{}],'.format(r.r_id - 1) for (i, r) in enumerate(self.robs)])
+            rob_v = ''.join(['r_{}.v_max,'.format(r.r_id) for (i, r) in enumerate(self.robs)])
+            orch_params_str = ('opchk_{}.stopDistance,opchk_{}.restartDistance,'
+                               'opchk_{}.stopFatigue,opchk_{}.resumeFatigue,')
+            orch_params = ''.join(
+                [orch_params_str.format(r.r_id, r.r_id, r.r_id, r.r_id) for (i, r) in enumerate(self.robs)])
+            rob_c = ''.join(['b_r_{}.C,'.format(r.r_id) for (i, r) in enumerate(self.robs)])
+
             if self.n != ND:
-                return "simulate[<={};{}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
-                       "robPositionX[currR-1]/100, robPositionY[currR-1]/100, dX[currR-1]/100, dY[currR-1]/100, PATH}}\n".format(
-                    self.tau, self.n, served)
+                return "simulate[<={};{}]{{scs,{}{}{}{}{}{}{}{}{}{}{}PATH}}\n".format(self.tau, self.n,
+                                                                                                  served,
+                                                                                                  humPositionX,
+                                                                                                  humPositionY,
+                                                                                                  hum_v, hum_fw,
+                                                                                                  hum_ftg,
+                                                                                                  robPositionX,
+                                                                                                  robPositionY, rob_v,
+                                                                                                  orch_params, rob_c)
             else:
                 return "simulate[<={}]{{scs, {} humanPositionX[currH-1]/100, humanPositionY[currH-1]/100, " \
                        "robPositionX[currR-1]/100, robPositionY[currR-1]/100, dX[currR-1]/100, dY[currR-1]/100, PATH}}\n".format(

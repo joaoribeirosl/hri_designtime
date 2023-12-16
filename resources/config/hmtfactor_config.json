@@ -1,4 +1,11 @@
 {
+  "N_CONFIG": 100,
+  "N_BOUND": -1,
+  "N_SIM": 3,
+  "N_SAMPLE": 3,
+  "filter_processed": "true",
+  "resample": "true",
+  "sample_sim": "true",
   "factors": [
     {
       "id": "ORCH_1_Dstop",
