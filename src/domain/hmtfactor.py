@@ -104,6 +104,9 @@ class Configuration:
             if metric.m_id == key:
                 return i + len(self.factors)
 
+    def get_checkpoint(self):
+        return self.factors[self.lookup('PROGRESS')].value
+
     def get_header(self):
         return [f.hmt_id for f in self.factors] + [m.m_id for m in self.metrics]
 

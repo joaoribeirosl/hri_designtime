@@ -120,12 +120,12 @@ for i, conf in enumerate(configurations[:N]):
 
     factor_mgr.apply(conf)
 
-    if conf.lookup('PROGRESS') == len(json_mgr.hums):
+    if conf.get_checkpoint() == len(json_mgr.hums):
         LOGGER.warn('Discarding configuration (empty mission).')
         continue
 
     # Replaces PARAM keywords within main template file with scenario parameters
-    param_mgr = Param_Mgr(json_mgr.rescale_hums(conf.lookup('PROGRESS')), json_mgr.robots, json_mgr.layout, json_mgr.params)
+    param_mgr = Param_Mgr(json_mgr.rescale_hums(conf.get_checkpoint()), json_mgr.robots, json_mgr.layout, json_mgr.params)
     param_mgr.replace_params(SCENARIO_NAME)
 
     # Replaces TPLT keywords within main template file with individual automata templates
@@ -136,7 +136,7 @@ for i, conf in enumerate(configurations[:N]):
 
     # Generate query file
     query_mg = Query_Mgr(json_mgr.queries)
-    query_mg.hums = json_mgr.rescale_hums(conf.lookup('PROGRESS'))
+    query_mg.hums = json_mgr.rescale_hums(conf.get_checkpoint())
     query_mg.gen_q_file(SCENARIO_NAME)
 
     # Run Uppaal Experiment

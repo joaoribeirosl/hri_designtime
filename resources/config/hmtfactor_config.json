@@ -4,7 +4,7 @@
   "N_SIM": 3,
   "N_SAMPLE": 3,
   "filter_processed": "true",
-  "resample": "true",
+  "resample": "false",
   "sample_sim": "true",
   "factors": [
     {
@@ -102,6 +102,14 @@
     {
       "id": "PRSCS_UPPER_BOUND",
       "type": "float"
+    },
+    {
+      "id": "FTG_HUM_1",
+      "type": "str"
+    },
+    {
+      "id": "FTG_HUM_2",
+      "type": "str"
     }
   ]
 }
