@@ -19,7 +19,7 @@ broadcast chan publish_m[int];
 *** CONSTANTS
 **/
 const double PI = 3.1415926535;
-const double INT16_MAX = 32767.0;
+// const double INT16_MAX = 32767.0;
 
 
 // Human Fatigue Profiles [fatiguing rate, recovery rate]
